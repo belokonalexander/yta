@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomTexInputView">
+        <attr name="showVoice" format="boolean" />
+        <attr name="showSound" format="boolean" />
+    </declare-styleable>
+</resources>

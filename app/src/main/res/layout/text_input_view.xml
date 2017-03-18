@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.belokonalexander.yta.Views.CustomTexInputView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/input_area"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/input_selector"
+    android:padding="@dimen/input_text_padding"
+    android:id="@+id/wrapper"
+    >
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:id="@+id/side_input_control_panel"
+
+        >
+
+        <ImageButton
+            style="@style/ImageControlButton"
+            android:id="@+id/voice_button"
+            android:src="@drawable/ic_mic_black_24dp"
+            />
+
+        <ImageButton
+            style="@style/ImageControlButton"
+            android:id="@+id/sound_button"
+            android:src="@drawable/ic_volume_up_black_24dp"
+            android:layout_marginTop="12dp"
+            />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/bottom_input_control_panel"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@id/side_input_control_panel"
+        >
+
+        <ImageButton
+            style="@style/ImageControlButton"
+            android:id="@+id/clear_button"
+            android:src="@drawable/ic_close_black_24dp"
+            />
+
+    </LinearLayout>
+
+    <ru.belokonalexander.yta.Views.DebouncedEditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom_input_control_panel"
+        android:layout_toLeftOf="@id/side_input_control_panel"
+
+        tools:text="11123123213"
+        android:inputType="textNoSuggestions|textAutoComplete"
+        android:gravity="start"
+        android:paddingTop="2dp"
+        android:paddingLeft="2dp"
+        android:id="@+id/input_text"
+        style="@style/CustomEditTextStyle"
+        android:background="@android:color/transparent"
+
+        />
+
+</ru.belokonalexander.yta.Views.CustomTexInputView>
