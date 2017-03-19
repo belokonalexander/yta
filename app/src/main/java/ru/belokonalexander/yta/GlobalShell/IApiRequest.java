@@ -1,7 +1,5 @@
 package ru.belokonalexander.yta.GlobalShell;
 
-import rx.Scheduler;
-
 /**
  * Created by Alexander on 19.03.2017.
  */

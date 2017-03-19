@@ -1,9 +1,10 @@
 package ru.belokonalexander.yta.GlobalShell;
 
+import io.reactivex.Observable;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
-import rx.Observable;
+
 
 /**
  * Created by Alexander on 17.03.2017.

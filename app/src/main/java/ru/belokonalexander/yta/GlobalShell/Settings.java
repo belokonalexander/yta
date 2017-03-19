@@ -10,6 +10,6 @@ public class Settings {
         интервал поиска в кэше по времени от текущей даты:
         в кэше ищем значения начиная с ТЕКУЩАЯ_ДАТА - CACHE_INTERVAL
     */
-    public static final int CACHE_INTERVAL = 10*60;
+    public static final int CACHE_INTERVAL = 1;
 
 }

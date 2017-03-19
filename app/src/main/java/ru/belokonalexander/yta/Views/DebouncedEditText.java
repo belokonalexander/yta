@@ -5,16 +5,14 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 
-import com.jakewharton.rxbinding.widget.RxTextView;
+
+import com.jakewharton.rxbinding2.widget.RxTextView;
 
 import java.util.concurrent.TimeUnit;
 
 import butterknife.OnClick;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 
 /**
  * Created by Alexander on 18.03.2017.

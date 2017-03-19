@@ -12,7 +12,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.belokonalexander.yta.Database.CacheModel;
 import ru.belokonalexander.yta.R;
@@ -23,6 +23,7 @@ import ru.belokonalexander.yta.YtaApplication;
  */
 
 public class ServiceGenerator {
+
 
     private ServiceGenerator() {
     }
@@ -49,7 +50,7 @@ public class ServiceGenerator {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(meta[0])
                 .client(getBaseInterceptor(meta[1]))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -108,25 +109,30 @@ public class ServiceGenerator {
                     return getCachedRow(request, cacheMode);
                 }
 
-                //выполняем запрос
+                //выполняю реальный запрос к api
                 Response response = chain.proceed(request);
 
-                StaticHelpers.LogThis("ЗАПРОС!");
+                StaticHelpers.LogThis("ЗАПРОС!" + response.code());
 
                 ResponseBody responseBody = response.body();
                 String responseBodyString= responseBody.string(); //ответ для кеширования
 
 
                 //кеширую результат
-                CacheModel cacheModel = new CacheModel(null,signature, responseBody.contentType().toString(),responseBodyString, new Date());
-                YtaApplication.getDaoSession().getCacheModelDao().insertOrReplace(cacheModel);
+                if(response.code()==200) {
+                    CacheModel cacheModel = new CacheModel(null, signature, responseBody.contentType().toString(), responseBodyString, new Date());
+                    YtaApplication.getDaoSession().getCacheModelDao().insertOrReplace(cacheModel);
+                }
 
-                //создадаю новый responce для отправки обработчику
+                //создадаю новый response для отправки обработчику
                 return response.newBuilder().body(ResponseBody.create(responseBody.contentType(), responseBodyString.getBytes())).build();
             }
         };
     }
 
+    /*
+        метод генерирует ответ на основе записи из кэша
+    */
     private static Response getCachedRow(Request request, CacheModel cacheModel) {
         return new Response.Builder().body(ResponseBody.create( MediaType.parse(cacheModel.getMediaType()),cacheModel.getResponse() ))
                 .request(request)

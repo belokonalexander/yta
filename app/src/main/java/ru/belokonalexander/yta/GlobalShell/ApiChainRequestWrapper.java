@@ -1,18 +1,17 @@
 package ru.belokonalexander.yta.GlobalShell;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.plugins.RxJavaPlugins;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * Created by Alexander on 19.03.2017.
@@ -32,7 +31,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
     //ответы на запросы
     private List<Object> results = new ArrayList<>();
 
-    private Subscriber subscriber;
+    private DisposableObserver subscriber;
     private Observable taskExecutor;
 
     //слушатель для обработки результата работы цепочки запросов
@@ -41,17 +40,46 @@ public class ApiChainRequestWrapper implements IApiRequest {
     //идентификатор цепочки, служит для идентификации одноцелевых запросов и их взаимного прерывания
     private String hash;
 
-    private ApiChainRequestWrapper(String commonHash, OnApiResponseListener<List> listener, Observable... taskChain) {
+    private RunningType runningType;
+
+    private enum RunningType{
+        /*
+            Все запросы должны выполниться без ошибок,
+            если в каком-то запросе произошла ошибка - прерываем всю работу и вызываем слушателя, т.е атомарная операция
+        */
+
+        GROUP,
+
+        /*
+            Запросы, результаты которых планируются рассматирвать раздельно,
+            противоположность GROUP-типу. Ошибка не прерывает общую работу цепочки, а в результат
+            записывается ApiError
+        */
+
+        APART
+    }
+
+
+    private ApiChainRequestWrapper(String commonHash, OnApiResponseListener<List> listener, RunningType type, Observable... taskChain) {
 
         this.listener = listener;
-        hash =  commonHash;
+        this.hash =  commonHash;
+        this.runningType = type;
 
-        taskExecutor = Observable.merge(taskChain)
-                .subscribeOn(Schedulers.newThread());
+        if(type==RunningType.GROUP)
+            taskExecutor = Observable.mergeArray(taskChain)
+                    .subscribeOn(Schedulers.newThread());
+        else if(type==RunningType.APART){
+            taskExecutor = Observable.mergeArray(taskChain)
+                    .mergeArrayDelayError(taskChain)
+                    .subscribeOn(Schedulers.newThread());
+        }
 
-        subscriber = new Subscriber() {
+
+        subscriber = new DisposableObserver() {
+
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 unregisterSelf();
                 if(listener!=null)
                     listener.onSuccess(results);
@@ -59,6 +87,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
 
             @Override
             public void onError(Throwable e) {
+                StaticHelpers.LogThis(" ON ERROR NEXT");
                 unregisterSelf();
                 if(listener!=null)
                     listener.onFailure(e);
@@ -74,12 +103,21 @@ public class ApiChainRequestWrapper implements IApiRequest {
 
     }
 
-    public static ApiChainRequestWrapper getInstance(String commonHash, OnApiResponseListener<List>  listener, Observable... taskChain){
+    public static ApiChainRequestWrapper getGroupInstance(String commonHash, OnApiResponseListener<List>  listener, Observable... taskChain){
         if(taskChain.length==0){
             throw new NullPointerException("Need at least one request parameter");
         }
-        return new ApiChainRequestWrapper(commonHash,  listener, taskChain);
+        return new ApiChainRequestWrapper(commonHash,  listener, RunningType.GROUP, taskChain);
     }
+
+    public static ApiChainRequestWrapper getApartInstance(String commonHash, OnApiResponseListener<List>  listener, Observable... taskChain){
+        if(taskChain.length==0){
+            throw new NullPointerException("Need at least one request parameter");
+        }
+        return new ApiChainRequestWrapper(commonHash,  listener, RunningType.APART, taskChain);
+    }
+
+
 
     @Override
     public void execute() {
@@ -89,7 +127,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
 
     @Override
     public void cancel() {
-            subscriber.unsubscribe();
+            subscriber.dispose();
     }
 
     @Override

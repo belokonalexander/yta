@@ -2,6 +2,7 @@ package ru.belokonalexander.yta.GlobalShell;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -9,7 +10,7 @@ import retrofit2.http.Query;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
-import rx.Observable;
+
 
 /**
  * Created by Alexander on 17.03.2017.

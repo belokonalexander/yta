@@ -1,20 +1,19 @@
 package ru.belokonalexander.yta.GlobalShell;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.internal.util.ActionSubscriber;
-import rx.schedulers.Schedulers;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.ResourceSubscriber;
+
 
 /**
  * Created by Alexander on 18.03.2017.
@@ -35,7 +34,7 @@ public class ApiRequestWrapper<T> implements IApiRequest {
 
     private static  List<ApiRequestWrapper> currentTasksList = new ArrayList<>();
     private Observable<T> query;
-    private Subscriber<T> subscrber;
+    private DisposableObserver<T> subscrber;
     private static final Object listLock = new Object();
     private OnApiResponseListener<T> onApiResponseListener;
     private String hash;
@@ -71,7 +70,9 @@ public class ApiRequestWrapper<T> implements IApiRequest {
     public void execute() {
         registerInList();
         query.subscribeOn(Schedulers.newThread()).
-                observeOn(AndroidSchedulers.mainThread()).subscribe(subscrber);
+                observeOn(AndroidSchedulers.mainThread()).subscribe();
+
+
     }
 
     @Override
@@ -130,12 +131,9 @@ public class ApiRequestWrapper<T> implements IApiRequest {
         this.onApiResponseListener = onApiResponseListener;
     }
 
-    private Subscriber<T> getSubscriber() {
-        return new Subscriber<T>() {
-            @Override
-            public void onCompleted() {
-                unregisterSelf();
-            }
+    private DisposableObserver<T> getSubscriber() {
+        return new DisposableObserver<T>() {
+
 
             @Override
             public void onError(Throwable e) {
@@ -144,6 +142,11 @@ public class ApiRequestWrapper<T> implements IApiRequest {
                     onApiResponseListener.onFailure(e);
                 }
 
+            }
+
+            @Override
+            public void onComplete() {
+                unregisterSelf();
             }
 
             @Override
@@ -156,7 +159,7 @@ public class ApiRequestWrapper<T> implements IApiRequest {
     }
 
     private void cancelTask(){
-        subscrber.unsubscribe();
+        subscrber.dispose();
     }
 
 

@@ -10,27 +10,28 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
+import org.reactivestreams.Subscriber;
+
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
-import ru.belokonalexander.yta.GlobalShell.DictionaryApi;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
-import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
-import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.OnApiResponseListener;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
-import ru.belokonalexander.yta.GlobalShell.TranslateApi;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 import ru.belokonalexander.yta.Views.DebouncedEditText;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 
 /**
@@ -56,14 +57,8 @@ public class ActionFragment extends Fragment {
 
 
 
-
         //инициализации представления фрагмента
-        Observable.create(new Observable.OnSubscribe<CurrentLanguage>() {
-            @Override
-            public void call(Subscriber<? super CurrentLanguage> subscriber) {
-                subscriber.onNext(SharedAppPrefs.getInstance().getLanguage());
-            }
-        })
+        Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
@@ -96,7 +91,7 @@ public class ActionFragment extends Fragment {
                 String hash = StaticHelpers.getParentHash(this.getClass());
                 StaticHelpers.LogThis(" Hash: " + hash);
 
-                ApiChainRequestWrapper.getInstance(StaticHelpers.getParentHash(this.getClass()), new OnApiResponseListener<List>() {
+                ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), new OnApiResponseListener<List>() {
                             @Override
                             public void onSuccess(List result) {
                                 StaticHelpers.LogThis(" Результат: " + result);
@@ -108,29 +103,11 @@ public class ActionFragment extends Fragment {
                             }
                         }, ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
                         ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
-
-                ApiChainRequestWrapper.getInstance(StaticHelpers.getParentHash(this.getClass()), new OnApiResponseListener<List>() {
-                            @Override
-                            public void onSuccess(List result) {
-                                StaticHelpers.LogThis(" Результат: " + result);
-                            }
-
-                            @Override
-                            public void onFailure(Throwable failure) {
-                                StaticHelpers.LogThis(" Ошибка: " + failure);
-                            }
-                        }, ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
-                        ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
-
-                /*ApiRequestWrapper apiRequestWrapper = ApiRequestWrapper.getInstance(ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()), hash, new ApiRequestWrapper.OnApiResponseListener<TranslateResult>() {
-                    @Override
-
-                });*/
-
-
 
             }
         });
+
+
 
     }
 

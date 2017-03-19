@@ -13,11 +13,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
-import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
-import ru.belokonalexander.yta.YtaApplication;
-import rx.Observable;
+
 
 /**
  * Created by Alexander on 16.03.2017.
