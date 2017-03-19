@@ -18,4 +18,19 @@ public class Ex {
     @Expose
     private List<Tr> tr = null;
 
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public List<Tr> getTr() {
+        return tr;
+    }
+
+    public void setTr(List<Tr> tr) {
+        this.tr = tr;
+    }
 }

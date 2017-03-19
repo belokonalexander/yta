@@ -7,6 +7,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import rx.Observable;
 
@@ -20,5 +21,6 @@ public interface TranslateApi {
 
     @POST("translate")
     Observable<TranslateResult> translate(@Query("text") String text, @Query("lang") String direction);
+
 
 }

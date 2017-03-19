@@ -11,7 +11,7 @@ import rx.Observable;
 
 public interface DictionaryApi {
 
-    @POST("translate")
+    @POST("lookup")
     Observable<LookupResult> lookup(@Query("text") String text, @Query("lang") String direction);
 
 }

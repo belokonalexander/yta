@@ -25,7 +25,12 @@ import rx.schedulers.Schedulers;
     Каждому запросу присваивается id значение запроса, которое генерируется в зависимости от контекста запроса
     Сам планировщик хранит список всех запросов, выполняющихся в данный момент.
     При добавлении нового запроса с таким же id, старый запрос прерывается
+
+    @Deprecated на основе логики данного класса описал класс ApiChainRequestWrapper,
+    в котором можно, помимо цеочки запросов, так же использовать одиночный запрос (цепочка из одного запроса)
+    Решил не удалять данную реализацию для демонстрации
 */
+@Deprecated
 public class ApiRequestWrapper<T> implements IApiRequest {
 
     private static  List<ApiRequestWrapper> currentTasksList = new ArrayList<>();
@@ -148,13 +153,6 @@ public class ApiRequestWrapper<T> implements IApiRequest {
                 }
             }
         };
-    }
-
-
-
-    public interface OnApiResponseListener<T>{
-        void onSuccess(T result);
-        void onFailure(Throwable failure);
     }
 
     private void cancelTask(){

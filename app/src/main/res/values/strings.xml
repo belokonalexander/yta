@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">yta</string>
 
-    <string name="translate_base_url">https://translate.yandex.net/api/v1.5/tr.json/</string>
-    <string name="dictionary_base_url">https://dictionary.yandex.net/api/v1/dicservice.json/</string>
+    <string-array name="translate_api">
+        <item>https://translate.yandex.net/api/v1.5/tr.json/</item>
+        <item>trnsl.1.1.20170316T081055Z.076766d457e3d16c.219b2012d01658f691064df2c35dac707fb40d12</item>
+    </string-array>
 
-    <string name="translate_api_key">trnsl.1.1.20170316T081055Z.076766d457e3d16c.219b2012d01658f691064df2c35dac707fb40d12</string>
-    <string name="dictionary_api_key">dict.1.1.20170319T072239Z.c38a9a3077465869.d724411188b5de88a48f322b7d826ba978a69350</string>
+    <string-array name="dictionary_api">
+        <item>https://dictionary.yandex.net/api/v1/dicservice.json/</item>
+        <item>dict.1.1.20170319T072239Z.c38a9a3077465869.d724411188b5de88a48f322b7d826ba978a69350</item>
+    </string-array>
+
+
 </resources>

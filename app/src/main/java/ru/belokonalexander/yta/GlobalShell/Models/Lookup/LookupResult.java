@@ -23,5 +23,18 @@ ex	Массив примеров.
     @Expose
     private List<Def> def = null;
 
+    public List<Def> getDef() {
+        return def;
+    }
 
+    public void setDef(List<Def> def) {
+        this.def = def;
+    }
+
+    @Override
+    public String toString() {
+        return "LookupResult{" +
+                "def=" + def +
+                '}';
+    }
 }

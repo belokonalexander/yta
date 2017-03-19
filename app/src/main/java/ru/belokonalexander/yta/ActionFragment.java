@@ -10,13 +10,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import ru.belokonalexander.yta.GlobalShell.ApiRequestWrapper;
+import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
+import ru.belokonalexander.yta.GlobalShell.DictionaryApi;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
+import ru.belokonalexander.yta.GlobalShell.OnApiResponseListener;
+import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.GlobalShell.TranslateApi;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 import ru.belokonalexander.yta.Views.DebouncedEditText;
 import rx.Observable;
@@ -89,19 +96,38 @@ public class ActionFragment extends Fragment {
                 String hash = StaticHelpers.getParentHash(this.getClass());
                 StaticHelpers.LogThis(" Hash: " + hash);
 
-                ApiRequestWrapper apiRequestWrapper = ApiRequestWrapper.getInstance(YtaApplication.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()), hash, new ApiRequestWrapper.OnApiResponseListener<TranslateResult>() {
-                    @Override
-                    public void onSuccess(TranslateResult result) {
-                        StaticHelpers.LogThis(" RESULT: " + result);
-                    }
+                ApiChainRequestWrapper.getInstance(StaticHelpers.getParentHash(this.getClass()), new OnApiResponseListener<List>() {
+                            @Override
+                            public void onSuccess(List result) {
+                                StaticHelpers.LogThis(" Результат: " + result);
+                            }
 
-                    @Override
-                    public void onFailure(Throwable failure) {
-                        StaticHelpers.LogThis(" FAILURE: " + failure);
-                    }
-                });
+                            @Override
+                            public void onFailure(Throwable failure) {
+                                StaticHelpers.LogThis(" Ошибка: " + failure);
+                            }
+                        }, ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
+                        ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
 
-                apiRequestWrapper.execute();
+                ApiChainRequestWrapper.getInstance(StaticHelpers.getParentHash(this.getClass()), new OnApiResponseListener<List>() {
+                            @Override
+                            public void onSuccess(List result) {
+                                StaticHelpers.LogThis(" Результат: " + result);
+                            }
+
+                            @Override
+                            public void onFailure(Throwable failure) {
+                                StaticHelpers.LogThis(" Ошибка: " + failure);
+                            }
+                        }, ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
+                        ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
+
+                /*ApiRequestWrapper apiRequestWrapper = ApiRequestWrapper.getInstance(ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()), hash, new ApiRequestWrapper.OnApiResponseListener<TranslateResult>() {
+                    @Override
+
+                });*/
+
+
 
             }
         });
