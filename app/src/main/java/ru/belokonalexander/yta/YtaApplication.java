@@ -7,7 +7,6 @@ import org.greenrobot.greendao.database.Database;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -22,13 +21,10 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.belokonalexander.yta.Database.CacheModel;
-import ru.belokonalexander.yta.Database.CacheModelDao;
 import ru.belokonalexander.yta.Database.DaoMaster;
 import ru.belokonalexander.yta.Database.DaoSession;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.GlobalShell.TranslateApi;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 
 /**
@@ -54,7 +50,7 @@ public class YtaApplication extends Application {
         daoSession = new DaoMaster(db).newSession();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(getString(R.string.base_url))
+                .baseUrl(getString(R.string.translate_base_url))
                 .client(getBaseInterceptor())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -25,15 +26,15 @@ import rx.schedulers.Schedulers;
     Сам планировщик хранит список всех запросов, выполняющихся в данный момент.
     При добавлении нового запроса с таким же id, старый запрос прерывается
 */
-public class ApiRequestWrapper<T> {
+public class ApiRequestWrapper<T> implements IApiRequest {
 
     private static  List<ApiRequestWrapper> currentTasksList = new ArrayList<>();
     private Observable<T> query;
     private Subscriber<T> subscrber;
     private static final Object listLock = new Object();
     private OnApiResponseListener<T> onApiResponseListener;
-    private boolean errorResponse = false;
     private String hash;
+
 
 
     private ApiRequestWrapper(Observable<T> query, String hash, OnApiResponseListener<T> listener) {
@@ -43,21 +44,40 @@ public class ApiRequestWrapper<T> {
         this.onApiResponseListener = listener;
     }
 
-   public static<S> ApiRequestWrapper getInstance(Observable<S> query, String hash, OnApiResponseListener<S> listener){
+    private ApiRequestWrapper(Observable<T> query, String hash) {
+        this.query = query;
+        this.hash = hash;
+        this.subscrber = getSubscriber();
+    }
+
+    //cоздает одиночный асинхронный запрос
+    public static<S> ApiRequestWrapper getInstance(Observable<S> query, String hash, OnApiResponseListener<S> listener){
           return new ApiRequestWrapper<>(query, hash, listener);
    };
 
-    public void execute(){
+    //создает одиночный синхронный запрос
+    static<S> ApiRequestWrapper getInstance(Observable<S> query, String hash){
+           return new ApiRequestWrapper<>(query, hash);
+    } ;
 
-        if(onApiResponseListener == null){
-            throw new NullPointerException("On api response listener is null");
-        }
 
+
+    @Override
+    public void execute() {
         registerInList();
-
         query.subscribeOn(Schedulers.newThread()).
                 observeOn(AndroidSchedulers.mainThread()).subscribe(subscrber);
+    }
 
+    @Override
+    public void cancel() {
+        cancelTask();
+        unregisterSelf();
+    }
+
+    @Override
+    public String getHash() {
+        return hash;
     }
 
     private void registerInList() {
@@ -115,15 +135,22 @@ public class ApiRequestWrapper<T> {
             @Override
             public void onError(Throwable e) {
                 unregisterSelf();
-                onApiResponseListener.onFailure(e);
+                if(onApiResponseListener != null) {
+                    onApiResponseListener.onFailure(e);
+                }
+
             }
 
             @Override
             public void onNext(T t) {
-                onApiResponseListener.onSuccess(t);
+                if(onApiResponseListener != null) {
+                    onApiResponseListener.onSuccess(t);
+                }
             }
         };
     }
+
+
 
     public interface OnApiResponseListener<T>{
         void onSuccess(T result);
@@ -135,4 +162,7 @@ public class ApiRequestWrapper<T> {
     }
 
 
+    public Observable<T> getQuery() {
+        return query;
+    }
 }
