@@ -1,6 +1,7 @@
 package ru.belokonalexander.yta.GlobalShell;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import okhttp3.HttpUrl;
@@ -86,17 +87,20 @@ public class ServiceGenerator {
         return new Interceptor(){
             @Override
             public Response intercept(Chain chain) throws IOException {
+
                 Request request = chain.request();
                 String signature = request.url().newBuilder().removeAllQueryParameters("key").toString(); //signature - ключ в таблице кеширования, с удаленным параметром api-key
 
                 //проверяем, есть ли интернет соединение
                 if(!StaticHelpers.isNetworkAvailable(YtaApplication.getAppContext())){
-                    //если нет соединения, то берем последнюю запись из кэша по сигнатуре и подменяем запрос
-                    //TODO предупредить пользователя, что соединения нет
-                    CacheModel cacheModel = CacheModel.getTopRow(signature, CacheModel.CacheGetType.ANY);
 
+                    //если нет соединения, то берем последнюю запись из кэша по сигнатуре и подменяем запрос
+                    CacheModel cacheModel = CacheModel.getTopRow(signature, CacheModel.CacheGetType.ANY);
                     if(cacheModel==null)
-                        throw new NullPointerException("No data in cache. Connection is failed");
+                        throw new UnknownHostException("Unable to resolve host \""+request.url().host()+"\"");
+                    else {
+                        //TODO предупредить пользователя, что соединения нет)
+                    }
 
                     return getCachedRow(request, cacheModel);
                 }
@@ -110,7 +114,10 @@ public class ServiceGenerator {
                 }
 
                 //выполняю реальный запрос к api
-                Response response = chain.proceed(request);
+                Response response = null;
+
+                response = chain.proceed(request);
+
 
                 StaticHelpers.LogThis("ЗАПРОС!" + response.code());
 

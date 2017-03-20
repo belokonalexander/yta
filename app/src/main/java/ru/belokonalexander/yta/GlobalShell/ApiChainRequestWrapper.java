@@ -6,22 +6,27 @@ import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
+
 
 
 /**
  * Created by Alexander on 19.03.2017.
  */
 
-//работает с цепочкой одиночных запросов, можно также использовать и один запрос
+/**
+    Цепочка запросов - группирует запросы в один логический элемент и выполняет их группой
+    Также содержит список выполняющихся в данный момент запросов, что позволяет отменять одновременное выполнение одинаковых запросов,
+
+*/
 public class ApiChainRequestWrapper implements IApiRequest {
 
     // список с выполняющимися в данный момент запросами
-    public static List<ApiChainRequestWrapper> runningRequests = new ArrayList<>();
+    private static List<ApiChainRequestWrapper> runningRequests = new ArrayList<>();
 
     //локер, для синхронизации обращений к статическому runningRequests
     private static final Object listLock = new Object();
@@ -35,9 +40,12 @@ public class ApiChainRequestWrapper implements IApiRequest {
     private Observable taskExecutor;
 
     //слушатель для обработки результата работы цепочки запросов
-    private OnApiResponseListener<List> listener;
+    private OnApiFailureResponseListener failureListener;
+    private OnApiSuccessResponseListener<List> successListener;
 
-    //идентификатор цепочки, служит для идентификации одноцелевых запросов и их взаимного прерывания
+    /**
+        Идентификатор цепочки, служит для идентификации одноцелевых запросов и их взаимного прерывания,
+    */
     private String hash;
 
     private RunningType runningType;
@@ -45,7 +53,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
     private enum RunningType{
         /*
             Все запросы должны выполниться без ошибок,
-            если в каком-то запросе произошла ошибка - прерываем всю работу и вызываем слушателя, т.е атомарная операция
+            если в каком-то запросе произошла ошибка - прерываем всю работу и вызываем слушателя -> атомарная операция
         */
 
         GROUP,
@@ -53,26 +61,47 @@ public class ApiChainRequestWrapper implements IApiRequest {
         /*
             Запросы, результаты которых планируются рассматирвать раздельно,
             противоположность GROUP-типу. Ошибка не прерывает общую работу цепочки, а в результат
-            записывается ApiError
+            записывается Throwable
         */
 
         APART
     }
 
 
-    private ApiChainRequestWrapper(String commonHash, OnApiResponseListener<List> listener, RunningType type, Observable... taskChain) {
+    private ApiChainRequestWrapper(String commonHash, OnApiSuccessResponseListener<List> successListener, OnApiFailureResponseListener failureListener, RunningType type, Observable... taskChain) {
 
-        this.listener = listener;
+        this.successListener = successListener;
+        this.failureListener = failureListener;
         this.hash =  commonHash;
         this.runningType = type;
 
+
+
         if(type==RunningType.GROUP)
             taskExecutor = Observable.mergeArray(taskChain)
-                    .subscribeOn(Schedulers.newThread());
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread());
         else if(type==RunningType.APART){
-            taskExecutor = Observable.mergeArray(taskChain)
-                    .mergeArrayDelayError(taskChain)
-                    .subscribeOn(Schedulers.newThread());
+
+            /**
+                Задачи:
+                1) Не прерывать цепочку при возникновении ошибок
+                2) Сохранить порядок ответов, например в @results может быть [..., Exception, ...]
+                    - получается, что DelayError обработчики использовать не получится - составить верный порядок не удастся
+                    - также не получится использовать методы типа OnError, которые или генерируют новые Observable (мы не знаем на каком именно прервались),
+                      или передают управление на OnError или OnComplete
+                    -> Решение: генерируем новый Observable в flatMap и вешаем на него обработчик, который заменит оригинал в случае ошибки и выбросит в результат Throwable
+                3) Всегда вызывается onComplete и слушателю передается @results
+            */
+
+            taskExecutor = Observable.fromArray(taskChain)
+                    .flatMap((Function<Observable, ObservableSource<?>>) observable -> observable.onErrorResumeNext(new Function<Throwable, ObservableSource>() {
+                        @Override
+                        public ObservableSource apply(Throwable throwable) throws Exception {
+                            return Observable.just(throwable);
+                        }
+                    })).subscribeOn(Schedulers.newThread())
+                      .observeOn(AndroidSchedulers.mainThread());
         }
 
 
@@ -81,40 +110,39 @@ public class ApiChainRequestWrapper implements IApiRequest {
             @Override
             public void onComplete() {
                 unregisterSelf();
-                if(listener!=null)
-                    listener.onSuccess(results);
+                if(successListener!=null)
+                    successListener.onSuccess(results);
             }
 
             @Override
             public void onError(Throwable e) {
-                StaticHelpers.LogThis(" ON ERROR NEXT");
                 unregisterSelf();
-                if(listener!=null)
-                    listener.onFailure(e);
+                if (failureListener != null)
+                    failureListener.onFailure(e);
+
 
             }
 
             @Override
             public void onNext(Object o) {
-                StaticHelpers.LogThis(" ON NEXT: " + o);
                 results.add(o);
             }
         };
 
     }
 
-    public static ApiChainRequestWrapper getGroupInstance(String commonHash, OnApiResponseListener<List>  listener, Observable... taskChain){
+    public static ApiChainRequestWrapper getGroupInstance(String commonHash,OnApiSuccessResponseListener<List> successListener, OnApiFailureResponseListener failureListener, Observable... taskChain){
         if(taskChain.length==0){
             throw new NullPointerException("Need at least one request parameter");
         }
-        return new ApiChainRequestWrapper(commonHash,  listener, RunningType.GROUP, taskChain);
+        return new ApiChainRequestWrapper(commonHash,  successListener, failureListener, RunningType.GROUP, taskChain);
     }
 
-    public static ApiChainRequestWrapper getApartInstance(String commonHash, OnApiResponseListener<List>  listener, Observable... taskChain){
+    public static ApiChainRequestWrapper getApartInstance(String commonHash, OnApiSuccessResponseListener<List> successListener, Observable... taskChain){
         if(taskChain.length==0){
             throw new NullPointerException("Need at least one request parameter");
         }
-        return new ApiChainRequestWrapper(commonHash,  listener, RunningType.APART, taskChain);
+        return new ApiChainRequestWrapper(commonHash,  successListener, null, RunningType.APART, taskChain);
     }
 
 
@@ -176,5 +204,6 @@ public class ApiChainRequestWrapper implements IApiRequest {
             runningRequests.add(this);
         }
     }
+
 
 }

@@ -10,23 +10,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-import org.reactivestreams.Subscriber;
-
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
-import ru.belokonalexander.yta.GlobalShell.OnApiResponseListener;
+import ru.belokonalexander.yta.GlobalShell.OnApiFailureResponseListener;
+import ru.belokonalexander.yta.GlobalShell.OnApiSuccessResponseListener;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
@@ -54,6 +50,7 @@ public class ActionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
+
 
 
 
@@ -91,17 +88,11 @@ public class ActionFragment extends Fragment {
                 String hash = StaticHelpers.getParentHash(this.getClass());
                 StaticHelpers.LogThis(" Hash: " + hash);
 
-                ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), new OnApiResponseListener<List>() {
-                            @Override
-                            public void onSuccess(List result) {
-                                StaticHelpers.LogThis(" Результат: " + result);
-                            }
-
-                            @Override
-                            public void onFailure(Throwable failure) {
-                                StaticHelpers.LogThis(" Ошибка: " + failure);
-                            }
-                        }, ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
+                ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
+                    //
+                    StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
+                },
+                        ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
                         ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
 
             }

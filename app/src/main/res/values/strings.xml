@@ -8,7 +8,7 @@
 
     <string-array name="dictionary_api">
         <item>https://dictionary.yandex.net/api/v1/dicservice.json/</item>
-        <item>dict.1.1.20170319T072239Z.c38a9a3077465869.d724411188b5de88a48f322b7d826ba978a69350_</item>
+        <item>dict.1.1.20170319T072239Z.c38a9a3077465869.d724411188b5de88a48f322b7d826ba978a69350</item>
     </string-array>
 
 
