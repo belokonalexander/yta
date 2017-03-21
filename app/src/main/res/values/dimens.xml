@@ -2,7 +2,11 @@
 
     <dimen name="input_area"> 120dp </dimen>
     <dimen name="text_normal"> 16sp </dimen>
+    <dimen name="text_small"> 12sp </dimen>
     <dimen name="text_header"> 20sp </dimen>
     <dimen name="text_large"> 18sp </dimen>
-    <dimen name="input_text_padding">8dp</dimen>
+    <dimen name="icon_padding">8dp</dimen>
+    <dimen name="vertical_large_item_margin">12dp</dimen>
+    <dimen name="composite_text_padding"> 10dp </dimen>
+
 </resources>

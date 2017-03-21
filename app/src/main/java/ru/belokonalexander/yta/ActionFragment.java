@@ -10,10 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,12 +19,13 @@ import butterknife.ButterKnife;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
+import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
-import ru.belokonalexander.yta.GlobalShell.OnApiFailureResponseListener;
-import ru.belokonalexander.yta.GlobalShell.OnApiSuccessResponseListener;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
@@ -60,9 +59,6 @@ public class ActionFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         TranslateResult translateResult = new TranslateResult();
-        String[] words = {"ace", "boom", "crew", "dog", "eon"};
-        translateResult.setText(Arrays.asList(words));
-        wordList.setTranslateResult(translateResult);
 
         //инициализации представления фрагмента
         Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
@@ -70,7 +66,20 @@ public class ActionFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
 
+       /* new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Observable.just("1").observeOn(AndroidSchedulers.mainThread())
+                        .filter(new Predicate<String>() {
+                            @Override
+                            public boolean test(String s) throws Exception {
+                                customTexInputView.setText("Вот это да!");
+                                return true;
+                            }
+                        }).subscribe();
 
+            }
+        },3000);*/
 
         return view;
     }
@@ -92,22 +101,22 @@ public class ActionFragment extends Fragment {
         languageToTextView.setText(language.getLangToDesc());
 
         customTexInputView.setOnTextListener(new DebouncedEditText.OnTextActionListener() {
+
             @Override
             public void onTextAction(String text) {
 
                 String hash = StaticHelpers.getParentHash(this.getClass());
 
                 ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
-                    //
-                    StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
-                },
+                            StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
+                            wordList.setTranslateResult(new CompositeTranslateModel((TranslateResult) result.get(0),(LookupResult)result.get(1), text));
+                        },
                         ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
                         ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
-
             }
         });
 
-
+        customTexInputView.setOnClearListener(() -> wordList.clearView());
 
     }
 

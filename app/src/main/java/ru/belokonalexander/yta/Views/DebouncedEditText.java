@@ -22,7 +22,7 @@ public class DebouncedEditText extends EditText {
 
     public static final int DEBOUNCE_VALUE = 600;
     OnTextActionListener onTextActionListener;
-    boolean updateOnEmpty = false;
+
 
     public DebouncedEditText(Context context) {
         super(context);
@@ -50,7 +50,7 @@ public class DebouncedEditText extends EditText {
     public void startWatching(){
         RxTextView.textChanges(this)
                 .debounce(DEBOUNCE_VALUE, TimeUnit.MILLISECONDS)
-                .filter(charSequence -> length()>0 || updateOnEmpty)
+                .filter(charSequence -> length()>0)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(charSequence -> {
                     if(onTextActionListener!=null){

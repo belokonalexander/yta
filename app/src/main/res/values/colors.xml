@@ -13,4 +13,6 @@
     <color name="tint_color_dark">#4e4e4e</color>
     <color name="yellow">#f1c100</color>
 
+    <color name="text_hint_color">#b7b7b7</color>
+
 </resources>

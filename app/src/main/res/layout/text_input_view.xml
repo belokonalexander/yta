@@ -5,7 +5,7 @@
     android:layout_height="@dimen/input_area"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/input_selector"
-    android:padding="@dimen/input_text_padding"
+    android:padding="@dimen/icon_padding"
     android:id="@+id/wrapper"
     >
 
@@ -16,7 +16,7 @@
         android:orientation="vertical"
         android:layout_alignParentRight="true"
         android:id="@+id/side_input_control_panel"
-
+        android:visibility="gone"
         >
 
         <ImageButton
@@ -58,16 +58,18 @@
         android:layout_height="match_parent"
         android:layout_above="@id/bottom_input_control_panel"
         android:layout_toLeftOf="@id/side_input_control_panel"
-
-        tools:text="11123123213"
-        android:inputType="textNoSuggestions|textAutoComplete"
+        android:lines="100"
+        tools:text="11123123213 ds fds fds fsd fsd fsd fsd fsd fsd dsf ds sd fds f sd fsd "
+        android:inputType="textNoSuggestions|textMultiLine"
         android:gravity="start"
         android:paddingTop="2dp"
         android:paddingLeft="2dp"
+        android:textColorHint="@color/text_hint_color"
         android:id="@+id/input_text"
         style="@style/CustomEditTextStyle"
         android:background="@android:color/transparent"
-
+        android:scrollHorizontally="false"
+        android:hint="@string/text_input_hint"
         />
 
 </ru.belokonalexander.yta.Views.CustomTexInputView>

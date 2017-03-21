@@ -1,16 +1,13 @@
 package ru.belokonalexander.yta.Views;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.zip.Inflater;
-
-import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
+import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 
@@ -20,11 +17,10 @@ import ru.belokonalexander.yta.R;
 
 public class WordList extends LinearLayout {
 
-    TranslateResult translateResult;
+    CompositeTranslateModel translateResult;
 
 
-
-    public void setTranslateResult(TranslateResult translateResult) {
+    public void setTranslateResult(CompositeTranslateModel translateResult) {
         this.translateResult = translateResult;
         inflateContent();
     }
@@ -33,17 +29,60 @@ public class WordList extends LinearLayout {
 
         StaticHelpers.LogThis(" INFLATE ");
 
-        //очищаем прошлый результат
-        if(this.getChildCount()>0){
-            this.removeAllViews();
-        }
+        clearView();
+
+        LinearLayout lastContainer = inflateTranslateResult();
+
+        inflateLookupResult(lastContainer);
+    }
+
+    private void inflateLookupResult(LinearLayout lastContainer) {
+
+    }
+
+    private LinearLayout inflateTranslateResult() {
+        int orientation = translateResult.getTranslateResult().getText().size() > 1 ? HORIZONTAL : VERTICAL;
 
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        for(String text : translateResult.getText()){
-            ViewGroup layout = (ViewGroup) layoutInflater.inflate(R.layout.word_layout,null);
-            ((TextView)layout.findViewById(R.id.t_word)).setText(text);
+        for(int i =0; i <  translateResult.getTranslateResult().getText().size(); i++){
+            LinearLayout layout = (LinearLayout) layoutInflater.inflate(R.layout.word_layout,null);
+            LinearLayout controllerGroup = (LinearLayout) layout.findViewById(R.id.word_controller);
+            controllerGroup.setOrientation(orientation);
+            TextView source = (TextView) layout.findViewById(R.id.original_word);
+
+            ((TextView)layout.findViewById(R.id.t_word)).setText(translateResult.getTranslateResult().getText().get(i));
+            source.setText(translateResult.getSource());
+            source.setVisibility(VISIBLE);
+
+
+            if(orientation==HORIZONTAL){
+
+                for(int j =0; j < controllerGroup.getChildCount(); j++) {
+                    if (controllerGroup.getChildAt(j).getLayoutParams() instanceof MarginLayoutParams) {
+                        ((MarginLayoutParams)controllerGroup.getChildAt(j).getLayoutParams() ).topMargin = StaticHelpers.dpToPixels(6);
+                        if(j > 0)  ((MarginLayoutParams)controllerGroup.getChildAt(j).getLayoutParams() ).leftMargin = StaticHelpers.dpToPixels(4);
+                    }
+                }
+
+                source.setVisibility(GONE);
+            }
+
             addView(layout);
+
+            if(i==translateResult.getTranslateResult().getText().size()-1)
+                return layout;
+
+        }
+
+
+        return null;
+    }
+
+    public void clearView() {
+        //очищаем прошлый результат
+        if(this.getChildCount()>0){
+            this.removeAllViews();
         }
     }
 
@@ -64,7 +103,7 @@ public class WordList extends LinearLayout {
 
     private void startInit() {
         setOrientation(VERTICAL);
-        setBackgroundColor(ContextCompat.getColor(getContext(),R.color.cardview_shadow_start_color));
+        //setBackgroundColor(ContextCompat.getColor(getContext(),R.color.cardview_shadow_start_color));
         setPadding(0,StaticHelpers.dpToPixels(4),0, StaticHelpers.dpToPixels(4));
     }
 

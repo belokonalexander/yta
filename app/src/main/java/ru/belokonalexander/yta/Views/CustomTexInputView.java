@@ -29,11 +29,16 @@ public class CustomTexInputView extends RelativeLayout {
     ImageButton clearButton;
     ViewGroup wrapper;
     DebouncedEditText.OnTextActionListener onTextActionListener;
-
+    OnClearListener onClearListener;
     boolean showVoiceButton;
     boolean showSoundButton;
 
     boolean focusState;
+
+    public void setText(String text){
+        editText.setText(text);
+        editText.setSelection(text.length());
+    }
 
     public CustomTexInputView(Context context) {
         super(context);
@@ -77,7 +82,11 @@ public class CustomTexInputView extends RelativeLayout {
 
         editText.setOnFocusChangeListener((v, hasFocus) -> focusState = hasFocus ? goFocusState() : goNormalState());
 
-        clearButton.setOnClickListener(v -> editText.setText(""));
+        clearButton.setOnClickListener(v ->  {
+            editText.setText("");
+            if(onClearListener!=null)
+                onClearListener.onClear();
+        });
 
     }
 
@@ -88,14 +97,14 @@ public class CustomTexInputView extends RelativeLayout {
     }
 
     private boolean goNormalState() {
-        int pad = getResources().getDimensionPixelSize(R.dimen.input_text_padding);
+        int pad = getResources().getDimensionPixelSize(R.dimen.icon_padding);
         wrapper.setBackgroundResource(R.drawable.input_background);
         wrapper.setPadding(pad,pad,pad,pad);
         return false;
     }
 
     private boolean goFocusState() {
-        int pad = getResources().getDimensionPixelSize(R.dimen.input_text_padding);
+        int pad = getResources().getDimensionPixelSize(R.dimen.icon_padding);
         wrapper.setBackgroundResource(R.drawable.input_background_focused);
         wrapper.setPadding(pad,pad,pad,pad);
         return true;
@@ -106,4 +115,15 @@ public class CustomTexInputView extends RelativeLayout {
         super.onFinishInflate();
         defineViews(getContext());
     }
+
+
+
+    public void setOnClearListener(OnClearListener onClearListener) {
+        this.onClearListener = onClearListener;
+    }
+
+    public interface OnClearListener{
+        void onClear();
+    }
+
 }

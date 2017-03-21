@@ -11,5 +11,6 @@
         <item>dict.1.1.20170319T072239Z.c38a9a3077465869.d724411188b5de88a48f322b7d826ba978a69350</item>
     </string-array>
 
+    <string name="text_input_hint">Введите текст</string>
 
 </resources>
