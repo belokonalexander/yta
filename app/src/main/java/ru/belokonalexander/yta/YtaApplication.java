@@ -5,15 +5,9 @@ import android.content.Context;
 
 import org.greenrobot.greendao.database.Database;
 
-import java.io.IOException;
-import java.util.Date;
-
 
 import ru.belokonalexander.yta.Database.DaoMaster;
 import ru.belokonalexander.yta.Database.DaoSession;
-import ru.belokonalexander.yta.GlobalShell.DictionaryApi;
-import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
-import ru.belokonalexander.yta.GlobalShell.TranslateApi;
 
 
 /**
@@ -24,7 +18,6 @@ public class YtaApplication extends Application {
 
 
     private static DaoSession daoSession;
-
     private static Context context;
 
     @Override

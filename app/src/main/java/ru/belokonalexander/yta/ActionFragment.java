@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -21,6 +24,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.OnApiFailureResponseListener;
 import ru.belokonalexander.yta.GlobalShell.OnApiSuccessResponseListener;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
@@ -28,6 +32,7 @@ import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 import ru.belokonalexander.yta.Views.DebouncedEditText;
+import ru.belokonalexander.yta.Views.WordList;
 
 
 /**
@@ -38,6 +43,9 @@ public class ActionFragment extends Fragment {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+
+    @BindView(R.id.word_list)
+    WordList wordList;
 
     @BindView(R.id.wrapper)
     CustomTexInputView customTexInputView;
@@ -51,8 +59,10 @@ public class ActionFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
 
-
-
+        TranslateResult translateResult = new TranslateResult();
+        String[] words = {"ace", "boom", "crew", "dog", "eon"};
+        translateResult.setText(Arrays.asList(words));
+        wordList.setTranslateResult(translateResult);
 
         //инициализации представления фрагмента
         Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
@@ -86,7 +96,6 @@ public class ActionFragment extends Fragment {
             public void onTextAction(String text) {
 
                 String hash = StaticHelpers.getParentHash(this.getClass());
-                StaticHelpers.LogThis(" Hash: " + hash);
 
                 ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
                     //

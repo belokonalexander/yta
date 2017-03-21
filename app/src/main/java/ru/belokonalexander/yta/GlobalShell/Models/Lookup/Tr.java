@@ -23,6 +23,8 @@ public class Tr {
     @Expose
     private String gen;                 //род
 
+
+
     @SerializedName("syn")
     @Expose
     private List<Syn> syn = null;       //синонимы
@@ -94,5 +96,32 @@ public class Tr {
 
     public void setAsp(String asp) {
         this.asp = asp;
+    }
+
+
+    @SerializedName("anm")
+    @Expose
+    private String anm;                 //одушевленный-неодушевленный
+
+    public String getAnm() {
+        return anm;
+    }
+
+    public void setAnm(String anm) {
+        this.anm = anm;
+    }
+
+    @Override
+    public String toString() {
+        return "Tr{" +
+                "text='" + text + '\'' +
+                ", pos='" + pos + '\'' +
+                ", gen='" + gen + '\'' +
+                ", syn=" + syn +
+                ", mean=" + mean +
+                ", ex=" + ex +
+                ", asp='" + asp + '\'' +
+                ", anm='" + anm + '\'' +
+                '}';
     }
 }

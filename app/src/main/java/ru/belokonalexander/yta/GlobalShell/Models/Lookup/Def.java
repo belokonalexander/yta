@@ -27,6 +27,18 @@ public class Def {
     @Expose
     private List<Tr> tr = null;     //массив переводов
 
+    @SerializedName("anm")
+    @Expose
+    private String anm;                 //одушевленный-неодушевленный
+
+    public String getAnm() {
+        return anm;
+    }
+
+    public void setAnm(String anm) {
+        this.anm = anm;
+    }
+
     public String getText() {
         return text;
     }
@@ -57,5 +69,16 @@ public class Def {
 
     public void setTr(List<Tr> tr) {
         this.tr = tr;
+    }
+
+    @Override
+    public String toString() {
+        return "Def{" +
+                "text='" + text + '\'' +
+                ", pos='" + pos + '\'' +
+                ", anm='" + anm + '\'' +
+                ", ts='" + ts + '\'' +
+                ", tr=" + tr +
+                '}';
     }
 }

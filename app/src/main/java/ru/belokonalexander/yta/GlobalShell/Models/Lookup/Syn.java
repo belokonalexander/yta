@@ -43,4 +43,13 @@ public class Syn {
     public void setGen(String gen) {
         this.gen = gen;
     }
+
+    @Override
+    public String toString() {
+        return "Syn{" +
+                "text='" + text + '\'' +
+                ", pos='" + pos + '\'' +
+                ", gen='" + gen + '\'' +
+                '}';
+    }
 }

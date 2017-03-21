@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <ImageButton
+        style="@style/ImageControlButton"
+        android:id="@+id/save_word"
+        android:src="@drawable/ic_bookmark_black_24dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:tint="@color/tint_color_dark"
+        />
+
+    <TextView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        tools:text="12321312 dsf sdf sd fds fsd fsd fsd fsd fsdf sdf sd fsd "
+        android:textColor="@color/text_color"
+        android:textSize="@dimen/text_large"
+        android:padding="4dp"
+        android:layout_toLeftOf="@id/save_word"
+        android:id="@+id/t_word"
+        android:layout_centerVertical="true"
+        />
+
+</RelativeLayout>

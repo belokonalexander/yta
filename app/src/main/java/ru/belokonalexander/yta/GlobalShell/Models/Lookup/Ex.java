@@ -33,4 +33,12 @@ public class Ex {
     public void setTr(List<Tr> tr) {
         this.tr = tr;
     }
+
+    @Override
+    public String toString() {
+        return "Ex{" +
+                "text='" + text + '\'' +
+                ", tr=" + tr +
+                '}';
+    }
 }

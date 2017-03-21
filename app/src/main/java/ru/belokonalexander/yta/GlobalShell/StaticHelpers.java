@@ -105,4 +105,13 @@ public class StaticHelpers {
         return s.toString();
     }
 
+    public static int dpToPixels(float dp) {
+        return (int) (dp * YtaApplication.getAppContext().getResources().getDisplayMetrics().density);
+    }
+
+    public static float pixelsToDp(int px) {
+        return (px/ YtaApplication.getAppContext().getResources().getDisplayMetrics().density);
+    }
+
+
 }
