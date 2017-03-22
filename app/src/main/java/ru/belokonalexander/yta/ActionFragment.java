@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,12 +21,15 @@ import butterknife.ButterKnife;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
-import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
@@ -66,30 +71,64 @@ public class ActionFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
 
-       /* new Timer().schedule(new TimerTask() {
+        /*new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 Observable.just("1").observeOn(AndroidSchedulers.mainThread())
                         .filter(new Predicate<String>() {
                             @Override
                             public boolean test(String s) throws Exception {
-                                customTexInputView.setText("Вот это да!");
+                                customTexInputView.setText("идти");
                                 return true;
                             }
                         }).subscribe();
 
             }
-        },3000);*/
+        },1000);*/
+
+
+
 
         return view;
     }
 
-
+    ApiChainRequestWrapper getTranslete;
 
     TextView languageFromTextView;
     TextView languageToTextView;
 
+    CompositeDisposable disposables = new CompositeDisposable();
+
     void initViews(CurrentLanguage language){
+        currentLanguage = language;
+
+
+        DisposableObserver<CurrentLanguage> header = new DisposableObserver<CurrentLanguage>() {
+            @Override
+            public void onNext(CurrentLanguage value) {
+                StaticHelpers.LogThis(" VAL: " + value);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+
+        disposables.add(currentLanguage.getChanges().subscribeWith(header));
+
+
+
+
+
+
+
+
         LayoutInflater mInflater=LayoutInflater.from(getContext());
         View customView = mInflater.inflate(R.layout.current_languages, null);
         toolbar.addView(customView);
@@ -107,16 +146,50 @@ public class ActionFragment extends Fragment {
 
                 String hash = StaticHelpers.getParentHash(this.getClass());
 
-                ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
+                getTranslete = ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
                             StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
-                            wordList.setTranslateResult(new CompositeTranslateModel((TranslateResult) result.get(0),(LookupResult)result.get(1), text));
+
+                            /*
+                                если ответ со словом вернулся без ошибки, то заполняем wordList +
+                                    назначаем ему слушателя на слово-синоним (яндекс.словарь)
+                             */
+                            if(result.get(0) instanceof TranslateResult) {
+                                wordList.setTranslateResult(new CompositeTranslateModel(result.get(0), result.get(1), text),
+                                        word -> Observable.fromCallable(() -> {
+                                            /*
+                                                меняем языки местами (сохраняя в настройках)
+                                             */
+                                            //currentLanguage = currentLanguage.swapLanguages();
+                                            return word;
+                                        }).subscribeOn(Schedulers.newThread())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe(o -> {
+                                                    customTexInputView.setText(o);
+                                                }));
+
+                            } else {
+                                //TODO критическая ошибка
+                                StaticHelpers.LogThis(" критическая ошибка ");
+                            }
+
                         },
-                        ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
-                        ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo())).execute();
+                        ServiceGenerator.getTranslateApi().translate(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
+                        ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()));
+
+                getTranslete.execute();
+            }
+
+            @Override
+            public void onTextClear() {
+                if(getTranslete!=null){
+                    getTranslete.cancel();
+                }
+
+                wordList.clearView();
             }
         });
 
-        customTexInputView.setOnClearListener(() -> wordList.clearView());
+
 
     }
 

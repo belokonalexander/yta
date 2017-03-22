@@ -15,4 +15,8 @@
 
     <color name="text_hint_color">#b7b7b7</color>
 
+    //----lookup
+    <color name="about">#ab4855</color>
+
+
 </resources>

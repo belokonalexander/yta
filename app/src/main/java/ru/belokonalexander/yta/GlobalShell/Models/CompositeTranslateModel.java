@@ -1,6 +1,18 @@
 package ru.belokonalexander.yta.GlobalShell.Models;
 
+import android.text.SpannableString;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Def;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Ex;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupStyledField;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Mean;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Syn;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Tr;
+import ru.belokonalexander.yta.Views.WordList;
 
 /**
  * Created by Alexander on 21.03.2017.
@@ -8,13 +20,28 @@ import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 
 public class CompositeTranslateModel {
 
-    TranslateResult translateResult;
-    LookupResult lookupResult;
-    String source;
+    private TranslateResult translateResult;
+    private LookupResult lookupResult;
+    private String source;
 
-    public CompositeTranslateModel(TranslateResult translateResult, LookupResult lookupResult, String source) {
-        this.translateResult = translateResult;
-        this.lookupResult = lookupResult;
+    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source) {
+
+        this.source = source;
+
+        if(translateResult instanceof TranslateResult)
+            this.translateResult = (TranslateResult) translateResult;
+
+        if(lookupResult instanceof LookupResult)
+            this.lookupResult = (LookupResult) lookupResult;
+
+
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
         this.source = source;
     }
 
@@ -22,9 +49,6 @@ public class CompositeTranslateModel {
         return translateResult;
     }
 
-    public String getSource() {
-        return source;
-    }
 
     public LookupResult getLookupResult() {
         return lookupResult;
@@ -38,7 +62,146 @@ public class CompositeTranslateModel {
         this.lookupResult = lookupResult;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+
+    /*
+         формируем из объекта Lookup единую spannable строку и передаем слушателя на клик
+     */
+    public SpannableString getLookupString(WordList.OnWordClickListener listener) {
+
+
+        StringBuilder result = new StringBuilder();
+
+        List<LookupStyledField> styled = new ArrayList<>();
+
+        for(Def def: lookupResult.getDef()){
+
+            /**
+                заголовок с информацией о слове
+             */
+
+            LookupStyledField about = new LookupStyledField(result, LookupStyledField.Type.ABOUT);
+
+            result.append(getStringOrEmpty(def.getPos())).append(getStringOrEmptyDelim(def.getAnm())).append(getStringOrEmptyBrackets(def.getTs()))
+                .append("\n");
+
+            about.setFinish(result);
+            styled.add(about);
+
+            /**
+             примеры
+             */
+            int trnum = 1;
+
+            if(def.getTr()!=null)
+            for(Tr tr : def.getTr()){
+
+                LookupStyledField num = new LookupStyledField(result, LookupStyledField.Type.NUM);
+                result.append(trnum);
+                num.setFinish(result);
+                styled.add(num);
+
+                LookupStyledField samples = new LookupStyledField(result, LookupStyledField.Type.SYNONYMS_AREA);
+
+                LookupStyledField syn = new LookupStyledField(result, LookupStyledField.Type.SYNONYM);
+                result.append(tr.getText());
+                syn.setFinish(result);
+                styled.add(syn);
+
+                if(tr.getSyn()!=null)
+                for(int i =0; i < tr.getSyn().size(); i ++){
+                    Syn other = tr.getSyn().get(i);
+                    String text = getStringOrEmpty(other.getText());
+                    if (text.trim().length()>0) {
+                        result.append(", ");
+                        LookupStyledField s = new LookupStyledField(result, LookupStyledField.Type.SYNONYM);
+                        result.append(text);
+                        s.setFinish(result);
+                        styled.add(s);
+                    }
+
+                }
+
+                samples.setFinish(result);
+                styled.add(samples);
+
+                result.append("\n");
+
+                /**
+                    значения
+                 */
+                if(tr.getMean()!=null) {
+
+                    LookupStyledField means = new LookupStyledField(result, LookupStyledField.Type.MEAN);
+
+                    for (int i = 0; i < tr.getMean().size(); i++) {
+                        Mean mean = tr.getMean().get(i);
+
+
+
+                        if (i == 0) {
+
+                            result.append("(");
+                        }
+
+                        result.append(getStringOrEmptyDelim(mean.getText(), i));
+
+
+                        if (i == tr.getMean().size() - 1) {
+                            result.append(")");
+                        }
+                    }
+
+                    means.setFinish(result);
+                    styled.add(means);
+                    result.append("\n");
+                }
+
+                if(tr.getEx()!=null) {
+                    LookupStyledField example = new LookupStyledField(result, LookupStyledField.Type.EXAMPLE);
+                    for (Ex ex : tr.getEx()) {
+                        result.append(ex.getText());
+
+                        if(ex.getTr()!=null){
+                            result.append(" - ");
+                            for(int i = 0; i < ex.getTr().size(); i++){
+                                Tr exTr = ex.getTr().get(i);
+                                result.append(getStringOrEmptyDelim(exTr.getText(),i));
+                            }
+                        }
+
+                        result.append("\n");
+                    }
+                    example.setFinish(result);
+                    styled.add(example);
+                }
+
+
+
+                trnum++;
+            }
+        }
+
+        return LookupStyledField.buildSpannableString(result.toString(),styled, listener);
     }
+
+    private String getStringOrEmpty(String string){
+        return (string==null) ? "" : string;
+    }
+
+    private String getStringOrEmptyDelim(String string){
+        return (string==null) ? "" : ", " + string;
+    }
+
+    private String getStringOrEmptyDelim(String string, int pos){
+        return (string==null) ? "" : (pos==0) ? string : ", " + string;
+    }
+
+    private String getStringOrEmptyBrackets(String string){
+        return (string==null) ? "" : " [" + string + "]";
+    }
+
+
+
+
+
 }

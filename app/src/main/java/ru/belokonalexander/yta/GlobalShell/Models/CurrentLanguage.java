@@ -1,5 +1,11 @@
 package ru.belokonalexander.yta.GlobalShell.Models;
 
+import java.util.concurrent.Callable;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.subjects.PublishSubject;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 
 /**
@@ -21,6 +27,7 @@ public class CurrentLanguage {
         this.langFromDesc = langFromDesc;
         this.langTo = langTo;
         this.langToDesc = langToDesc;
+        changeObservable.onNext(this);
     }
 
 
@@ -30,6 +37,7 @@ public class CurrentLanguage {
 
     public void setLangFrom(String langFrom) {
         this.langFrom = langFrom;
+        changeObservable.onNext(this);
     }
 
     public String getLangFromDesc() {
@@ -38,6 +46,7 @@ public class CurrentLanguage {
 
     public void setLangFromDesc(String langFromDesc) {
         this.langFromDesc = langFromDesc;
+        changeObservable.onNext(this);
     }
 
     public String getLangTo() {
@@ -46,6 +55,7 @@ public class CurrentLanguage {
 
     public void setLangTo(String langTo) {
         this.langTo = langTo;
+        changeObservable.onNext(this);
     }
 
     public String getLangToDesc() {
@@ -54,6 +64,7 @@ public class CurrentLanguage {
 
     public void setLangToDesc(String langToDesc) {
         this.langToDesc = langToDesc;
+        changeObservable.onNext(this);
     }
 
     @Override
@@ -65,4 +76,26 @@ public class CurrentLanguage {
                 ", langToDesc='" + langToDesc + '\'' +
                 '}';
     }
+
+    /*public Observable<CurrentLanguage> swapLanguages(){
+        //CurrentLanguage l =  new CurrentLanguage(langTo,langToDesc,langFrom,langFromDesc);
+        //SharedAppPrefs.getInstance().setLanguage(l);
+        //return l;
+        Observable.fromCallable(new Callable<Object>() {
+        })
+    }*/
+
+
+    //Observable<>
+
+
+    private PublishSubject<CurrentLanguage> changeObservable = PublishSubject.create();
+
+
+
+    public Observable<CurrentLanguage> getChanges(){
+        return changeObservable;
+
+    }
+
 }

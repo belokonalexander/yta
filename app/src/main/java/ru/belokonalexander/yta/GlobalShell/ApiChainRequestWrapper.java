@@ -39,6 +39,8 @@ public class ApiChainRequestWrapper implements IApiRequest {
     private DisposableObserver subscriber;
     private Observable taskExecutor;
 
+    private boolean isFinished = false;
+
     //слушатель для обработки результата работы цепочки запросов
     private OnApiFailureResponseListener failureListener;
     private OnApiSuccessResponseListener<List> successListener;
@@ -112,6 +114,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
                 unregisterSelf();
                 if(successListener!=null)
                     successListener.onSuccess(results);
+                isFinished = true;
             }
 
             @Override
@@ -120,7 +123,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
                 if (failureListener != null)
                     failureListener.onFailure(e);
 
-
+                isFinished = true;
             }
 
             @Override
@@ -154,8 +157,28 @@ public class ApiChainRequestWrapper implements IApiRequest {
     }
 
     @Override
-    public void cancel() {
-            subscriber.dispose();
+    public boolean isRunning() {
+        return !subscriber.isDisposed();
+    }
+
+
+
+    /**
+     *  https://github.com/ReactiveX/RxJava/issues/4514 при завершении работы, observer должен в isDisposed()
+     *  возвращать true, однако такого не происходит, поэтому был введен флаг isFinished
+
+     */
+    @Override
+    public boolean cancel() {
+
+            if(!isFinished()) {
+                unregisterSelf();
+                subscriber.dispose();
+                isFinished = true;
+                return true;
+            }
+
+        return false;
     }
 
     @Override
@@ -163,6 +186,9 @@ public class ApiChainRequestWrapper implements IApiRequest {
         return hash;
     }
 
+    public boolean isFinished() {
+        return isFinished;
+    }
 
     private void registerInList() {
         unregisterOther();
@@ -192,7 +218,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
             }
 
             for(int i : deletedIndexes){
-                StaticHelpers.LogThis("Отписываюсь по требованию");
+
                 runningRequests.remove(i);
             }
         }

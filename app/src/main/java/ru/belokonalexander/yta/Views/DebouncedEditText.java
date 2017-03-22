@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Predicate;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 
 /**
@@ -20,9 +22,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class DebouncedEditText extends EditText {
 
-    public static final int DEBOUNCE_VALUE = 600;
+    public static final int DEBOUNCE_VALUE = 300;
     OnTextActionListener onTextActionListener;
 
+    String lastResult="";
+    boolean created = false;
 
     public DebouncedEditText(Context context) {
         super(context);
@@ -37,6 +41,11 @@ public class DebouncedEditText extends EditText {
     }
 
 
+    public void clear(){
+        setText("");
+        this.requestFocus();
+    }
+
 
 
     public void setOnTextActionListener(OnTextActionListener onTextActionListener) {
@@ -45,18 +54,36 @@ public class DebouncedEditText extends EditText {
 
     public interface OnTextActionListener{
         void onTextAction(String text);
+        void onTextClear();
     }
 
     public void startWatching(){
         RxTextView.textChanges(this)
+                .filter(charSequence -> {
+                    if(!created) {                                               //первый "инициализирующий" эммит оставляем без реакции
+                        created = true;
+                        return false;
+                    } else if(charSequence.toString().trim().length()==0) {     //поле ввода было очищено
+                        lastResult = "";
+                        if(onTextActionListener!=null)
+                            onTextActionListener.onTextClear();
+                        return false;
+
+                    }
+                    return true;
+                })
                 .debounce(DEBOUNCE_VALUE, TimeUnit.MILLISECONDS)
-                .filter(charSequence -> length()>0)
                 .observeOn(AndroidSchedulers.mainThread())
+                .filter(charSequence -> !charSequence.toString().trim().equals(lastResult))
                 .subscribe(charSequence -> {
+                    lastResult = charSequence.toString().trim();
                     if(onTextActionListener!=null){
                             onTextActionListener.onTextAction(getText().toString());
                     } else  throw new NullPointerException("OnTextActionListener is null");
                 });
     }
+
+
+
 
 }

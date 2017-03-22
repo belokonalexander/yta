@@ -118,7 +118,11 @@ public class ServiceGenerator {
 
                 response = chain.proceed(request);
 
-
+                /*try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
 
 
                 ResponseBody responseBody = response.body();

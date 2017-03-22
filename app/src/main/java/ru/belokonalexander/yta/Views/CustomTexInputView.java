@@ -29,7 +29,7 @@ public class CustomTexInputView extends RelativeLayout {
     ImageButton clearButton;
     ViewGroup wrapper;
     DebouncedEditText.OnTextActionListener onTextActionListener;
-    OnClearListener onClearListener;
+
     boolean showVoiceButton;
     boolean showSoundButton;
 
@@ -83,9 +83,7 @@ public class CustomTexInputView extends RelativeLayout {
         editText.setOnFocusChangeListener((v, hasFocus) -> focusState = hasFocus ? goFocusState() : goNormalState());
 
         clearButton.setOnClickListener(v ->  {
-            editText.setText("");
-            if(onClearListener!=null)
-                onClearListener.onClear();
+            editText.clear();
         });
 
     }
@@ -116,14 +114,5 @@ public class CustomTexInputView extends RelativeLayout {
         defineViews(getContext());
     }
 
-
-
-    public void setOnClearListener(OnClearListener onClearListener) {
-        this.onClearListener = onClearListener;
-    }
-
-    public interface OnClearListener{
-        void onClear();
-    }
 
 }

@@ -50,4 +50,11 @@ public class TranslateResult {
     public String toString() {
         return code + " / " + lang + " " + text;
     }
+
+        public boolean isEmptyContent(){
+           return !(text.size()>0 && text.get(0).trim().length()>0);
+        }
+
+
+
 }

@@ -6,7 +6,11 @@
     <dimen name="text_header"> 20sp </dimen>
     <dimen name="text_large"> 18sp </dimen>
     <dimen name="icon_padding">8dp</dimen>
+    <dimen name="small_padding">4dp</dimen>
+    <dimen name="tiny_padding">4dp</dimen>
     <dimen name="vertical_large_item_margin">12dp</dimen>
+    <dimen name="vertical_item_margin">8dp</dimen>
+
     <dimen name="composite_text_padding"> 10dp </dimen>
 
 </resources>

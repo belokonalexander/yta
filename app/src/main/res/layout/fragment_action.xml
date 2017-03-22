@@ -12,7 +12,9 @@
         android:layout_height="match_parent"
         android:id="@+id/layout_content"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         >
 
         <include
@@ -29,12 +31,12 @@
 
                 android:orientation="vertical">
 
+
                 <ru.belokonalexander.yta.Views.WordList
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/word_list"
                     />
-
 
 
             </LinearLayout>

@@ -10,6 +10,8 @@ import android.os.Bundle;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
 
     SectionsPagerAdapter sectionsPagerAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,11 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mainViewPager);
 
 
+
+
     }
+
+
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
