@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
+import com.jakewharton.rxbinding2.view.RxView;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -20,16 +22,19 @@ import butterknife.ButterKnife;
 
 
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
+import io.reactivex.observers.SafeObserver;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.Models.Rx.CustomDisposableObserver;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
@@ -56,6 +61,13 @@ public class ActionFragment extends Fragment {
 
     CurrentLanguage currentLanguage;
 
+    ApiChainRequestWrapper getTranslete;
+    TextView languageFromTextView;
+    TextView languageToTextView;
+    View swapTextView;
+    CompositeDisposable disposables = new CompositeDisposable();
+
+
 
     @Nullable
     @Override
@@ -63,81 +75,44 @@ public class ActionFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
 
-        TranslateResult translateResult = new TranslateResult();
-
         //инициализации представления фрагмента
         Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
 
-        /*new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Observable.just("1").observeOn(AndroidSchedulers.mainThread())
-                        .filter(new Predicate<String>() {
-                            @Override
-                            public boolean test(String s) throws Exception {
-                                customTexInputView.setText("идти");
-                                return true;
-                            }
-                        }).subscribe();
-
-            }
-        },1000);*/
-
-
-
-
         return view;
     }
 
-    ApiChainRequestWrapper getTranslete;
+    CustomDisposableObserver<CurrentLanguage> header = new CustomDisposableObserver<CurrentLanguage>() {
+        @Override
+        public void init(CurrentLanguage language) {
+            LayoutInflater mInflater=LayoutInflater.from(getContext());
+            View customView = mInflater.inflate(R.layout.current_languages, null);
+            toolbar.addView(customView);
 
-    TextView languageFromTextView;
-    TextView languageToTextView;
+            languageFromTextView = (TextView) customView.findViewById(R.id.language_from);
+            languageToTextView = (TextView) customView.findViewById(R.id.language_to);
+            swapTextView = customView.findViewById(R.id.swap_language_button);
+            RxView.clicks(swapTextView).subscribe(o -> {
+                language.swapLanguages();
+            });
 
-    CompositeDisposable disposables = new CompositeDisposable();
+            disposables.add(language.getChanged().observeOn(AndroidSchedulers.mainThread()).subscribeWith(this));
+            onNext(language);
+        }
+
+        @Override
+        public void onNext(CurrentLanguage value) {
+            languageFromTextView.setText(value.getLangFromDesc());
+            languageToTextView.setText(value.getLangToDesc());
+        }
+
+    };
 
     void initViews(CurrentLanguage language){
-        currentLanguage = language;
 
-
-        DisposableObserver<CurrentLanguage> header = new DisposableObserver<CurrentLanguage>() {
-            @Override
-            public void onNext(CurrentLanguage value) {
-                StaticHelpers.LogThis(" VAL: " + value);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        };
-
-        disposables.add(currentLanguage.getChanges().subscribeWith(header));
-
-
-
-
-
-
-
-
-        LayoutInflater mInflater=LayoutInflater.from(getContext());
-        View customView = mInflater.inflate(R.layout.current_languages, null);
-        toolbar.addView(customView);
-
-        languageFromTextView = (TextView) customView.findViewById(R.id.language_from);
-        languageToTextView = (TextView) customView.findViewById(R.id.language_to);
-
-        languageFromTextView.setText(language.getLangFromDesc());
-        languageToTextView.setText(language.getLangToDesc());
+        header.init(language);
 
         customTexInputView.setOnTextListener(new DebouncedEditText.OnTextActionListener() {
 
@@ -145,6 +120,9 @@ public class ActionFragment extends Fragment {
             public void onTextAction(String text) {
 
                 String hash = StaticHelpers.getParentHash(this.getClass());
+
+
+
 
                 getTranslete = ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
                             StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
@@ -156,10 +134,7 @@ public class ActionFragment extends Fragment {
                             if(result.get(0) instanceof TranslateResult) {
                                 wordList.setTranslateResult(new CompositeTranslateModel(result.get(0), result.get(1), text),
                                         word -> Observable.fromCallable(() -> {
-                                            /*
-                                                меняем языки местами (сохраняя в настройках)
-                                             */
-                                            //currentLanguage = currentLanguage.swapLanguages();
+                                            language.swapLanguages();
                                             return word;
                                         }).subscribeOn(Schedulers.newThread())
                                                 .observeOn(AndroidSchedulers.mainThread())
@@ -173,8 +148,8 @@ public class ActionFragment extends Fragment {
                             }
 
                         },
-                        ServiceGenerator.getTranslateApi().translate(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
-                        ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()));
+                        ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
+                        ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo()));
 
                 getTranslete.execute();
             }

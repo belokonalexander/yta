@@ -114,4 +114,13 @@ public class StaticHelpers {
     }
 
 
+    public static void swapStringsValues(String s1, String s2) {
+
+        int len1=s1.length();
+
+        s1=s1+s2;
+        s2=s1.substring(0,len1);
+        s1=s1.substring(len1);
+
+    }
 }

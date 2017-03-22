@@ -6,14 +6,16 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.subjects.PublishSubject;
+import ru.belokonalexander.yta.GlobalShell.Models.Rx.ChangedEntity;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 /**
  * Created by Alexander on 18.03.2017.
  */
 
 //класс, описывающий текущий, выбранный язык
-public class CurrentLanguage {
+public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
 
     private String langFrom;
     private String langFromDesc;
@@ -77,25 +79,29 @@ public class CurrentLanguage {
                 '}';
     }
 
-    /*public Observable<CurrentLanguage> swapLanguages(){
-        //CurrentLanguage l =  new CurrentLanguage(langTo,langToDesc,langFrom,langFromDesc);
-        //SharedAppPrefs.getInstance().setLanguage(l);
-        //return l;
-        Observable.fromCallable(new Callable<Object>() {
-        })
-    }*/
-
-
-    //Observable<>
-
 
     private PublishSubject<CurrentLanguage> changeObservable = PublishSubject.create();
 
 
-
-    public Observable<CurrentLanguage> getChanges(){
+    @Override
+    public Observable<CurrentLanguage> getChanged() {
         return changeObservable;
-
     }
 
+    public void swapLanguages() {
+
+        StaticHelpers.LogThis("1) " +  this);
+
+        String tmp = langFromDesc;
+        langFromDesc = langToDesc;
+        langToDesc = tmp;
+
+        tmp = langFrom;
+        langFrom = langTo;
+        langTo = tmp;
+
+        StaticHelpers.LogThis("2) " + this);
+
+        changeObservable.onNext(this);
+    }
 }
