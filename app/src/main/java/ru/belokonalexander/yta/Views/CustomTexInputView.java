@@ -81,7 +81,11 @@ public class CustomTexInputView extends RelativeLayout {
 
     }
 
-
+    public void reset(){
+        String tmp = lastResult;
+        lastResult="";
+        setText(tmp);
+    }
 
     private void defineViews(){
 

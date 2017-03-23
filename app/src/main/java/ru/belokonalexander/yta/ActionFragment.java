@@ -68,12 +68,16 @@ public class ActionFragment extends Fragment {
     CompositeDisposable disposables = new CompositeDisposable();
 
 
+    View rootView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
+
+        StaticHelpers.LogThis(" ON CREATE VIEW: " + this.rootView);
 
         //инициализации представления фрагмента
         Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
@@ -81,23 +85,9 @@ public class ActionFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Observable.just("1").observeOn(AndroidSchedulers.mainThread())
-                        .filter(new Predicate<String>() {
-                            @Override
-                            public boolean test(String s) throws Exception {
-                                customTexInputView.setText("идти");
-                                return true;
-                            }
-                        }).subscribe();
-
-            }
-        },1000);
-
         return view;
     }
+
 
 
 
@@ -113,6 +103,7 @@ public class ActionFragment extends Fragment {
             swapTextView = customView.findViewById(R.id.swap_language_button);
             RxView.clicks(swapTextView).subscribe(o -> {
                 language.swapLanguages();
+                customTexInputView.reset();
             });
 
 
@@ -138,8 +129,6 @@ public class ActionFragment extends Fragment {
             public void onTextAction(String text) {
 
                 getTranslete = ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
-                            StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
-
                             /*
                                 если ответ со словом вернулся без ошибки, то заполняем wordList +
                                     назначаем ему слушателя на слово-синоним (яндекс.словарь)
@@ -147,13 +136,12 @@ public class ActionFragment extends Fragment {
                             if(result.get(0) instanceof TranslateResult) {
                                 CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text, language);
 
-                                wordList.setTranslateResult(model, (word, l) -> {
-
-                                    if(language.equals(l)){
-                                        language.swapLanguages();
+                                wordList.setTranslateResult(model, (word, inputLang) -> {
+                                        if(language.equals(inputLang)){
+                                            language.swapLanguages();
+                                        }
+                                        customTexInputView.setText(word);
                                     }
-                                    customTexInputView.setText(word);
-                                }
                                 );
 
                             }  else {
@@ -177,9 +165,6 @@ public class ActionFragment extends Fragment {
                 wordList.clearView();
             }
         });
-
-
-
     }
 
     @Override
