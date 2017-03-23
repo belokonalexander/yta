@@ -27,6 +27,15 @@ public class Language implements ChangedEntity<Language> {
         changeObservable.onNext(this);
     }
 
+    public Language(String lang) {
+        this.langFrom = lang.substring(0, lang.indexOf("-"));
+        this.langTo = lang.substring(lang.indexOf("-")+1, lang.length());;
+
+        StaticHelpers.LogThis("NOW: " + this);
+
+        changeObservable.onNext(this);
+    }
+
 
     public String getLangFrom() {
         return langFrom;
@@ -81,19 +90,14 @@ public class Language implements ChangedEntity<Language> {
 
         Language that = (Language) o;
 
-        if (!langFrom.equals(that.langFrom)) return false;
-        if (!langFromDesc.equals(that.langFromDesc)) return false;
-        if (!langTo.equals(that.langTo)) return false;
-        return langToDesc.equals(that.langToDesc);
+        return langFrom.equals(that.langFrom) && langTo.equals(that.langTo);
 
     }
 
     @Override
     public int hashCode() {
         int result = langFrom.hashCode();
-        result = 31 * result + langFromDesc.hashCode();
         result = 31 * result + langTo.hashCode();
-        result = 31 * result + langToDesc.hashCode();
         return result;
     }
 
@@ -107,11 +111,12 @@ public class Language implements ChangedEntity<Language> {
 
     public void swapLanguages() {
 
-        StaticHelpers.LogThis("1) " +  this);
-
-        String tmp = langFromDesc;
-        langFromDesc = langToDesc;
-        langToDesc = tmp;
+        String tmp;
+        if(langFromDesc!=null && langToDesc!=null) {
+            tmp = langFromDesc;
+            langFromDesc = langToDesc;
+            langToDesc = tmp;
+        }
 
         tmp = langFrom;
         langFrom = langTo;

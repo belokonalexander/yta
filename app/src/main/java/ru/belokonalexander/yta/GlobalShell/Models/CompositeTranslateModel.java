@@ -26,17 +26,19 @@ public class CompositeTranslateModel {
     private String source;
     private Language language;
 
-    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source, Language language) {
+    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source) {
 
         this.source = source;
 
-        if(translateResult instanceof TranslateResult)
-            this.translateResult = (TranslateResult) translateResult;
+        if(translateResult instanceof TranslateResult) {
+            TranslateResult tr = (TranslateResult) translateResult;
+            this.translateResult = tr;
+            language = new Language(tr.getLang());
 
-        if(lookupResult instanceof LookupResult)
-            this.lookupResult = (LookupResult) lookupResult;
+            if(lookupResult instanceof LookupResult)
+                this.lookupResult = (LookupResult) lookupResult;
 
-        this.language = new Language(language.getLangFrom(), language.getLangFromDesc(), language.getLangTo(), language.getLangToDesc());
+        }
 
     }
 

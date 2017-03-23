@@ -133,7 +133,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
              *      назначаем ему слушателя на слово-синоним (яндекс.словарь)
             */
             if(result.get(0) instanceof TranslateResult) {
-                CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text, currentLanguage);
+                CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text);
 
                 wordList.setTranslateResult(model, (word, inputLang) -> {
                             if(currentLanguage.equals(inputLang)){
