@@ -23,8 +23,9 @@ public class CompositeTranslateModel {
     private TranslateResult translateResult;
     private LookupResult lookupResult;
     private String source;
+    private CurrentLanguage language;
 
-    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source) {
+    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source, CurrentLanguage language) {
 
         this.source = source;
 
@@ -34,7 +35,12 @@ public class CompositeTranslateModel {
         if(lookupResult instanceof LookupResult)
             this.lookupResult = (LookupResult) lookupResult;
 
+        this.language = new CurrentLanguage(language.getLangFrom(), language.getLangFromDesc(), language.getLangTo(), language.getLangToDesc());
 
+    }
+
+    public CurrentLanguage getLanguage() {
+        return language;
     }
 
     public String getSource() {
@@ -181,7 +187,7 @@ public class CompositeTranslateModel {
             }
         }
 
-        return LookupStyledField.buildSpannableString(result.toString(),styled, listener);
+        return LookupStyledField.buildSpannableString(result.toString(),styled, language, listener);
     }
 
     private String getStringOrEmpty(String string){

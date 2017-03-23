@@ -24,6 +24,7 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
+import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 
@@ -36,10 +37,6 @@ public class WordList extends LinearLayout {
     CompositeTranslateModel translateResult;
 
 
-    public void setTranslateResult(CompositeTranslateModel translateResult) {
-        this.translateResult = translateResult;
-        inflateContent();
-    }
 
 
     public void setTranslateResult(CompositeTranslateModel translateResult, OnWordClickListener onClickListener) {
@@ -49,12 +46,10 @@ public class WordList extends LinearLayout {
     }
 
     public interface OnWordClickListener{
-        void onWordClick(String word);
+        void onWordClick(String word, CurrentLanguage language);
     }
 
     private void inflateContent() {
-
-        StaticHelpers.LogThis(" INFLATE ");
 
         clearView();
 
@@ -70,9 +65,6 @@ public class WordList extends LinearLayout {
 
     OnWordClickListener onWordClick;
 
-    public void setOnWordClick(OnWordClickListener onWordClick) {
-        this.onWordClick = onWordClick;
-    }
 
     private void inflateLookupResult(LinearLayout lastContainer) {
         //String text = translateResult.getLookupString();

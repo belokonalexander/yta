@@ -171,6 +171,8 @@ public class ApiChainRequestWrapper implements IApiRequest {
     @Override
     public boolean cancel() {
 
+            StaticHelpers.LogThis(" Отменить запрос");
+
             if(!isFinished()) {
                 unregisterSelf();
                 subscriber.dispose();
@@ -207,19 +209,12 @@ public class ApiChainRequestWrapper implements IApiRequest {
     //проверяю, есть ли такой запрос в обработке и отменяю его
     private void unregisterOther() {
         synchronized (listLock){
-            Set<Integer> deletedIndexes = new HashSet<>();
+
             int index = 0;
             for(ApiChainRequestWrapper apiRequestWrapper : runningRequests){
                 if(this.hash.equals(apiRequestWrapper.hash)) {
-                    deletedIndexes.add(index);
                     apiRequestWrapper.cancel();
                 }
-                index++;
-            }
-
-            for(int i : deletedIndexes){
-
-                runningRequests.remove(i);
             }
         }
     }

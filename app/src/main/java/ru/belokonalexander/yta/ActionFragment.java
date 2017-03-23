@@ -40,7 +40,7 @@ import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
-import ru.belokonalexander.yta.Views.DebouncedEditText;
+
 import ru.belokonalexander.yta.Views.WordList;
 
 
@@ -81,8 +81,25 @@ public class ActionFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
 
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Observable.just("1").observeOn(AndroidSchedulers.mainThread())
+                        .filter(new Predicate<String>() {
+                            @Override
+                            public boolean test(String s) throws Exception {
+                                customTexInputView.setText("идти");
+                                return true;
+                            }
+                        }).subscribe();
+
+            }
+        },1000);
+
         return view;
     }
+
+
 
     CustomDisposableObserver<CurrentLanguage> header = new CustomDisposableObserver<CurrentLanguage>() {
         @Override
@@ -97,6 +114,7 @@ public class ActionFragment extends Fragment {
             RxView.clicks(swapTextView).subscribe(o -> {
                 language.swapLanguages();
             });
+
 
             disposables.add(language.getChanged().observeOn(AndroidSchedulers.mainThread()).subscribeWith(this));
             onNext(language);
@@ -114,15 +132,10 @@ public class ActionFragment extends Fragment {
 
         header.init(language);
 
-        customTexInputView.setOnTextListener(new DebouncedEditText.OnTextActionListener() {
+        customTexInputView.setOnTextListener(new CustomTexInputView.OnTextActionListener() {
 
             @Override
             public void onTextAction(String text) {
-
-                String hash = StaticHelpers.getParentHash(this.getClass());
-
-
-
 
                 getTranslete = ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
                             StaticHelpers.LogThis(" Результат: " + result + " -> " + Thread.currentThread().getName() );
@@ -132,17 +145,18 @@ public class ActionFragment extends Fragment {
                                     назначаем ему слушателя на слово-синоним (яндекс.словарь)
                              */
                             if(result.get(0) instanceof TranslateResult) {
-                                wordList.setTranslateResult(new CompositeTranslateModel(result.get(0), result.get(1), text),
-                                        word -> Observable.fromCallable(() -> {
-                                            language.swapLanguages();
-                                            return word;
-                                        }).subscribeOn(Schedulers.newThread())
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(o -> {
-                                                    customTexInputView.setText(o);
-                                                }));
+                                CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text, language);
 
-                            } else {
+                                wordList.setTranslateResult(model, (word, l) -> {
+
+                                    if(language.equals(l)){
+                                        language.swapLanguages();
+                                    }
+                                    customTexInputView.setText(word);
+                                }
+                                );
+
+                            }  else {
                                 //TODO критическая ошибка
                                 StaticHelpers.LogThis(" критическая ошибка ");
                             }
@@ -168,5 +182,10 @@ public class ActionFragment extends Fragment {
 
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposables.dispose();
+    }
 }
 

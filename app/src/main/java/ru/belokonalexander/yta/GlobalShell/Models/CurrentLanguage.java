@@ -79,6 +79,28 @@ public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CurrentLanguage that = (CurrentLanguage) o;
+
+        if (!langFrom.equals(that.langFrom)) return false;
+        if (!langFromDesc.equals(that.langFromDesc)) return false;
+        if (!langTo.equals(that.langTo)) return false;
+        return langToDesc.equals(that.langToDesc);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = langFrom.hashCode();
+        result = 31 * result + langFromDesc.hashCode();
+        result = 31 * result + langTo.hashCode();
+        result = 31 * result + langToDesc.hashCode();
+        return result;
+    }
 
     private PublishSubject<CurrentLanguage> changeObservable = PublishSubject.create();
 
@@ -100,8 +122,16 @@ public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
         langFrom = langTo;
         langTo = tmp;
 
-        StaticHelpers.LogThis("2) " + this);
 
         changeObservable.onNext(this);
+    }
+
+
+    /*
+        исходный текст - исходный переданного
+        целевой - исходный
+     */
+    public void resetOn(CurrentLanguage l) {
+
     }
 }

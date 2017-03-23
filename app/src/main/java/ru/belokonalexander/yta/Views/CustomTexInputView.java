@@ -13,6 +13,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import com.jakewharton.rxbinding2.view.RxView;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
 import ru.belokonalexander.yta.R;
 
 
@@ -23,16 +30,19 @@ import ru.belokonalexander.yta.R;
 //Кастомный элемент для поля ввода текста
 public class CustomTexInputView extends RelativeLayout {
 
-    DebouncedEditText editText;
+    public static final int DEBOUNCE = 300;
+
+    EditText editText;
     ImageButton soundButton;
     ImageButton voiceButton;
     ImageButton clearButton;
     ViewGroup wrapper;
-    DebouncedEditText.OnTextActionListener onTextActionListener;
+    OnTextActionListener onTextActionListener;
+
 
     boolean showVoiceButton;
     boolean showSoundButton;
-
+    String lastResult = "";
     boolean focusState;
 
     public void setText(String text){
@@ -61,14 +71,21 @@ public class CustomTexInputView extends RelativeLayout {
 
     }
 
+    public void clearText(){
+        editText.setText("");
+        editText.requestFocus();
+    }
+
     public CustomTexInputView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
     }
 
-    private void defineViews(Context context){
 
-        editText = (DebouncedEditText) findViewById(R.id.input_text);
+
+    private void defineViews(){
+
+        editText = (EditText) findViewById(R.id.input_text);
         soundButton = (ImageButton) findViewById(R.id.sound_button);
         voiceButton = (ImageButton) findViewById(R.id.voice_button);
         clearButton = (ImageButton) findViewById(R.id.clear_button);
@@ -83,15 +100,39 @@ public class CustomTexInputView extends RelativeLayout {
         editText.setOnFocusChangeListener((v, hasFocus) -> focusState = hasFocus ? goFocusState() : goNormalState());
 
         clearButton.setOnClickListener(v ->  {
-            editText.clear();
+            clearText();
         });
+
+        RxTextView.textChanges(editText)
+                .skip(1)
+                .filter(charSequence -> {
+
+                    if(charSequence.toString().trim().length()==0) {     //поле ввода было очищено
+                        lastResult = "";
+                        if(onTextActionListener!=null)
+                            onTextActionListener.onTextClear();
+                        return false;
+
+                    }
+                    return true;
+                })
+                .debounce(DEBOUNCE, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(charSequence -> !charSequence.toString().trim().equals(lastResult))
+                .subscribe(charSequence -> {
+                    lastResult = charSequence.toString().trim();
+                    if(onTextActionListener!=null){
+                        onTextActionListener.onTextAction(charSequence.toString());
+                    } else  throw new NullPointerException("OnTextActionListener is null");
+                });
+
 
     }
 
 
-    public void setOnTextListener(DebouncedEditText.OnTextActionListener listener){
-        editText.setOnTextActionListener(listener);
-        editText.startWatching();
+    public void setOnTextListener(OnTextActionListener listener){
+        this.onTextActionListener = listener;
+
     }
 
     private boolean goNormalState() {
@@ -111,8 +152,16 @@ public class CustomTexInputView extends RelativeLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        defineViews(getContext());
+        defineViews();
     }
 
+    public void setOnTextActionListener(OnTextActionListener onTextActionListener) {
+        this.onTextActionListener = onTextActionListener;
+    }
+
+    public interface OnTextActionListener{
+        void onTextAction(String text);
+        void onTextClear();
+    }
 
 }

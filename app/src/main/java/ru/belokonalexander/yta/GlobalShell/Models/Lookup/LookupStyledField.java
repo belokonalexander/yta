@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.WordList;
 
 /**
@@ -39,7 +41,7 @@ public class LookupStyledField {
         NUM, ABOUT, SYNONYMS_AREA, SYNONYM, MEAN, SOURCE, EXAMPLE;
     }
 
-    public static SpannableString buildSpannableString(String source, List<LookupStyledField> values, WordList.OnWordClickListener clickableSpan){
+    public static SpannableString buildSpannableString(String source, List<LookupStyledField> values, CurrentLanguage language, WordList.OnWordClickListener clickableSpan){
 
         SpannableString result = new SpannableString(source);
 
@@ -59,7 +61,8 @@ public class LookupStyledField {
                         result.setSpan(new ClickableSpan() {
                             @Override
                             public void onClick(View widget) {
-                                clickableSpan.onWordClick(((TextView)widget).getText().toString().substring(value.start,value.finish));
+                                StaticHelpers.LogThis("lang: " + language);
+                                clickableSpan.onWordClick(((TextView)widget).getText().toString().substring(value.start,value.finish), language);
                             }
                         }, value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
