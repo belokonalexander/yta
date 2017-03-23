@@ -12,6 +12,7 @@ import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupStyledField;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Mean;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Syn;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Tr;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.WordList;
 
 /**
@@ -23,9 +24,9 @@ public class CompositeTranslateModel {
     private TranslateResult translateResult;
     private LookupResult lookupResult;
     private String source;
-    private CurrentLanguage language;
+    private Language language;
 
-    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source, CurrentLanguage language) {
+    public CompositeTranslateModel(Object translateResult, Object lookupResult, String source, Language language) {
 
         this.source = source;
 
@@ -35,11 +36,11 @@ public class CompositeTranslateModel {
         if(lookupResult instanceof LookupResult)
             this.lookupResult = (LookupResult) lookupResult;
 
-        this.language = new CurrentLanguage(language.getLangFrom(), language.getLangFromDesc(), language.getLangTo(), language.getLangToDesc());
+        this.language = new Language(language.getLangFrom(), language.getLangFromDesc(), language.getLangTo(), language.getLangToDesc());
 
     }
 
-    public CurrentLanguage getLanguage() {
+    public Language getLanguage() {
         return language;
     }
 
@@ -74,18 +75,28 @@ public class CompositeTranslateModel {
      */
     public SpannableString getLookupString(WordList.OnWordClickListener listener) {
 
+        /**
+         * парсим json и формируем текстовое представление Lookup-результата
+         * также фиксируем каждый элемент разметки и накладываем необходимые Span-стили
+         */
 
         StringBuilder result = new StringBuilder();
 
         List<LookupStyledField> styled = new ArrayList<>();
 
+        int defs = 0;
+
         for(Def def: lookupResult.getDef()){
+
+
 
             /**
                 заголовок с информацией о слове
              */
 
             LookupStyledField about = new LookupStyledField(result, LookupStyledField.Type.ABOUT);
+
+            if(defs>0) result.append("\n");
 
             result.append(getStringOrEmpty(def.getPos())).append(getStringOrEmptyDelim(def.getAnm())).append(getStringOrEmptyBrackets(def.getTs()))
                 .append("\n");
@@ -101,10 +112,10 @@ public class CompositeTranslateModel {
             if(def.getTr()!=null)
             for(Tr tr : def.getTr()){
 
-                LookupStyledField num = new LookupStyledField(result, LookupStyledField.Type.NUM);
+                /*LookupStyledField num = new LookupStyledField(result, LookupStyledField.Type.NUM);
                 result.append(trnum);
                 num.setFinish(result);
-                styled.add(num);
+                styled.add(num);*/
 
                 LookupStyledField samples = new LookupStyledField(result, LookupStyledField.Type.SYNONYMS_AREA);
 
@@ -130,7 +141,7 @@ public class CompositeTranslateModel {
                 samples.setFinish(result);
                 styled.add(samples);
 
-                result.append("\n");
+                result.append(" ");
 
                 /**
                     значения
@@ -159,13 +170,17 @@ public class CompositeTranslateModel {
 
                     means.setFinish(result);
                     styled.add(means);
-                    result.append("\n");
+
                 }
 
+                    result.append("\n");
+                /*
+                    примеры
+                 */
                 if(tr.getEx()!=null) {
                     LookupStyledField example = new LookupStyledField(result, LookupStyledField.Type.EXAMPLE);
                     for (Ex ex : tr.getEx()) {
-                        result.append(ex.getText());
+                        result.append("   ").append(ex.getText());
 
                         if(ex.getTr()!=null){
                             result.append(" - ");
@@ -175,19 +190,22 @@ public class CompositeTranslateModel {
                             }
                         }
 
+                        example.setFinish(result);
+                        styled.add(example);
+
                         result.append("\n");
                     }
-                    example.setFinish(result);
-                    styled.add(example);
+
                 }
-
-
 
                 trnum++;
             }
+
+            defs++;
         }
 
-        return LookupStyledField.buildSpannableString(result.toString(),styled, language, listener);
+
+        return LookupStyledField.buildSpannableString(result.toString().trim(),styled, language, listener);
     }
 
     private String getStringOrEmpty(String string){
@@ -207,7 +225,7 @@ public class CompositeTranslateModel {
     }
 
 
-
-
-
+    public boolean isEmptyTranslate() {
+        return translateResult.getText().get(0).trim().equals(source.trim()) && lookupResult.isEmpty();
+    }
 }

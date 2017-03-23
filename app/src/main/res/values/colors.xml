@@ -17,6 +17,7 @@
 
     //----lookup
     <color name="about">#ab4855</color>
+    <color name="yandex">#f7b602</color>
 
 
 </resources>

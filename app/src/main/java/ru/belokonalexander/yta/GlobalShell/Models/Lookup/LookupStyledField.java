@@ -2,17 +2,21 @@ package ru.belokonalexander.yta.GlobalShell.Models.Lookup;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
 
-import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.WordList;
 
@@ -22,8 +26,8 @@ import ru.belokonalexander.yta.Views.WordList;
 
 public class LookupStyledField {
 
-    int start;
-    int finish;
+    private int start;
+    private int finish;
 
     public LookupStyledField(StringBuilder stringBuilder, Type type) {
         this.start = stringBuilder.length();
@@ -35,13 +39,13 @@ public class LookupStyledField {
         this.finish = stringBuilder.length();
     }
 
-    Type type;
+    private Type type;
 
     public enum Type {
         NUM, ABOUT, SYNONYMS_AREA, SYNONYM, MEAN, SOURCE, EXAMPLE;
     }
 
-    public static SpannableString buildSpannableString(String source, List<LookupStyledField> values, CurrentLanguage language, WordList.OnWordClickListener clickableSpan){
+    public static SpannableString buildSpannableString(String source, List<LookupStyledField> values, Language language, WordList.OnWordClickListener clickableSpan){
 
         SpannableString result = new SpannableString(source);
 
@@ -68,6 +72,9 @@ public class LookupStyledField {
                     break;
 
                 case SYNONYMS_AREA:
+
+                    //result.setSpan(new BackgroundColorSpan(Color.parseColor("#aa696cf5")), value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
                     result.setSpan(new StyleSpan(Typeface.ITALIC),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     result.setSpan(new ForegroundColorSpan(Color.parseColor("#696cf5")),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;

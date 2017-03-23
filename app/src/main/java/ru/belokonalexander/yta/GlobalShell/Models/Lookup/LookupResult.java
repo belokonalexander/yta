@@ -29,4 +29,8 @@ public class LookupResult {
                 "def=" + def +
                 '}';
     }
+
+    public boolean isEmpty() {
+        return getDef().size() == 0;
+    }
 }

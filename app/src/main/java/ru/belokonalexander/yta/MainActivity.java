@@ -10,8 +10,6 @@ import android.os.Bundle;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Observable;
-import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
 
 public class MainActivity extends AppCompatActivity {
 

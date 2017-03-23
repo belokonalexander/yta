@@ -12,28 +12,17 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.view.RxView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
-import io.reactivex.observers.SafeObserver;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
-import ru.belokonalexander.yta.GlobalShell.Models.CurrentLanguage;
+import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.Models.Rx.CustomDisposableObserver;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
@@ -48,7 +37,7 @@ import ru.belokonalexander.yta.Views.WordList;
  * Created by Alexander on 16.03.2017.
  */
 
-public class ActionFragment extends Fragment {
+public class ActionFragment extends Fragment implements CustomTexInputView.OnTextActionListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -59,7 +48,7 @@ public class ActionFragment extends Fragment {
     @BindView(R.id.wrapper)
     CustomTexInputView customTexInputView;
 
-    CurrentLanguage currentLanguage;
+    Language currentLanguage;
 
     ApiChainRequestWrapper getTranslete;
     TextView languageFromTextView;
@@ -68,8 +57,6 @@ public class ActionFragment extends Fragment {
     CompositeDisposable disposables = new CompositeDisposable();
 
 
-    View rootView;
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -77,13 +64,13 @@ public class ActionFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
 
-        StaticHelpers.LogThis(" ON CREATE VIEW: " + this.rootView);
-
         //инициализации представления фрагмента
         Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
+
+
 
         return view;
     }
@@ -91,9 +78,9 @@ public class ActionFragment extends Fragment {
 
 
 
-    CustomDisposableObserver<CurrentLanguage> header = new CustomDisposableObserver<CurrentLanguage>() {
+    CustomDisposableObserver<Language> header = new CustomDisposableObserver<Language>() {
         @Override
-        public void init(CurrentLanguage language) {
+        public void init(Language language) {
             LayoutInflater mInflater=LayoutInflater.from(getContext());
             View customView = mInflater.inflate(R.layout.current_languages, null);
             toolbar.addView(customView);
@@ -112,65 +99,66 @@ public class ActionFragment extends Fragment {
         }
 
         @Override
-        public void onNext(CurrentLanguage value) {
+        public void onNext(Language value) {
             languageFromTextView.setText(value.getLangFromDesc());
             languageToTextView.setText(value.getLangToDesc());
         }
 
     };
 
-    void initViews(CurrentLanguage language){
-
+    void initViews(Language language){
+        currentLanguage = language;
         header.init(language);
-
-        customTexInputView.setOnTextListener(new CustomTexInputView.OnTextActionListener() {
-
-            @Override
-            public void onTextAction(String text) {
-
-                getTranslete = ApiChainRequestWrapper.getApartInstance(StaticHelpers.getParentHash(this.getClass()), result -> {
-                            /*
-                                если ответ со словом вернулся без ошибки, то заполняем wordList +
-                                    назначаем ему слушателя на слово-синоним (яндекс.словарь)
-                             */
-                            if(result.get(0) instanceof TranslateResult) {
-                                CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text, language);
-
-                                wordList.setTranslateResult(model, (word, inputLang) -> {
-                                        if(language.equals(inputLang)){
-                                            language.swapLanguages();
-                                        }
-                                        customTexInputView.setText(word);
-                                    }
-                                );
-
-                            }  else {
-                                //TODO критическая ошибка
-                                StaticHelpers.LogThis(" критическая ошибка ");
-                            }
-
-                        },
-                        ServiceGenerator.getTranslateApi().translate(text, language.getLangFrom() + "-" + language.getLangTo()),
-                        ServiceGenerator.getDictionaryApi().lookup(text, language.getLangFrom() + "-" + language.getLangTo()));
-
-                getTranslete.execute();
-            }
-
-            @Override
-            public void onTextClear() {
-                if(getTranslete!=null){
-                    getTranslete.cancel();
-                }
-
-                wordList.clearView();
-            }
-        });
+        customTexInputView.setOnTextListener(this);
+        customTexInputView.setText("привет");
     }
 
     @Override
     public void onStop() {
         super.onStop();
         disposables.dispose();
+    }
+
+    @Override
+    public void onTextAction(String text) {
+
+        Observable[] requests = { ServiceGenerator.getTranslateApi().translate(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
+                                  ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
+
+        String hash = StaticHelpers.getParentHash(this.getClass());
+
+        getTranslete = ApiChainRequestWrapper.getApartInstance(hash, result -> {
+            /*
+             *   если ответ со словом вернулся без ошибки, то заполняем wordList +
+             *      назначаем ему слушателя на слово-синоним (яндекс.словарь)
+            */
+            if(result.get(0) instanceof TranslateResult) {
+                CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text, currentLanguage);
+
+                wordList.setTranslateResult(model, (word, inputLang) -> {
+                            if(currentLanguage.equals(inputLang)){
+                                currentLanguage.swapLanguages();
+                            }
+                            customTexInputView.setText(word);
+                        }
+                );
+            }  else {
+                //TODO критическая ошибка при запросе
+                StaticHelpers.LogThis(" критическая ошибка ");
+            }
+        }, requests);
+
+
+        getTranslete.execute();
+    }
+
+
+    @Override
+    public void onTextClear() {
+        if(getTranslete!=null){
+            getTranslete.cancel();
+        }
+        wordList.clearView();
     }
 }
 

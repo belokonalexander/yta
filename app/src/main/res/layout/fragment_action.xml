@@ -35,6 +35,9 @@
                 <ru.belokonalexander.yta.Views.WordList
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/small_padding"
+                    android:paddingBottom="@dimen/small_padding"
                     android:id="@+id/word_list"
                     />
 

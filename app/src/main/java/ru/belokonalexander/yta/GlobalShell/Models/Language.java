@@ -1,21 +1,16 @@
 package ru.belokonalexander.yta.GlobalShell.Models;
 
-import java.util.concurrent.Callable;
-
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.subjects.PublishSubject;
 import ru.belokonalexander.yta.GlobalShell.Models.Rx.ChangedEntity;
-import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 /**
  * Created by Alexander on 18.03.2017.
  */
 
-//класс, описывающий текущий, выбранный язык
-public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
+//класс, описывающий текущий языковые настройки перевода
+public class Language implements ChangedEntity<Language> {
 
     private String langFrom;
     private String langFromDesc;
@@ -24,7 +19,7 @@ public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
     private String langToDesc;
 
 
-    public CurrentLanguage(String langFrom, String langFromDesc, String langTo, String langToDesc) {
+    public Language(String langFrom, String langFromDesc, String langTo, String langToDesc) {
         this.langFrom = langFrom;
         this.langFromDesc = langFromDesc;
         this.langTo = langTo;
@@ -84,7 +79,7 @@ public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CurrentLanguage that = (CurrentLanguage) o;
+        Language that = (Language) o;
 
         if (!langFrom.equals(that.langFrom)) return false;
         if (!langFromDesc.equals(that.langFromDesc)) return false;
@@ -102,11 +97,11 @@ public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
         return result;
     }
 
-    private PublishSubject<CurrentLanguage> changeObservable = PublishSubject.create();
+    private PublishSubject<Language> changeObservable = PublishSubject.create();
 
 
     @Override
-    public Observable<CurrentLanguage> getChanged() {
+    public Observable<Language> getChanged() {
         return changeObservable;
     }
 
@@ -124,14 +119,5 @@ public class CurrentLanguage implements ChangedEntity<CurrentLanguage> {
 
 
         changeObservable.onNext(this);
-    }
-
-
-    /*
-        исходный текст - исходный переданного
-        целевой - исходный
-     */
-    public void resetOn(CurrentLanguage l) {
-
     }
 }

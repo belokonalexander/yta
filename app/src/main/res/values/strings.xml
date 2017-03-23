@@ -12,5 +12,7 @@
     </string-array>
 
     <string name="text_input_hint">Введите текст</string>
+    <string name="ya_license">Переведено сервисом «Яндекс.Переводчик»</string>
+    <string name="ya_url">https://translate.yandex.ru/</string>
 
 </resources>
