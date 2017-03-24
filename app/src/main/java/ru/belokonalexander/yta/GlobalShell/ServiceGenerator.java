@@ -109,7 +109,7 @@ public class ServiceGenerator {
                 //ищем запись
                 CacheModel cacheMode = CacheModel.getTopRow(signature, CacheModel.CacheGetType.TIMER);
                 if(cacheMode!=null) {
-                    StaticHelpers.LogThis("КЕШИРОВАННАЯ ЗАПИСЬ");
+                    StaticHelpers.LogThis("КЕШИРОВАННАЯ ЗАПИСЬ: " + cacheMode.getSignature() + " time: " + cacheMode.getUpdateDate());
                     return getCachedRow(request, cacheMode);
                 }
 
@@ -117,12 +117,6 @@ public class ServiceGenerator {
                 Response response = null;
 
                 response = chain.proceed(request);
-
-                /*try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
 
 
                 ResponseBody responseBody = response.body();

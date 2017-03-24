@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
-import ru.belokonalexander.yta.GlobalShell.Models.Language;
+import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
 
@@ -40,7 +40,7 @@ public class SharedAppPrefs {
         return sharedAppPrefs;
     }
 
-    public void setLanguage(Language currentLanguage){
+    public void setLanguage(TranslateLanguage currentLanguage){
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(_LANGUAGE_FROM, currentLanguage.getLangFrom());
         editor.putString(_LANGUAGE_FROM_DESC, currentLanguage.getLangFromDesc());
@@ -49,9 +49,9 @@ public class SharedAppPrefs {
         editor.apply();
     }
 
-    public Language getLanguage(){
+    public TranslateLanguage getLanguage(){
 
-       return new Language(sharedPreferences.getString(_LANGUAGE_FROM,"ru"),sharedPreferences.getString(_LANGUAGE_FROM_DESC,"Русский"),
+       return new TranslateLanguage(sharedPreferences.getString(_LANGUAGE_FROM,"ru"),sharedPreferences.getString(_LANGUAGE_FROM_DESC,"Русский"),
                                        sharedPreferences.getString(_LANGUAGE_TO,"en"),sharedPreferences.getString(_LANGUAGE_TO_DESC,"Английский"));
 
     }

@@ -12,7 +12,6 @@ import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupStyledField;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Mean;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Syn;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Tr;
-import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.WordList;
 
 /**
@@ -24,7 +23,7 @@ public class CompositeTranslateModel {
     private TranslateResult translateResult;
     private LookupResult lookupResult;
     private String source;
-    private Language language;
+    private TranslateLanguage language;
 
     public CompositeTranslateModel(Object translateResult, Object lookupResult, String source) {
 
@@ -33,7 +32,7 @@ public class CompositeTranslateModel {
         if(translateResult instanceof TranslateResult) {
             TranslateResult tr = (TranslateResult) translateResult;
             this.translateResult = tr;
-            language = new Language(tr.getLang());
+            language = new TranslateLanguage(tr.getLang());
 
             if(lookupResult instanceof LookupResult)
                 this.lookupResult = (LookupResult) lookupResult;
@@ -42,7 +41,7 @@ public class CompositeTranslateModel {
 
     }
 
-    public Language getLanguage() {
+    public TranslateLanguage getLanguage() {
         return language;
     }
 

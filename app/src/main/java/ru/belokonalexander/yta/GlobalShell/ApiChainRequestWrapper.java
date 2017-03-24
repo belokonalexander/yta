@@ -39,7 +39,11 @@ public class ApiChainRequestWrapper implements IApiRequest {
     private DisposableObserver subscriber;
     private Observable taskExecutor;
 
-    private boolean isFinished = false;
+    enum State {
+        RUNNING, FINISHED, SLEEP;
+    }
+
+    private State state = State.SLEEP;
 
     //слушатель для обработки результата работы цепочки запросов
     private OnApiFailureResponseListener failureListener;
@@ -107,30 +111,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
         }
 
 
-        subscriber = new DisposableObserver() {
 
-            @Override
-            public void onComplete() {
-                unregisterSelf();
-                if(successListener!=null)
-                    successListener.onSuccess(results);
-                isFinished = true;
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                unregisterSelf();
-                if (failureListener != null)
-                    failureListener.onFailure(e);
-
-                isFinished = true;
-            }
-
-            @Override
-            public void onNext(Object o) {
-                results.add(o);
-            }
-        };
 
     }
 
@@ -140,6 +121,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
         }
         return new ApiChainRequestWrapper(commonHash,  successListener, failureListener, RunningType.GROUP, taskChain);
     }
+
 
     public static ApiChainRequestWrapper getApartInstance(String commonHash, OnApiSuccessResponseListener<List> successListener, Observable... taskChain){
         if(taskChain.length==0){
@@ -152,9 +134,17 @@ public class ApiChainRequestWrapper implements IApiRequest {
 
     @Override
     public void execute() {
-        registerInList();
-        taskExecutor.subscribe(subscriber);
+
+            if(state!=State.SLEEP)
+                subscriber.dispose();
+
+            StaticHelpers.LogThis(" Выполняю: " + hash + " в списке: " + runningRequests);
+            state = State.RUNNING;
+            registerInList();
+            taskExecutor.subscribe(resetSubscriber());
     }
+
+
 
     @Override
     public boolean isRunning() {
@@ -173,10 +163,10 @@ public class ApiChainRequestWrapper implements IApiRequest {
 
             StaticHelpers.LogThis(" Отменить запрос");
 
-            if(!isFinished()) {
+            if(state != State.FINISHED) {
                 unregisterSelf();
                 subscriber.dispose();
-                isFinished = true;
+                state = State.FINISHED;
                 return true;
             }
 
@@ -188,9 +178,8 @@ public class ApiChainRequestWrapper implements IApiRequest {
         return hash;
     }
 
-    public boolean isFinished() {
-        return isFinished;
-    }
+
+
 
     private void registerInList() {
         unregisterOther();
@@ -224,6 +213,49 @@ public class ApiChainRequestWrapper implements IApiRequest {
         synchronized (listLock) {
             runningRequests.add(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ApiChainRequestWrapper that = (ApiChainRequestWrapper) o;
+
+        return hash.equals(that.hash);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return hash.hashCode();
+    }
+
+    public DisposableObserver resetSubscriber(){
+        return subscriber = new DisposableObserver() {
+
+            @Override
+            public void onComplete() {
+                unregisterSelf();
+                if(successListener!=null)
+                    successListener.onSuccess(results);
+                state = State.FINISHED;
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                unregisterSelf();
+                if (failureListener != null)
+                    failureListener.onFailure(e);
+
+                state = State.FINISHED;
+            }
+
+            @Override
+            public void onNext(Object o) {
+                results.add(o);
+            }
+        };
     }
 
 

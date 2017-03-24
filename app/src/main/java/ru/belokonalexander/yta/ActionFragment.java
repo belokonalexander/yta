@@ -1,5 +1,7 @@
 package ru.belokonalexander.yta;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,19 +20,21 @@ import butterknife.ButterKnife;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
-import ru.belokonalexander.yta.GlobalShell.Models.Language;
-import ru.belokonalexander.yta.GlobalShell.Models.Rx.CustomDisposableObserver;
+import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
+import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 
 import ru.belokonalexander.yta.Views.WordList;
+
+import static ru.belokonalexander.yta.ChooseLanguageDialog.INPUT_LANGUAGE_CHANGE_REQUEST_CODE;
+import static ru.belokonalexander.yta.ChooseLanguageDialog.OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE;
 
 
 /**
@@ -48,14 +52,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     @BindView(R.id.wrapper)
     CustomTexInputView customTexInputView;
 
-    Language currentLanguage;
+    TranslateLanguage currentLanguage;
 
     ApiChainRequestWrapper getTranslete;
     TextView languageFromTextView;
     TextView languageToTextView;
     View swapTextView;
-    CompositeDisposable disposables = new CompositeDisposable();
-
+    SimpleRequestsManager requestsManager = new SimpleRequestsManager();
 
     @Nullable
     @Override
@@ -70,54 +73,38 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::initViews);
 
+        requestsManager.addRequest(getTranslete);
 
 
         return view;
     }
 
 
+    private void initHeader(){
+        LayoutInflater mInflater=LayoutInflater.from(getContext());
+        View customView = mInflater.inflate(R.layout.current_languages, null);
+        toolbar.addView(customView);
+
+        languageFromTextView = (TextView) customView.findViewById(R.id.language_from);
+        languageToTextView = (TextView) customView.findViewById(R.id.language_to);
+        swapTextView = customView.findViewById(R.id.swap_language_button);
+        languageFromTextView.setText(currentLanguage.getLangFromDesc());
+        languageFromTextView.setOnClickListener(v -> changeLanguage(INPUT_LANGUAGE_CHANGE_REQUEST_CODE));
+        languageToTextView.setText(currentLanguage.getLangToDesc());
+        languageToTextView.setOnClickListener(v -> changeLanguage(OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE));
+        RxView.clicks(swapTextView).subscribe(o -> {
+            swapLanguages();
+        });
+    }
 
 
-    CustomDisposableObserver<Language> header = new CustomDisposableObserver<Language>() {
-        @Override
-        public void init(Language language) {
-            LayoutInflater mInflater=LayoutInflater.from(getContext());
-            View customView = mInflater.inflate(R.layout.current_languages, null);
-            toolbar.addView(customView);
-
-            languageFromTextView = (TextView) customView.findViewById(R.id.language_from);
-            languageToTextView = (TextView) customView.findViewById(R.id.language_to);
-            swapTextView = customView.findViewById(R.id.swap_language_button);
-            RxView.clicks(swapTextView).subscribe(o -> {
-                language.swapLanguages();
-                customTexInputView.reset();
-            });
-
-
-            disposables.add(language.getChanged().observeOn(AndroidSchedulers.mainThread()).subscribeWith(this));
-            onNext(language);
-        }
-
-        @Override
-        public void onNext(Language value) {
-            languageFromTextView.setText(value.getLangFromDesc());
-            languageToTextView.setText(value.getLangToDesc());
-        }
-
-    };
-
-    void initViews(Language language){
+    void initViews(TranslateLanguage language){
         currentLanguage = language;
-        header.init(language);
+        initHeader();
         customTexInputView.setOnTextListener(this);
         customTexInputView.setText("привет");
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        disposables.dispose();
-    }
 
     @Override
     public void onTextAction(String text) {
@@ -127,26 +114,27 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         String hash = StaticHelpers.getParentHash(this.getClass());
 
-        getTranslete = ApiChainRequestWrapper.getApartInstance(hash, result -> {
-            /*
-             *   если ответ со словом вернулся без ошибки, то заполняем wordList +
-             *      назначаем ему слушателя на слово-синоним (яндекс.словарь)
-            */
-            if(result.get(0) instanceof TranslateResult) {
-                CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text);
 
-                wordList.setTranslateResult(model, (word, inputLang) -> {
-                            if(currentLanguage.equals(inputLang)){
-                                currentLanguage.swapLanguages();
+        getTranslete = ApiChainRequestWrapper.getApartInstance(hash, result -> {
+                /*
+                 *   если ответ со словом вернулся без ошибки, то заполняем wordList +
+                 *      назначаем ему слушателя на слово-синоним (яндекс.словарь)
+                */
+                if(result.get(0) instanceof TranslateResult) {
+                    CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text);
+
+                    wordList.setTranslateResult(model, (word, inputLang) -> {
+                                if(currentLanguage.equals(inputLang)){
+                                   swapLanguages();
+                                }
+                                customTexInputView.setText(word);
                             }
-                            customTexInputView.setText(word);
-                        }
-                );
-            }  else {
-                //TODO критическая ошибка при запросе
-                StaticHelpers.LogThis(" критическая ошибка ");
-            }
-        }, requests);
+                    );
+                }  else {
+                    //TODO критическая ошибка при запросе
+                    StaticHelpers.LogThis(" критическая ошибка ");
+                }
+            }, requests);
 
 
         getTranslete.execute();
@@ -159,6 +147,50 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             getTranslete.cancel();
         }
         wordList.clearView();
+    }
+
+
+    private void swapLanguages(){
+        currentLanguage.swapLanguages();
+        languageWasChanged();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        requestsManager.clear();
+    }
+
+    /**
+     * Обработка результата работы фрагмента по смене языка ->
+     *      ожидаем смены языка
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode== Activity.RESULT_OK){
+
+            languageWasChanged();
+
+        }
+    }
+
+    private void languageWasChanged(){
+        StaticHelpers.LogThis("lang: " + currentLanguage);
+        languageToTextView.setText(currentLanguage.getLangToDesc());
+        languageFromTextView.setText(currentLanguage.getLangFromDesc());
+        customTexInputView.reset();
+    }
+
+    private void changeLanguage(int directionCode){
+
+        ChooseLanguageDialog dialog = new ChooseLanguageDialog();
+        dialog.setTargetFragment(this,directionCode);
+        dialog.show(getActivity().getSupportFragmentManager(),currentLanguage);
+
     }
 }
 

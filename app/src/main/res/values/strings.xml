@@ -14,5 +14,11 @@
     <string name="text_input_hint">Введите текст</string>
     <string name="ya_license">Переведено сервисом «Яндекс.Переводчик»</string>
     <string name="ya_url">https://translate.yandex.ru/</string>
+    <string name="choose">Выбрать</string>
+    <string name="cancel">Отмена</string>
+    <string name="input_language_cahnge">Смена исходного языка</string>
+    <string name="update">Обновить список</string>
+    <string name="output_language_cahnge">Смена целевого языка</string>
+    <string name="default_app_lang">ru</string>
 
 </resources>

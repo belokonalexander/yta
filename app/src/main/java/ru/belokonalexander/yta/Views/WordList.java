@@ -22,7 +22,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
-import ru.belokonalexander.yta.GlobalShell.Models.Language;
+import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
@@ -101,7 +101,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
      *  интерфейс, обрабатывающий события для второстепенных переводов
      */
     public interface OnWordClickListener{
-        void onWordClick(String word, Language language);
+        void onWordClick(String word, TranslateLanguage language);
     }
 
     /**

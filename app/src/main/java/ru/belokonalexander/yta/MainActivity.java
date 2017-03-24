@@ -1,5 +1,6 @@
 package ru.belokonalexander.yta;
 
+import android.content.Context;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,9 +8,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.inputmethod.InputMethodManager;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,4 +89,38 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    public static String BACKPRESS_ENABLE = "BACKPRESS";
+    public void openInThisContainer(Fragment whichWillOpened){
+
+        try { // hide keyboard
+            InputMethodManager inputManager = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Bundle additional = whichWillOpened.getArguments();
+
+        if(additional==null)
+            additional = new Bundle();
+
+        additional.putBoolean(BACKPRESS_ENABLE, true);
+
+        whichWillOpened.setArguments(additional);
+
+        StaticHelpers.LogThis(" Открываю...");
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.container, whichWillOpened, null)
+                .setCustomAnimations(R.anim.slide_in_left,0,0,R.anim.slide_out_right)
+                .show(whichWillOpened)
+                .addToBackStack(null)
+                .commit();
+    }
+
+
+
 }

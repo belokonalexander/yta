@@ -2,21 +2,17 @@ package ru.belokonalexander.yta.GlobalShell.Models.Lookup;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
 
-import ru.belokonalexander.yta.GlobalShell.Models.Language;
+import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.WordList;
 
@@ -45,7 +41,7 @@ public class LookupStyledField {
         NUM, ABOUT, SYNONYMS_AREA, SYNONYM, MEAN, SOURCE, EXAMPLE;
     }
 
-    public static SpannableString buildSpannableString(String source, List<LookupStyledField> values, Language language, WordList.OnWordClickListener clickableSpan){
+    public static SpannableString buildSpannableString(String source, List<LookupStyledField> values, TranslateLanguage language, WordList.OnWordClickListener clickableSpan){
 
         SpannableString result = new SpannableString(source);
 
