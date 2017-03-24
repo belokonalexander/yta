@@ -21,6 +21,22 @@ public class TranslateLanguage implements  Serializable {
 
     }
 
+    public Language getFrom() {
+        return from;
+    }
+
+    public Language getTo() {
+        return to;
+    }
+
+    public void setFrom(Language from) {
+        this.from = from;
+    }
+
+    public void setTo(Language to) {
+        this.to = to;
+    }
+
     public TranslateLanguage(String lang) {
         from = new Language(lang.substring(0, lang.indexOf("-")));
         to = new Language(lang.substring(lang.indexOf("-")+1, lang.length()));

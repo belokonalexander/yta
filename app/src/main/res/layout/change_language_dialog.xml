@@ -1,10 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/default_list_height"
+        style="@style/AppCardView"
+        android:id="@+id/control_panel_wrapper"
+        android:layout_alignParentBottom="true"
+
+        >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/default_list_height"
+                android:id="@+id/control_panel"
+                android:orientation="horizontal"
+                android:background="@android:color/white"
+                >
+            </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"/>
-</LinearLayout>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/control_panel_wrapper"
+        android:layout_below="@+id/title_wrapper"
+        />
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/default_list_height"
+        style="@style/AppCardView"
+        android:id="@+id/title_wrapper"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/OneLineTextView"
+            android:id="@+id/title"
+            android:padding="@dimen/icon_padding"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/text_color_alternative"
+            android:textStyle="bold"
+            android:text="123"
+            android:gravity="center_vertical"
+            android:background="@android:color/white"
+            />
+
+    </android.support.v7.widget.CardView>
+
+
+
+</RelativeLayout>

@@ -34,6 +34,24 @@
 
     </style>
 
+    <style name="AppCardView" parent="CardView">
+
+        <item name="cardCornerRadius">1dp</item>
+        <item name="android:clickable">true</item>
+        <item name="contentPaddingLeft">0dp</item>
+        <item name="contentPaddingRight">0dp</item>
+        <item name="contentPaddingTop">0dp</item>
+        <item name="contentPaddingBottom">0dp</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardMaxElevation">@dimen/card_elevation</item>
+        <item name="contentPadding">0dp</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardBackgroundColor">@color/border_text_color</item>
+
+
+    </style>
+
+
 
 
 </resources>

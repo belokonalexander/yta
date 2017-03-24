@@ -23,6 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
+import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
@@ -34,6 +35,7 @@ import ru.belokonalexander.yta.Views.CustomTexInputView;
 import ru.belokonalexander.yta.Views.WordList;
 
 import static ru.belokonalexander.yta.ChooseLanguageDialog.INPUT_LANGUAGE_CHANGE_REQUEST_CODE;
+import static ru.belokonalexander.yta.ChooseLanguageDialog.LANG_LEY;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE;
 
 
@@ -172,6 +174,17 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode== Activity.RESULT_OK){
+            StaticHelpers.LogThis("CHANGED: " + data.getExtras());
+
+            switch (requestCode) {
+                case INPUT_LANGUAGE_CHANGE_REQUEST_CODE:
+                    currentLanguage.setFrom((Language) data.getSerializableExtra(LANG_LEY));
+                    break;
+
+                case OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE:
+                    currentLanguage.setTo((Language) data.getSerializableExtra(LANG_LEY));
+                    break;
+            }
 
             languageWasChanged();
 
@@ -189,7 +202,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         ChooseLanguageDialog dialog = new ChooseLanguageDialog();
         dialog.setTargetFragment(this,directionCode);
-        dialog.show(getActivity().getSupportFragmentManager(),currentLanguage);
+        dialog.show(getActivity().getSupportFragmentManager());
 
     }
 }

@@ -20,8 +20,12 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
     abstract  RecyclerView.ViewHolder onCreateVH(ViewGroup parent, int viewType);
     abstract  void onBindVH(RecyclerView.ViewHolder holder, int position);
 
+    public void rewriteAll(List<T> data){
+        this.data = data;
+        notifyDataSetChanged();
+    }
 
-    public CommonAdapter() {
+    CommonAdapter() {
 
         data = new ArrayList<>();
     }

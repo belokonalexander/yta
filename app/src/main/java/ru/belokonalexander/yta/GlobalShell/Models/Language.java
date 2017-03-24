@@ -1,10 +1,12 @@
 package ru.belokonalexander.yta.GlobalShell.Models;
 
+import java.io.Serializable;
+
 /**
  * Created by Alexander on 24.03.2017.
  */
 
-public class Language {
+public class Language implements Comparable<Language>, Serializable {
     private String code;
     private String desc;
 
@@ -38,8 +40,18 @@ public class Language {
 
     @Override
     public int hashCode() {
-        int result = code != null ? code.hashCode() : 0;
-        result = 31 * result + (desc != null ? desc.hashCode() : 0);
-        return result;
+        return code.hashCode();
+    }
+
+
+
+    @Override
+    public int compareTo(Language o) {
+        if(desc!=null){
+            if (o == null)
+                return 1;
+            else return desc.compareTo(o.getDesc());
+        }
+        return o.desc==null ? 0 : -1;
     }
 }
