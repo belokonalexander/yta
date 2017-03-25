@@ -51,10 +51,8 @@ public class TranslateResult {
         return code + " / " + lang + " " + text;
     }
 
-        public boolean isEmptyContent(){
-           return !(text.size()>0 && text.get(0).trim().length()>0);
-        }
 
-
-
+    public boolean isEmpty() {
+        return !(text.size() > 0 && text.get(0).trim().length() > 0);
+    }
 }

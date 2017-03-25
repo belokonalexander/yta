@@ -41,6 +41,18 @@ public class CompositeTranslateModel {
 
     }
 
+    /**
+     * результат пришел, но он не результативный, т.е когда input==output, но он есть
+     */
+    public boolean isUselessTranslate() {
+        return  translateResult!=null &&  translateResult.getText().get(0).trim().equals(source.trim())
+                && lookupIsDummy();
+
+    }
+
+
+
+
     public TranslateLanguage getLanguage() {
         return language;
     }
@@ -226,7 +238,11 @@ public class CompositeTranslateModel {
     }
 
 
-    public boolean isEmptyTranslate() {
-        return translateResult.getText().get(0).trim().equals(source.trim()) && lookupResult.isEmpty();
+    public boolean isDummy() {
+        return translateResult==null || translateResult.isEmpty();
+    }
+
+    public boolean lookupIsDummy() {
+        return lookupResult==null || lookupResult.isEmpty();
     }
 }

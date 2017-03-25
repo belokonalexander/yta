@@ -111,19 +111,21 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
 
         clearView();
 
+
         // исключается отображение пустой модели
-        if(translateResult.getTranslateResult()!=null && !translateResult.getTranslateResult().isEmptyContent()) {
+        if(!translateResult.isDummy()){
             LinearLayout lastContainer = inflateTranslateResult();
 
-            if(translateResult.getLookupResult()!=null && !translateResult.getLookupResult().isEmpty()) {
+            if(!translateResult.lookupIsDummy()){
                 lastContainer = inflateLookupResult(lastContainer);
+
+                if(!translateResult.isUselessTranslate())
+                    inflateYandexLicenceLabel(lastContainer);
+
             }
 
-            if(!translateResult.isEmptyTranslate())
-                inflateYandexLicenceLabel(lastContainer);
-            else inflateHelpPanel(lastContainer);
-
         }
+
 
     }
 
