@@ -41,11 +41,6 @@ public class CacheModel {
     Date updateDate;
 
 
-    public void save(DaoSession daoSession){
-        updateDate = new Date();
-        daoSession.getCacheModelDao().insert(this);
-    }
-
     @Generated(hash = 260203277)
     public CacheModel(Long Id, @NotNull String signature, @NotNull String mediaType, @NotNull String response, @NotNull Date updateDate) {
         this.Id = Id;

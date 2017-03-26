@@ -161,7 +161,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
     @Override
     public boolean cancel() {
 
-            StaticHelpers.LogThis(" Отменить запрос");
+            StaticHelpers.LogThis(" Отменить запрос : " + runningRequests);
 
             if(state != State.FINISHED) {
                 unregisterSelf();

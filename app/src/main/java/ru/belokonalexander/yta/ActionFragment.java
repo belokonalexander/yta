@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.view.RxView;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -21,9 +23,11 @@ import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import ru.belokonalexander.yta.Database.CacheModel;
+import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
-import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
+import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
@@ -77,6 +81,11 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
+        List<CacheModel> cache = YtaApplication.getDaoSession().getCacheModelDao().loadAll();
+
+        StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
+        StaticHelpers.LogThis(cache);
+        StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
 
         return view;
     }
@@ -104,7 +113,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         currentLanguage = language;
         initHeader();
         customTexInputView.setOnTextListener(this);
-        customTexInputView.setText("привет");
+        customTexInputView.setText("пока");
     }
 
 
@@ -119,12 +128,20 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         getTranslete = ApiChainRequestWrapper.getApartInstance(hash, result -> {
                 /*
-                 *   если ответ со словом вернулся без ошибки, то заполняем wordList +
+                 *   если ответ со словом вернулся без ошибки, то сохраняем его в историю поиска, заполняем wordList +
                  *      назначаем ему слушателя на слово-синоним (яндекс.словарь)
                 */
                 if(result.get(0) instanceof TranslateResult) {
-                    CompositeTranslateModel model = new CompositeTranslateModel(result.get(0),result.get(1), text);
 
+                    String textResult = ((TranslateResult)result.get(0)).getText().get(0);
+                    LookupResult lookupResult = null;
+                    if(result.get(1) instanceof LookupResult){
+                        lookupResult = (LookupResult) result.get(1);
+                    }
+
+                    CompositeTranslateModel model = //new CompositeTranslateModel(null, text, currentLanguage, textResult, false, lookupResult);
+                            YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadByRowId(2);
+                    //model.saveInHistory();
                     wordList.setTranslateResult(model, (word, inputLang) -> {
                                 if(currentLanguage.equals(inputLang)){
                                    swapLanguages();

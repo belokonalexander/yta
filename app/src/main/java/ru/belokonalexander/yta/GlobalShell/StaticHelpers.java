@@ -123,4 +123,21 @@ public class StaticHelpers {
         s1=s1.substring(len1);
 
     }
+
+    public static String getStringOrEmptyDelim(String string){
+        return (string==null) ? "" : ", " + string;
+    }
+
+    public static String getStringOrEmptyDelim(String string, int pos){
+        return (string==null) ? "" : (pos==0) ? string : ", " + string;
+    }
+
+    public static String getStringOrEmptyBrackets(String string){
+        return (string==null) ? "" : " [" + string + "]";
+    }
+
+    public static String getStringOrEmpty(String string){
+        return (string==null) ? "" : string;
+    }
+
 }

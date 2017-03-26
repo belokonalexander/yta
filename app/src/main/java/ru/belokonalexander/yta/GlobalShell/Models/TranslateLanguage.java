@@ -62,10 +62,7 @@ public class TranslateLanguage implements  Serializable {
 
     @Override
     public String toString() {
-        return "TranslateLanguage{" +
-                "from=" + from +
-                ", to=" + to +
-                '}';
+        return getLangFrom()+"-"+getLangTo();
     }
 
     @Override

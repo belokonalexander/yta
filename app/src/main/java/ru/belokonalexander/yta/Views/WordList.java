@@ -16,12 +16,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import ru.belokonalexander.yta.GlobalShell.Models.CompositeTranslateModel;
+import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
@@ -39,7 +40,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
     /**
      *  главная модель
      */
-    private CompositeTranslateModel translateResult;
+    private CompositeTranslateModel translate;
     private OnWordClickListener onWordClick;
 
 
@@ -49,7 +50,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
      * @param onClickListener слушатель, реагирующий на клик по варианту второстепенного перевода
      */
     public void setTranslateResult(CompositeTranslateModel translateResult, OnWordClickListener onClickListener) {
-        this.translateResult = translateResult;
+        this.translate = translateResult;
         this.onWordClick = onClickListener;
         inflateContent();
     }
@@ -57,18 +58,9 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
     @Override
     public void inflateYandexLicenceLabel(ViewGroup container) {
 
-        //ViewGroup target = container;
 
-        /*for(int i =0; i < container.getChildCount(); i++){
-            View view = container.getChildAt(i);
-            if(view instanceof ScrollView)
-                target = (ViewGroup) view;
-        }
-*/
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         TextView label = (TextView) layoutInflater.inflate(R.layout.word_lookup, null);
-
-        //StaticHelpers.LogThis(YtaApplication.getAppContext().getResources().getString(R.string.ya_license));
         SpannableString ss = new SpannableString(YtaApplication.getAppContext().getResources().getString(R.string.ya_license));
 
         int start = ss.toString().indexOf("«");
@@ -109,23 +101,16 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
      */
     private void inflateContent() {
 
-        clearView();
+            clearView();
 
 
-        // исключается отображение пустой модели
-        if(!translateResult.isDummy()){
             LinearLayout lastContainer = inflateTranslateResult();
 
-            if(!translateResult.lookupIsDummy()){
+            if(!translate.lookupIsDummy())
                 lastContainer = inflateLookupResult(lastContainer);
 
-                if(!translateResult.isUselessTranslate())
-                    inflateYandexLicenceLabel(lastContainer);
-
-            }
-
-        }
-
+            if(!translate.isUselessTranslate())
+                inflateYandexLicenceLabel(lastContainer);
 
     }
 
@@ -135,7 +120,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
 
 
     /**
-     * Метод заполняет результаты словаря
+     * заполнение результатов словаря
      * @param lastContainer контейнер, в который будут заполняться данные
      */
     private LinearLayout inflateLookupResult(LinearLayout lastContainer) {
@@ -147,7 +132,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         textView.setMovementMethod(LinkMovementMethod.getInstance());
         textView.setClickable(true);
 
-        textView.setText(translateResult.getLookupString(onWordClick));
+        textView.setText(translate.getLookupString(onWordClick));
         //textView.setVerticalScrollBarEnabled(true);
 
         LinearLayout linearLayout = new LinearLayout(getContext());
@@ -165,7 +150,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
     }
 
     /**
-     *
+     * заполнение результатов перевода
      * @return последний созданный контейнер
      */
     private LinearLayout inflateTranslateResult() {
@@ -173,25 +158,24 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout layout = (RelativeLayout) layoutInflater.inflate(R.layout.word_layout,null);
         LinearLayout wordListContainer = (LinearLayout) layout.findViewById(R.id.text_list);
+        ImageButton favorite = (ImageButton) layout.findViewById(R.id.save_word);
+        favorite.setOnClickListener(v -> {
+            if(translate.getFavorite()){
+                translate.removeFromFavorite();
+            } else {
+                translate.saveAsFavorite();
+            }
+        });
 
-
-        for(int i = 0; i <  translateResult.getTranslateResult().getText().size(); i++){
-
-            String text = translateResult.getTranslateResult().getText().get(i);
+            String text = translate.getTranslate();
             ViewGroup wordItem = (ViewGroup) layoutInflater.inflate(R.layout.word_item, null);
-            TextView translate = (TextView) wordItem.findViewById(R.id.t_word);
-            translate.setText(text);
+            TextView translateResult = (TextView) wordItem.findViewById(R.id.t_word);
+            translateResult.setText(text);
 
             //оригинальный текст, который будет отобрадаться только под первым вариантом перевода
             TextView original = (TextView) wordItem.findViewById(R.id.original_word);
-            original.setText(translateResult.getSource());
-
-            if(i==0){
-                original.setVisibility(VISIBLE);
-            } else setVisibility(GONE);
-
+            original.setText(translate.getSource());
             wordListContainer.addView(wordItem);
-        }
 
         this.addView(layout);
 
@@ -220,6 +204,8 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
     public WordList(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
+
 
 
 

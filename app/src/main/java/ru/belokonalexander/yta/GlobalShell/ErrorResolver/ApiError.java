@@ -28,6 +28,5 @@ public class ApiError extends Throwable {
             message = e.getMessage();
             code = -1;
         }
-
     }
 }

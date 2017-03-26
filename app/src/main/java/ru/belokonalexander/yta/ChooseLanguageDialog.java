@@ -55,6 +55,9 @@ public class ChooseLanguageDialog extends DialogFragment {
     Button updateButton;
     ApiChainRequestWrapper getLanguages;
 
+    Button cancel;
+    Button updateLanguages;
+
     public void show(FragmentManager manager){
         StaticHelpers.LogThis(" Show dialog");
         super.show(manager,"changeLanguage");
@@ -72,22 +75,23 @@ public class ChooseLanguageDialog extends DialogFragment {
 
         View view = inflater.inflate(R.layout.change_language_dialog, null);
         TextView titleView = (TextView) view.findViewById(R.id.title);
+        cancel = (Button) view.findViewById(R.id.cancel);
+        updateButton = (Button) view.findViewById(R.id.update);
+
+        cancel.setOnClickListener(v -> dismiss());
+
+        updateButton.setOnClickListener(v -> updateLanguages());
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(languageAdapter);
+
         // присваиваем адаптер списку
-        languageAdapter.setOnClickListener(new CommonAdapter.OnClickListener<Language>() {
-            @Override
-            public void onClick(Language item) {
-                StaticHelpers.LogThis("ITEM: " + item.getDesc());
-
-                Intent response = new Intent();
-                response.putExtra(LANG_LEY,item);
-
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, response);
-                dismiss();
-            }
+        languageAdapter.setOnClickListener(item -> {
+            Intent response = new Intent();
+            response.putExtra(LANG_LEY,item);
+            getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, response);
+            dismiss();
         });
 
         String title = "";
@@ -111,6 +115,7 @@ public class ChooseLanguageDialog extends DialogFragment {
             if(!(result.get(0) instanceof Throwable)){
                 updateLanguageLLibrary((AllowedLanguages) result.get(0));
             }
+            updateButton.setEnabled(true);
         }, ServiceGenerator.getTranslateApi().getLangs(getContext().getResources().getString(R.string.default_app_lang)));
 
 
@@ -119,16 +124,25 @@ public class ChooseLanguageDialog extends DialogFragment {
     }
 
     private void updateLanguages(){
+        updateButton.setEnabled(false);
         getLanguages.execute();
     }
 
     public void updateLanguageLLibrary(AllowedLanguages allowedLanguages){
-        new AsyncTask<Object,Void,Void>() {
+        new AsyncTask<Object,Void,AllowedLanguages>() {
             @Override
-            protected Void doInBackground(Object[] params) {
+            protected AllowedLanguages doInBackground(Object[] params) {
                 SharedAppPrefs.getInstance().setLanguageLibrary(allowedLanguages);
                 StaticHelpers.LogThis("библиотека обновлена");
-                return null;
+                return allowedLanguages;
+            }
+
+            @Override
+            protected void onPostExecute(AllowedLanguages allowedLanguages) {
+                super.onPostExecute(allowedLanguages);
+                if(allowedLanguages.getLanguages().size()!=languageAdapter.getData().size()){
+                    languageAdapter.rewriteAll(allowedLanguages.getLanguages());
+                }
             }
         }.execute();
     }
@@ -155,6 +169,7 @@ public class ChooseLanguageDialog extends DialogFragment {
                 .subscribe(languages -> {
             languageAdapter.rewriteAll(languages);
         });
+
 
 
     }

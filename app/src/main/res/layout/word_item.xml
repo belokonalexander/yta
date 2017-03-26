@@ -30,7 +30,6 @@
         tools:text="12321312 dsf sdf sd fds fsd fsd fsd fsd fsdf sdf sd fsd "
         android:textSize="@dimen/text_normal"
         android:textStyle="italic"
-        android:visibility="gone"
         tools:visibility="visible"
         android:paddingBottom="@dimen/small_padding"
         />
