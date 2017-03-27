@@ -35,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
         mainViewPager.setAdapter(sectionsPagerAdapter);
         tabLayout.setupWithViewPager(mainViewPager);
 
-
-
-
     }
 
 
+    public void openActionFragment(){
+        mainViewPager.setCurrentItem(0);
+    }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
@@ -90,36 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static String BACKPRESS_ENABLE = "BACKPRESS";
-    public void openInThisContainer(Fragment whichWillOpened){
 
-        try { // hide keyboard
-            InputMethodManager inputManager = (InputMethodManager)
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
-                    InputMethodManager.HIDE_NOT_ALWAYS);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Bundle additional = whichWillOpened.getArguments();
-
-        if(additional==null)
-            additional = new Bundle();
-
-        additional.putBoolean(BACKPRESS_ENABLE, true);
-
-        whichWillOpened.setArguments(additional);
-
-        StaticHelpers.LogThis(" Открываю...");
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container, whichWillOpened, null)
-                .setCustomAnimations(R.anim.slide_in_left,0,0,R.anim.slide_out_right)
-                .show(whichWillOpened)
-                .addToBackStack(null)
-                .commit();
-    }
 
 
 

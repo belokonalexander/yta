@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import retrofit2.Converter;
+import ru.belokonalexander.yta.Events.EventCreateType;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
@@ -82,7 +83,6 @@ public class CompositeTranslateModel {
 
 
 
-
     @Keep
     public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult,
             @NotNull Date updateDate, Boolean favorite, Boolean history, LookupResult lookup) {
@@ -106,6 +106,12 @@ public class CompositeTranslateModel {
                 .unique();
     }
 
+    public static CompositeTranslateModel copy(CompositeTranslateModel model){
+        return new CompositeTranslateModel(null, model.getSource(), new TranslateLanguage(model.getLang().getLangFrom(),model.getLang().getLangFromDesc(),
+                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
+                model.getLookup()
+                );
+    }
 
     public void save(){
         saveInDB();
@@ -212,7 +218,7 @@ public class CompositeTranslateModel {
     public void saveAsFavorite() {
         favorite = true;
         saveInDB();
-        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
+        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this, EventCreateType.COPY));
     }
 
     public void saveInDB(){
@@ -243,7 +249,7 @@ public class CompositeTranslateModel {
     public void removeFromFavorite() {
         favorite = false;
         saveInDB();
-        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
+        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this,EventCreateType.COPY));
     }
 
 

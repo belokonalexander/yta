@@ -6,12 +6,21 @@ import ru.belokonalexander.yta.Database.CompositeTranslateModel;
  * Created by Alexander on 27.03.2017.
  */
 
-public class SmoneWantToShowWordEvent {
+public class ShowWordEvent {
 
     CompositeTranslateModel translateModel;
 
-    public SmoneWantToShowWordEvent(CompositeTranslateModel translateModel) {
-        this.translateModel = translateModel;
+    public ShowWordEvent(CompositeTranslateModel translateModel, EventCreateType eventCreateType) {
+
+        switch (eventCreateType){
+            case COPY:
+                this.translateModel = CompositeTranslateModel.copy(translateModel);
+                break;
+            case LINK:
+                this.translateModel = translateModel;
+                break;
+        }
+
     }
 
     public CompositeTranslateModel getTranslateModel() {
@@ -21,4 +30,6 @@ public class SmoneWantToShowWordEvent {
     public void setTranslateModel(CompositeTranslateModel translateModel) {
         this.translateModel = translateModel;
     }
+
+
 }

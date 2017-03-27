@@ -30,7 +30,8 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
-import ru.belokonalexander.yta.Events.SmoneWantToShowWordEvent;
+import ru.belokonalexander.yta.Events.EventCreateType;
+import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
@@ -96,6 +97,20 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         //YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
 
+       /* List<CompositeTranslateModel> list = YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
+                .where(CompositeTranslateModelDao.Properties.Id.gt(43)).list();
+
+        CompositeTranslateModel m = list.get(5);
+        StaticHelpers.LogThis("m: " + m);
+        StaticHelpers.LogThis("indexOf: " + list.indexOf(m));
+        for(CompositeTranslateModel item : list){
+
+            if(m.equals(item)){
+                StaticHelpers.LogThis("equals: " + item);
+            }
+        }*/
+
+
         return view;
     }
 
@@ -121,13 +136,15 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         currentLanguage = language;
         initHeader();
         customTexInputView.setOnTextListener(this);
-        customTexInputView.setText("пока");
+        //customTexInputView.setText("пока");
     }
 
 
     @Override
     public void onTextAction(String text) {
 
+        if(getTranslete!=null)
+            getTranslete.cancel();
         //проверяю значение в истории
         SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(text,currentLanguage), result -> {
             StaticHelpers.LogThis(" Результат в базе: " + result);
@@ -208,7 +225,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             @Override
             public void run() {
                 compositeTranslateModel.save();
-                EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
+                EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel, EventCreateType.COPY));
             }
         },HISTORY_WORD_SAVE_DELAY);
     }
@@ -243,13 +260,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void showWord(SmoneWantToShowWordEvent translateWord){
-        StaticHelpers.LogThis(" Событие " + translateWord.getTranslateModel());
+    public void showWord(ShowWordEvent translateWord){
         CompositeTranslateModel translateModel = translateWord.getTranslateModel();
-        StaticHelpers.LogThis(" событие 2 : " + translateModel.getLang().descIsEmpty());
-
-
-
         if(translateModel.getLang().descIsEmpty()) {
 
             SimpleAsyncTask.run(() -> {
@@ -273,7 +285,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         customTexInputView.setWithoutUpdate(item.getSource());
         if(!currentLanguage.equals(item.getLang())){
-            currentLanguage = item.getLang();
+            //создается новый объект, чтобы отделиться
+            currentLanguage = TranslateLanguage.cloneFabric(item.getLang());
             languageWasChanged(false);
         }
         fillWordList(item);

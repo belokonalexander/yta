@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 
 //класс, описывающий текущий языковые настройки перевода
-public class TranslateLanguage implements  Serializable {
+public class TranslateLanguage implements  Serializable, Cloneable {
 
 
     private Language from;
@@ -98,4 +98,10 @@ public class TranslateLanguage implements  Serializable {
     public boolean descIsEmpty() {
         return getLangFromDesc()==null || getLangFromDesc().length()==0 || getLangToDesc()==null || getLangTo().length()==0;
     }
+
+    public static TranslateLanguage cloneFabric(TranslateLanguage item){
+        return new TranslateLanguage(item.getLangFrom(),item.getLangFromDesc(),item.getLangTo(),item.getLangToDesc());
+    }
+
+
 }

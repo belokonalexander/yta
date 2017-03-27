@@ -18,7 +18,8 @@ import butterknife.ButterKnife;
 import ru.belokonalexander.yta.Adapters.CompositeTranslateAdapter;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.Database.CompositeTranslateModelDao;
-import ru.belokonalexander.yta.Events.SmoneWantToShowWordEvent;
+import ru.belokonalexander.yta.Events.EventCreateType;
+import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 
@@ -43,7 +44,8 @@ public class FragmentFavorites extends Fragment {
 
         adapter = new CompositeTranslateAdapter(getContext());
         adapter.setOnClickListener(item -> {
-            EventBus.getDefault().post(new SmoneWantToShowWordEvent(item));
+            EventBus.getDefault().post(new ShowWordEvent(item, EventCreateType.COPY));
+            ((MainActivity)getActivity()).openActionFragment();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
