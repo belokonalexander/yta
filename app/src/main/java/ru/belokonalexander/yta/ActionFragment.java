@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.view.RxView;
 
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -81,11 +82,11 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-        List<CacheModel> cache = YtaApplication.getDaoSession().getCacheModelDao().loadAll();
+        //List<CacheModel> cache = YtaApplication.getDaoSession().getCacheModelDao().loadAll();
 
-        StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
-        StaticHelpers.LogThis(cache);
-        StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
+        //StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
+        //StaticHelpers.LogThis(cache);
+        //StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
 
         return view;
     }
@@ -120,6 +121,11 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     @Override
     public void onTextAction(String text) {
 
+
+        //проверяю значение в истории
+
+
+
         Observable[] requests = { ServiceGenerator.getTranslateApi().translate(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
                                   ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
 
@@ -139,9 +145,9 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                         lookupResult = (LookupResult) result.get(1);
                     }
 
-                    CompositeTranslateModel model = //new CompositeTranslateModel(null, text, currentLanguage, textResult, false, lookupResult);
-                            YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadByRowId(2);
-                    //model.saveInHistory();
+                    CompositeTranslateModel model = new CompositeTranslateModel(null, text, currentLanguage, textResult, new Date(), false, true, lookupResult);
+                            //YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadByRowId(2);
+                    model.save();
                     wordList.setTranslateResult(model, (word, inputLang) -> {
                                 if(currentLanguage.equals(inputLang)){
                                    swapLanguages();

@@ -25,6 +25,10 @@ public class StaticHelpers {
         Log.e("TAG", obj.toString());
     }
 
+    public static void LogThisDB(Object obj){
+        Log.e("DB", obj.toString());
+    }
+
     public static boolean isNetworkAvailable(Context context) {
         try {
             ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -1,5 +1,6 @@
 package ru.belokonalexander.yta.Database;
 
+import android.os.AsyncTask;
 import android.text.SpannableString;
 
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
@@ -26,6 +28,7 @@ import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Mean;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Syn;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Tr;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
+import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.WordList;
 import ru.belokonalexander.yta.YtaApplication;
@@ -60,21 +63,30 @@ public class CompositeTranslateModel {
     @NotNull
     private String translateResult;   //результат перевода
 
+    @NotNull
+    Date updateDate;
+
     private Boolean favorite;   //сохранено в избранном
+
+    private Boolean history;    //хранится в истории
 
     @Convert(converter = LookupResultConverter.class, columnType = String.class)
     private LookupResult lookup;      //JSON формат с информацией словаря
 
 
 
-    @Generated(hash = 1508369143)
-    public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult, Boolean favorite,
-            LookupResult lookup) {
+
+
+    @Generated(hash = 2100547212)
+    public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult,
+            @NotNull Date updateDate, Boolean favorite, Boolean history, LookupResult lookup) {
         this.Id = Id;
         this.source = source;
         this.lang = lang;
         this.translateResult = translateResult;
+        this.updateDate = updateDate;
         this.favorite = favorite;
+        this.history = history;
         this.lookup = lookup;
     }
 
@@ -82,7 +94,13 @@ public class CompositeTranslateModel {
     public CompositeTranslateModel() {
     }
 
-   
+
+
+
+
+    public void save(){
+        saveInDB();
+    }
 
     public Long getId() {
         return this.Id;
@@ -179,18 +197,38 @@ public class CompositeTranslateModel {
     public void saveAsFavorite() {
         favorite = true;
         saveInDB();
-        StaticHelpers.LogThis(" Сохраняю: " + YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll());
+
     }
 
     public void saveInDB(){
-        YtaApplication.getDaoSession().getCompositeTranslateModelDao().insertOrReplace(this);
+
+        SimpleAsyncTask.run(new SimpleAsyncTask.InBackground() {
+            @Override
+            public Object doInBackground() {
+                YtaApplication.getDaoSession().getCompositeTranslateModelDao().insertOrReplace(CompositeTranslateModel.this);
+                showDB();
+                return null;
+            }
+        });
+
+    }
+
+
+    public void showDB(){
+        List<CompositeTranslateModel> data = YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll();
+        StaticHelpers.LogThisDB("----> elements - " + data.size());
+        for(CompositeTranslateModel model : data){
+            StaticHelpers.LogThisDB("\n-> " + model );
+        }
+        StaticHelpers.LogThisDB("---->");
     }
 
     public void removeFromFavorite() {
         favorite = false;
         saveInDB();
-        StaticHelpers.LogThis(" Удаляю: " + YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll());
     }
+
+
 
 
     public SpannableString getLookupString(WordList.OnWordClickListener listener) {
@@ -347,5 +385,26 @@ public class CompositeTranslateModel {
                 ", lookup=" + lookup +
                 '}';
     }
+
+    public Boolean getHistory() {
+        return this.history;
+    }
+
+    public void setHistory(Boolean history) {
+        this.history = history;
+    }
+
+    public Date getUpdateDate() {
+        return this.updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
+
+
+
+
+
 }
 
