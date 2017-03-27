@@ -14,8 +14,13 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.view.RxView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Date;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,15 +29,19 @@ import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import ru.belokonalexander.yta.Database.CacheModel;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
+import ru.belokonalexander.yta.Events.SmoneWantToShowWordEvent;
+import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
+import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
+import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateResult;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
+import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
@@ -42,6 +51,7 @@ import ru.belokonalexander.yta.Views.WordList;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.INPUT_LANGUAGE_CHANGE_REQUEST_CODE;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.LANG_LEY;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE;
+import static ru.belokonalexander.yta.GlobalShell.Settings.HISTORY_WORD_SAVE_DELAY;
 
 
 /**
@@ -67,6 +77,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     View swapTextView;
     SimpleRequestsManager requestsManager = new SimpleRequestsManager();
 
+    Timer delayedHistorySaveTimer = new Timer();
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -82,11 +94,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-        //List<CacheModel> cache = YtaApplication.getDaoSession().getCacheModelDao().loadAll();
-
-        //StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
-        //StaticHelpers.LogThis(cache);
-        //StaticHelpers.LogThis(" ->>> " + cache.size() + "\n");
+        //YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
 
         return view;
     }
@@ -96,7 +104,6 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         LayoutInflater mInflater=LayoutInflater.from(getContext());
         View customView = mInflater.inflate(R.layout.current_languages, null);
         toolbar.addView(customView);
-
         languageFromTextView = (TextView) customView.findViewById(R.id.language_from);
         languageToTextView = (TextView) customView.findViewById(R.id.language_to);
         swapTextView = customView.findViewById(R.id.swap_language_button);
@@ -105,7 +112,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         languageToTextView.setText(currentLanguage.getLangToDesc());
         languageToTextView.setOnClickListener(v -> changeLanguage(OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE));
         RxView.clicks(swapTextView).subscribe(o -> {
-            swapLanguages();
+            swapLanguages(true);
         });
     }
 
@@ -121,48 +128,89 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     @Override
     public void onTextAction(String text) {
 
-
         //проверяю значение в истории
+        SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(text,currentLanguage), result -> {
+            StaticHelpers.LogThis(" Результат в базе: " + result);
+            if(result!=null) {
+                fillWordList(result);
+            }
+            else {
+                StaticHelpers.LogThis(" ЗАПРООООООООООС: " + text);
+                requestTranslateFromApi(text);
+            }
+        });
 
 
+    }
 
+    private void requestTranslateFromApi(String text){
+
+        //отправляю запрос
         Observable[] requests = { ServiceGenerator.getTranslateApi().translate(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
-                                  ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
+                ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
 
         String hash = StaticHelpers.getParentHash(this.getClass());
 
-
         getTranslete = ApiChainRequestWrapper.getApartInstance(hash, result -> {
-                /*
-                 *   если ответ со словом вернулся без ошибки, то сохраняем его в историю поиска, заполняем wordList +
-                 *      назначаем ему слушателя на слово-синоним (яндекс.словарь)
-                */
-                if(result.get(0) instanceof TranslateResult) {
 
-                    String textResult = ((TranslateResult)result.get(0)).getText().get(0);
-                    LookupResult lookupResult = null;
-                    if(result.get(1) instanceof LookupResult){
-                        lookupResult = (LookupResult) result.get(1);
-                    }
+            if(result.get(0) instanceof TranslateResult) {
 
-                    CompositeTranslateModel model = new CompositeTranslateModel(null, text, currentLanguage, textResult, new Date(), false, true, lookupResult);
-                            //YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadByRowId(2);
-                    model.save();
-                    wordList.setTranslateResult(model, (word, inputLang) -> {
-                                if(currentLanguage.equals(inputLang)){
-                                   swapLanguages();
-                                }
-                                customTexInputView.setText(word);
-                            }
-                    );
-                }  else {
-                    //TODO критическая ошибка при запросе
-                    StaticHelpers.LogThis(" критическая ошибка ");
+                String textResult = ((TranslateResult)result.get(0)).getText().get(0);
+                LookupResult lookupResult = null;
+                if(result.get(1) instanceof LookupResult){
+                    lookupResult = (LookupResult) result.get(1);
                 }
-            }, requests);
 
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text, currentLanguage, textResult, new Date(), false, true, lookupResult);
+
+                fillWordList(model);
+
+            }  else {
+                //TODO критическая ошибка при запросе
+                StaticHelpers.LogThis(" критическая ошибка при запросе ");
+            }
+        }, requests);
 
         getTranslete.execute();
+
+    }
+
+
+
+    private void fillWordList(CompositeTranslateModel compositeTranslateModel){
+
+        delayedSavingWord(compositeTranslateModel);
+
+        wordList.setTranslateResult(compositeTranslateModel, (word, inputLang) -> {
+                    if(currentLanguage.equals(inputLang)){
+                        swapLanguages(false);
+                    }
+                    customTexInputView.setText(word);
+                }
+        );
+    }
+
+
+
+    /**
+     * сохранение слова в историю поиска
+     * задержка нужна для того, чтобы исключить сохранение части по ходу ввода пользователя
+     * Пример, когда пользователь вводит слово 'Привет':
+     * -> 'При' -> debounce-интервал прошел -> Выведен результат для 'при' -> ввод продолжается -> 'вет'
+     * без задержки в истории будет 2 слова: 'При' и 'Привет', с задержкой добавляется интервал, исключающий такое поведение
+     * @param compositeTranslateModel сохраняемое слово
+     */
+    private void delayedSavingWord(CompositeTranslateModel compositeTranslateModel) {
+
+        delayedHistorySaveTimer.cancel();
+        delayedHistorySaveTimer = new Timer();
+        delayedHistorySaveTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                compositeTranslateModel.save();
+                EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
+            }
+        },HISTORY_WORD_SAVE_DELAY);
     }
 
 
@@ -171,19 +219,70 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         if(getTranslete!=null){
             getTranslete.cancel();
         }
+        delayedHistorySaveTimer.cancel();
         wordList.clearView();
     }
 
 
-    private void swapLanguages(){
+    private void swapLanguages(boolean reset){
         currentLanguage.swapLanguages();
-        languageWasChanged();
+        languageWasChanged(reset);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         requestsManager.clear();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showWord(SmoneWantToShowWordEvent translateWord){
+        StaticHelpers.LogThis(" Событие " + translateWord.getTranslateModel());
+        CompositeTranslateModel translateModel = translateWord.getTranslateModel();
+        StaticHelpers.LogThis(" событие 2 : " + translateModel.getLang().descIsEmpty());
+
+
+
+        if(translateModel.getLang().descIsEmpty()) {
+
+            SimpleAsyncTask.run(() -> {
+                AllowedLanguages allowedLanguages = SharedAppPrefs.getInstance().getLanguageLibrary();
+                Language from = translateModel.getLang().getFrom();
+                Language to = translateModel.getLang().getTo();
+                from.setDesc(allowedLanguages.getDesc(from.getCode()));
+                to.setDesc(allowedLanguages.getDesc(to.getCode()));
+                translateModel.getLang().setFrom(from);
+                translateModel.getLang().setTo(to);
+                return translateModel;
+            }, this::showNewWordsView);
+        } else {
+
+            showNewWordsView(translateModel);
+        }
+
+    }
+
+    private void showNewWordsView(CompositeTranslateModel item){
+
+        customTexInputView.setWithoutUpdate(item.getSource());
+        if(!currentLanguage.equals(item.getLang())){
+            currentLanguage = item.getLang();
+            languageWasChanged(false);
+        }
+        fillWordList(item);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateFavoriteState(WordFavoriteStatusChangedEvent event){
+        CompositeTranslateModel translateModel = event.getTranslateModel();
+        wordList.tryToUpdateFavoriteStatus(translateModel);
     }
 
     /**
@@ -209,24 +308,24 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     break;
             }
 
-            languageWasChanged();
+            languageWasChanged(true);
 
         }
     }
 
-    private void languageWasChanged(){
-        StaticHelpers.LogThis("lang: " + currentLanguage);
+    private void languageWasChanged(boolean reset){
         languageToTextView.setText(currentLanguage.getLangToDesc());
         languageFromTextView.setText(currentLanguage.getLangFromDesc());
-        customTexInputView.reset();
+        if(reset)
+            customTexInputView.reset();
     }
 
-    private void changeLanguage(int directionCode){
 
+
+    private void changeLanguage(int directionCode){
         ChooseLanguageDialog dialog = new ChooseLanguageDialog();
         dialog.setTargetFragment(this,directionCode);
         dialog.show(getActivity().getSupportFragmentManager());
-
     }
 }
 

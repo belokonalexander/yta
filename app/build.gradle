@@ -32,7 +32,7 @@ android {
 }
 
 greendao {
-    schemaVersion 1009
+    schemaVersion 1010
 }
 
 
@@ -51,18 +51,26 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 
+    //butterknife
     compile 'com.jakewharton:butterknife:8.2.1'
     apt 'com.jakewharton:butterknife-compiler:8.2.1'
 
+    //rxjava
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex.rxjava2:rxjava:2.0.1'
 
+    //rx views
     compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     compile 'com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.0.0'
 
+    //retrofit
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.2.0'
 
+    //greendao
     compile 'org.greenrobot:greendao:3.2.0'
+
+    //event bus
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

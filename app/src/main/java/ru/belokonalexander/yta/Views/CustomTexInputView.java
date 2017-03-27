@@ -54,6 +54,11 @@ public class CustomTexInputView extends RelativeLayout {
      */
     private boolean focusState;
 
+    public void setWithoutUpdate(String text){
+        lastResult = text;
+        editText.setText(text);
+        editText.setSelection(text.length());
+    }
 
     public void setText(String text){
         editText.setText(text);

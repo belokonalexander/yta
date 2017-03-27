@@ -6,18 +6,25 @@ import android.text.SpannableString;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.async.AsyncOperationListener;
+import org.greenrobot.greendao.async.AsyncSession;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import retrofit2.Converter;
+import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Def;
@@ -46,14 +53,13 @@ import static ru.belokonalexander.yta.GlobalShell.StaticHelpers.getStringOrEmpty
  *  описывает таблицу с историей и избранным
  *  является представлением объекта CompositeTranslateModel в базе данных
  */
-@Entity
+@Entity(indexes = {@Index(value = "source,lang", unique = true)})
 public class CompositeTranslateModel {
 
     @Id
     private Long Id;
 
     @NotNull
-    @Unique
     private String source;      //исходное значение
 
     @NotNull
@@ -77,13 +83,13 @@ public class CompositeTranslateModel {
 
 
 
-    @Generated(hash = 2100547212)
+    @Keep
     public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult,
             @NotNull Date updateDate, Boolean favorite, Boolean history, LookupResult lookup) {
         this.Id = Id;
-        this.source = source;
+        this.source = source.trim();
         this.lang = lang;
-        this.translateResult = translateResult;
+        this.translateResult = translateResult.trim();
         this.updateDate = updateDate;
         this.favorite = favorite;
         this.history = history;
@@ -94,8 +100,11 @@ public class CompositeTranslateModel {
     public CompositeTranslateModel() {
     }
 
-
-
+    public static CompositeTranslateModel getBySource(String source, TranslateLanguage translateLanguage) {
+        return YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
+                .where(CompositeTranslateModelDao.Properties.Source.eq(source.trim()),CompositeTranslateModelDao.Properties.Lang.eq(translateLanguage.toString()))
+                .unique();
+    }
 
 
     public void save(){
@@ -135,7 +144,7 @@ public class CompositeTranslateModel {
     }
 
     public Boolean getFavorite() {
-        return this.favorite;
+        return this.favorite!=null && this.favorite;
     }
 
     public void setFavorite(Boolean favorite) {
@@ -150,6 +159,12 @@ public class CompositeTranslateModel {
         this.lookup = lookup;
     }
 
+    public void changeFavoriteStatus() {
+        if(getFavorite())
+            removeFromFavorite();
+        else saveAsFavorite();
+
+    }
 
 
     public static class TranslateLanguageConverter implements PropertyConverter<TranslateLanguage, String> {
@@ -197,10 +212,12 @@ public class CompositeTranslateModel {
     public void saveAsFavorite() {
         favorite = true;
         saveInDB();
-
+        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
     }
 
     public void saveInDB(){
+
+        this.updateDate = new Date();
 
         SimpleAsyncTask.run(new SimpleAsyncTask.InBackground() {
             @Override
@@ -226,6 +243,7 @@ public class CompositeTranslateModel {
     public void removeFromFavorite() {
         favorite = false;
         saveInDB();
+        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
     }
 
 
@@ -372,6 +390,25 @@ public class CompositeTranslateModel {
 
     public void setTranslateResult(String translateResult) {
         this.translateResult = translateResult;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CompositeTranslateModel that = (CompositeTranslateModel) o;
+
+        if (!source.equals(that.source)) return false;
+        return lang.equals(that.lang);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = source.hashCode();
+        result = 31 * result + lang.hashCode();
+        return result;
     }
 
     @Override

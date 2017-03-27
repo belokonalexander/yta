@@ -19,6 +19,8 @@
     <color name="about">#ab4855</color>
     <color name="yandex">#f7b602</color>
 
+    <color name="tint_color_active">#ffd000</color>
+
     <color name="border_text_color">#c6c6c6</color>
     <color name="soft_white">#ededed</color>
 </resources>

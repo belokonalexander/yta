@@ -1,5 +1,6 @@
 package ru.belokonalexander.yta.Adapters;
 
+import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -22,6 +23,9 @@ import ru.belokonalexander.yta.R;
 public class LanguageAdapter extends CommonAdapter<Language> {
 
 
+    public LanguageAdapter(Context context) {
+        super(context);
+    }
 
     @Override
     RecyclerView.ViewHolder onCreateVH(ViewGroup parent, int viewType) {

@@ -43,7 +43,9 @@ public class Language implements Comparable<Language>, Serializable {
         return code.hashCode();
     }
 
-
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
     @Override
     public int compareTo(Language o) {

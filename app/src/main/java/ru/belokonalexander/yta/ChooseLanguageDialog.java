@@ -51,7 +51,7 @@ public class ChooseLanguageDialog extends DialogFragment {
     SimpleRequestsManager requestsManager = new SimpleRequestsManager();
 
     Language part;
-    LanguageAdapter languageAdapter = new LanguageAdapter();
+    LanguageAdapter languageAdapter;
     Button updateButton;
     ApiChainRequestWrapper getLanguages;
 
@@ -68,6 +68,8 @@ public class ChooseLanguageDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         requestsManager.addRequest(getLanguages);
+
+        languageAdapter = new LanguageAdapter(getContext());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 

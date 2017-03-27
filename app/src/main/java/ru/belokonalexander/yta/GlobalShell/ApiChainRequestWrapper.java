@@ -138,7 +138,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
             if(state!=State.SLEEP)
                 subscriber.dispose();
 
-            StaticHelpers.LogThis(" Выполняю: " + hash + " в списке: " + runningRequests);
+            //StaticHelpers.LogThis(" Выполняю: " + hash + " в списке: " + runningRequests);
             state = State.RUNNING;
             registerInList();
             taskExecutor.subscribe(resetSubscriber());

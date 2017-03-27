@@ -122,7 +122,6 @@ public class ServiceGenerator {
                 ResponseBody responseBody = response.body();
                 String responseBodyString= responseBody.string(); //ответ для кеширования
 
-                StaticHelpers.LogThis("ЗАПРОС!" + responseBodyString);
 
                 //кеширую результат
                 if(response.code()==200) {

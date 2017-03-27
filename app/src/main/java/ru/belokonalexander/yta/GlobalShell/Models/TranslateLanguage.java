@@ -21,6 +21,8 @@ public class TranslateLanguage implements  Serializable {
 
     }
 
+
+
     public Language getFrom() {
         return from;
     }
@@ -93,4 +95,7 @@ public class TranslateLanguage implements  Serializable {
     }
 
 
+    public boolean descIsEmpty() {
+        return getLangFromDesc()==null || getLangFromDesc().length()==0 || getLangToDesc()==null || getLangTo().length()==0;
+    }
 }

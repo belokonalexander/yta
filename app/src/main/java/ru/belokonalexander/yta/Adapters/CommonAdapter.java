@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.belokonalexander.yta.Database.CompositeTranslateModel;
+
 /**
  * Created by Alexander on 24.03.2017.
  */
@@ -25,9 +27,9 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
         notifyDataSetChanged();
     }
 
-    CommonAdapter() {
-
-        data = new ArrayList<>();
+    CommonAdapter(Context context) {
+        this.context = context;
+        this.data = new ArrayList<>();
     }
 
 
@@ -59,6 +61,33 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
     public void setOnClickListener(OnClickListener<T> onClickListenet) {
         this.onClickListener = onClickListenet;
     }
+
+    public void moveToTop(int index) {
+        T object = data.get(index);
+        data.remove(index);
+        data.add(0,object);
+        notifyItemMoved(index,0);
+    }
+
+    public void addToTop(T object){
+        data.add(0,object);
+        notifyItemInserted(0);
+    }
+
+    public void update(T item, int index) {
+        T object = data.get(index);
+        object = item;
+        notifyItemChanged(index);
+    }
+
+    public void remove(T object) {
+        int index = data.indexOf(object);
+        if(index>=0){
+            data.remove(index);
+            notifyItemRemoved(index);
+        }
+    }
+
 
     public interface OnClickListener<T>{
         void onClick(T item);

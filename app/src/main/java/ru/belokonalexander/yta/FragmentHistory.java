@@ -9,16 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import ru.belokonalexander.yta.Adapters.CommonAdapter;
 import ru.belokonalexander.yta.Adapters.CompositeTranslateAdapter;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.Database.CompositeTranslateModelDao;
+import ru.belokonalexander.yta.Events.SmoneWantToShowWordEvent;
+import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
+import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
-import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 /**
  * Created by Alexander on 16.03.2017.
@@ -29,7 +32,7 @@ public class FragmentHistory extends Fragment{
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
-    CompositeTranslateAdapter adapter = new CompositeTranslateAdapter();
+    CompositeTranslateAdapter adapter;
 
     @Nullable
     @Override
@@ -37,8 +40,10 @@ public class FragmentHistory extends Fragment{
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         ButterKnife.bind(this, view);
 
-
-        adapter.setOnClickListener(item -> StaticHelpers.LogThis(item));
+        adapter =  new CompositeTranslateAdapter(getContext());
+        adapter.setOnClickListener(item -> {
+            EventBus.getDefault().post(new SmoneWantToShowWordEvent(item));
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
@@ -48,4 +53,40 @@ public class FragmentHistory extends Fragment{
 
         return view;
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void addNewWordInHistory(WordSavedInHistoryEvent event){
+        CompositeTranslateModel translateModel = event.getTranslateModel();
+        int itemIndex = adapter.getData().indexOf(translateModel);
+        if(itemIndex<0){
+            adapter.addToTop(translateModel);
+        } else {
+            adapter.moveToTop(itemIndex);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateFavoriteStatus(WordFavoriteStatusChangedEvent event){
+        CompositeTranslateModel translateModel = event.getTranslateModel();
+        int itemIndex = adapter.getData().indexOf(translateModel);
+        if(itemIndex<0){
+            adapter.addToTop(translateModel);
+        } else {
+            adapter.update(translateModel,itemIndex);
+        }
+    }
+
+
 }

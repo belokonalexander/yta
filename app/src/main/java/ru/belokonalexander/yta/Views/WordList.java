@@ -2,6 +2,7 @@ package ru.belokonalexander.yta.Views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
@@ -42,7 +43,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
      */
     private CompositeTranslateModel translate;
     private OnWordClickListener onWordClick;
-
+    ImageButton favorite;
 
     /**
      *
@@ -87,6 +88,12 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         //label.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.cardview_dark_background));
         label.setPadding(StaticHelpers.dpToPixels(16), StaticHelpers.dpToPixels(16),StaticHelpers.dpToPixels(16),StaticHelpers.dpToPixels(16));
         container.addView(label);
+    }
+
+    public void tryToUpdateFavoriteStatus(CompositeTranslateModel translateModel) {
+        if(translateModel.equals(translate)){
+            updateFavoriteButton();
+        }
     }
 
     /**
@@ -149,6 +156,18 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         return linearLayout;
     }
 
+
+    private void updateFavoriteButton(){
+        if(translate.getFavorite()){
+            favorite.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_bookmark_black_24dp));
+            favorite.setColorFilter(getContext().getResources().getColor(R.color.tint_color_active), PorterDuff.Mode.SRC_IN);
+        } else {
+            favorite.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_bookmark_border_white_24dp));
+            favorite.setColorFilter(getContext().getResources().getColor(R.color.tint_color_dark), PorterDuff.Mode.SRC_IN);
+        }
+
+    }
+
     /**
      * заполнение результатов перевода
      * @return последний созданный контейнер
@@ -158,13 +177,12 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout layout = (RelativeLayout) layoutInflater.inflate(R.layout.word_layout,null);
         LinearLayout wordListContainer = (LinearLayout) layout.findViewById(R.id.text_list);
-        ImageButton favorite = (ImageButton) layout.findViewById(R.id.save_word);
+        favorite = (ImageButton) layout.findViewById(R.id.save_word);
+
+        updateFavoriteButton();
+
         favorite.setOnClickListener(v -> {
-            if(translate.getFavorite()){
-                translate.removeFromFavorite();
-            } else {
-                translate.saveAsFavorite();
-            }
+            translate.changeFavoriteStatus();
         });
 
             String text = translate.getTranslate();
