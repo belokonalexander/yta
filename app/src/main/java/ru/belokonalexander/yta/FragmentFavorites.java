@@ -44,7 +44,7 @@ public class FragmentFavorites extends Fragment {
 
         adapter = new CompositeTranslateAdapter(getContext());
         adapter.setOnClickListener(item -> {
-            EventBus.getDefault().post(new ShowWordEvent(item, EventCreateType.COPY));
+            EventBus.getDefault().post(new ShowWordEvent(item));
             ((MainActivity)getActivity()).openActionFragment();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

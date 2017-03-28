@@ -218,7 +218,7 @@ public class CompositeTranslateModel {
     public void saveAsFavorite() {
         favorite = true;
         saveInDB();
-        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this, EventCreateType.COPY));
+        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
     }
 
     public void saveInDB(){
@@ -249,7 +249,7 @@ public class CompositeTranslateModel {
     public void removeFromFavorite() {
         favorite = false;
         saveInDB();
-        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this,EventCreateType.COPY));
+        EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
     }
 
 

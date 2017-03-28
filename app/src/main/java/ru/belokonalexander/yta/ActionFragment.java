@@ -95,22 +95,6 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-        //YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
-
-       /* List<CompositeTranslateModel> list = YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
-                .where(CompositeTranslateModelDao.Properties.Id.gt(43)).list();
-
-        CompositeTranslateModel m = list.get(5);
-        StaticHelpers.LogThis("m: " + m);
-        StaticHelpers.LogThis("indexOf: " + list.indexOf(m));
-        for(CompositeTranslateModel item : list){
-
-            if(m.equals(item)){
-                StaticHelpers.LogThis("equals: " + item);
-            }
-        }*/
-
-
         return view;
     }
 
@@ -178,7 +162,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     lookupResult = (LookupResult) result.get(1);
                 }
 
-                CompositeTranslateModel model = new CompositeTranslateModel(null, text, currentLanguage, textResult, new Date(), false, true, lookupResult);
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text, TranslateLanguage.cloneFabric(currentLanguage), textResult, new Date(), false, true, lookupResult);
 
                 fillWordList(model);
 
@@ -225,7 +209,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             @Override
             public void run() {
                 compositeTranslateModel.save();
-                EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel, EventCreateType.COPY));
+
+                EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
             }
         },HISTORY_WORD_SAVE_DELAY);
     }

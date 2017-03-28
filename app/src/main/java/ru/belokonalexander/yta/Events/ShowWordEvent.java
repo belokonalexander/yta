@@ -10,16 +10,11 @@ public class ShowWordEvent {
 
     CompositeTranslateModel translateModel;
 
-    public ShowWordEvent(CompositeTranslateModel translateModel, EventCreateType eventCreateType) {
+    public ShowWordEvent(CompositeTranslateModel translateModel) {
 
-        switch (eventCreateType){
-            case COPY:
-                this.translateModel = CompositeTranslateModel.copy(translateModel);
-                break;
-            case LINK:
+
                 this.translateModel = translateModel;
-                break;
-        }
+
 
     }
 
@@ -27,9 +22,7 @@ public class ShowWordEvent {
         return translateModel;
     }
 
-    public void setTranslateModel(CompositeTranslateModel translateModel) {
-        this.translateModel = translateModel;
-    }
+
 
 
 }

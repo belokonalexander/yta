@@ -10,23 +10,14 @@ public class WordSavedInHistoryEvent {
 
     CompositeTranslateModel translateModel;
 
-    public WordSavedInHistoryEvent(CompositeTranslateModel translateModel, EventCreateType eventCreateType) {
-        switch (eventCreateType){
-            case COPY:
-                this.translateModel = CompositeTranslateModel.copy(translateModel);
-                break;
-            case LINK:
-                this.translateModel = translateModel;
-                break;
-        }
+    public WordSavedInHistoryEvent(CompositeTranslateModel translateModel) {
 
+        this.translateModel = translateModel;
     }
 
     public CompositeTranslateModel getTranslateModel() {
         return translateModel;
     }
 
-    public void setTranslateModel(CompositeTranslateModel translateModel) {
-        this.translateModel = translateModel;
-    }
+
 }

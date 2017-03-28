@@ -9,15 +9,10 @@ import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 public class WordFavoriteStatusChangedEvent {
     CompositeTranslateModel translateModel;
 
-    public WordFavoriteStatusChangedEvent(CompositeTranslateModel translateModel, EventCreateType eventCreateType) {
-        switch (eventCreateType){
-            case COPY:
-                this.translateModel = CompositeTranslateModel.copy(translateModel);
-                break;
-            case LINK:
+    public WordFavoriteStatusChangedEvent(CompositeTranslateModel translateModel) {
+
                 this.translateModel = translateModel;
-                break;
-        }
+
 
     }
 
@@ -25,7 +20,4 @@ public class WordFavoriteStatusChangedEvent {
         return translateModel;
     }
 
-    public void setTranslateModel(CompositeTranslateModel translateModel) {
-        this.translateModel = translateModel;
-    }
 }
