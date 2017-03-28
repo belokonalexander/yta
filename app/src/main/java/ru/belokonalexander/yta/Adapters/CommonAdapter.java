@@ -88,6 +88,12 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
         }
     }
 
+    public void add(List<T> list) {
+        int was = data.size();
+        data.addAll(list);
+        notifyItemRangeInserted(was,data.size());
+    }
+
 
     public interface OnClickListener<T>{
         void onClick(T item);

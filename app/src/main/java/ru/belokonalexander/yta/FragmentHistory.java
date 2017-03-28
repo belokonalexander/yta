@@ -13,6 +13,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.belokonalexander.yta.Adapters.CompositeTranslateAdapter;
@@ -24,6 +26,9 @@ import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
+import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
 
 /**
  * Created by Alexander on 16.03.2017.
@@ -32,7 +37,7 @@ import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 public class FragmentHistory extends Fragment{
 
     @BindView(R.id.recycler_view)
-    RecyclerView recyclerView;
+    LazyLoadingRecyclerView<CompositeTranslateModel> recyclerView;
 
     CompositeTranslateAdapter adapter;
 
@@ -48,11 +53,21 @@ public class FragmentHistory extends Fragment{
             ((MainActivity)getActivity()).openActionFragment();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(adapter);
+        recyclerView.init(adapter, new SolidProvider<CompositeTranslateModel>() {
+            @Override
+            public List<CompositeTranslateModel> getData(PaginationSlider state) {
+                StaticHelpers.LogThis(" Подгружаю");
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
+                        .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
+                        .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
+            }
+        });
 
-        SimpleAsyncTask.run(() -> YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true)).orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).build().list(),
-                result -> adapter.rewriteAll(result));
 
         return view;
     }
