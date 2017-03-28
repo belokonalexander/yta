@@ -48,19 +48,23 @@ public class CustomTexInputView extends RelativeLayout {
      *  последнее значение, которое вводилось в текстовое поле
      */
     private String lastResult = "";
-
+    private OutputText.Type lastType = OutputText.Type.HANDWRITTEN;
     /**
      *  состояние текстового поля
      */
     private boolean focusState;
 
-    public void setWithoutUpdate(String text){
+
+
+    public OutputText setWithoutUpdate(String text){
         lastResult = text;
         editText.setText(text);
         editText.setSelection(text.length());
+        return new OutputText(text, OutputText.Type.AUTOLOAD);
     }
 
     public void setText(String text){
+        lastType = OutputText.Type.AUTOLOAD;
         editText.setText(text);
         editText.setSelection(text.length());
         editText.requestFocus();
@@ -133,8 +137,9 @@ public class CustomTexInputView extends RelativeLayout {
                 .subscribe(charSequence -> {
                     lastResult = charSequence.toString().trim();
                     if(onTextActionListener!=null){
-                        onTextActionListener.onTextAction(charSequence.toString());
+                        onTextActionListener.onTextAction(new OutputText(charSequence.toString(),lastType));
                     }
+                    lastType = OutputText.Type.HANDWRITTEN;
                 });
 
 
@@ -145,7 +150,7 @@ public class CustomTexInputView extends RelativeLayout {
      * интерфейс, описывающий процесс обработки запроса и очистки поля ввода
      */
     public interface OnTextActionListener{
-        void onTextAction(String text);
+        void onTextAction(OutputText text);
         void onTextClear();
     }
 

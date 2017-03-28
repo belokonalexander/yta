@@ -47,6 +47,7 @@ import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 
+import ru.belokonalexander.yta.Views.OutputText;
 import ru.belokonalexander.yta.Views.WordList;
 
 import static ru.belokonalexander.yta.ChooseLanguageDialog.INPUT_LANGUAGE_CHANGE_REQUEST_CODE;
@@ -125,30 +126,33 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
 
     @Override
-    public void onTextAction(String text) {
+    public void onTextAction(OutputText outputText) {
+
+        StaticHelpers.LogThis(" Output -> " + outputText.getType());
 
         if(getTranslete!=null)
             getTranslete.cancel();
         //проверяю значение в истории
-        SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(text,currentLanguage), result -> {
+        SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(outputText.getValue(),currentLanguage), result -> {
             StaticHelpers.LogThis(" Результат в базе: " + result);
             if(result!=null) {
+                delayedSavingWord(result, outputText.getType());
                 fillWordList(result);
             }
             else {
-                StaticHelpers.LogThis(" ЗАПРООООООООООС: " + text);
-                requestTranslateFromApi(text);
+                StaticHelpers.LogThis(" ЗАПРООООООООООС: " + outputText.getValue());
+                requestTranslateFromApi(outputText);
             }
         });
 
 
     }
 
-    private void requestTranslateFromApi(String text){
+    private void requestTranslateFromApi(OutputText text){
 
         //отправляю запрос
-        Observable[] requests = { ServiceGenerator.getTranslateApi().translate(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
-                ServiceGenerator.getDictionaryApi().lookup(text, currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
+        Observable[] requests = { ServiceGenerator.getTranslateApi().translate(text.getValue(), currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo()),
+                ServiceGenerator.getDictionaryApi().lookup(text.getValue(), currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
 
         String hash = StaticHelpers.getParentHash(this.getClass());
 
@@ -162,9 +166,11 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     lookupResult = (LookupResult) result.get(1);
                 }
 
-                CompositeTranslateModel model = new CompositeTranslateModel(null, text, TranslateLanguage.cloneFabric(currentLanguage), textResult, new Date(), false, true, lookupResult);
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, new Date(), false, true, lookupResult);
 
+                delayedSavingWord(model, text.getType());
                 fillWordList(model);
+
 
             }  else {
                 //TODO критическая ошибка при запросе
@@ -180,7 +186,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     private void fillWordList(CompositeTranslateModel compositeTranslateModel){
 
-        delayedSavingWord(compositeTranslateModel);
+
 
         wordList.setTranslateResult(compositeTranslateModel, (word, inputLang) -> {
                     if(currentLanguage.equals(inputLang)){
@@ -201,18 +207,21 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
      * без задержки в истории будет 2 слова: 'При' и 'Привет', с задержкой добавляется интервал, исключающий такое поведение
      * @param compositeTranslateModel сохраняемое слово
      */
-    private void delayedSavingWord(CompositeTranslateModel compositeTranslateModel) {
+    private void delayedSavingWord(CompositeTranslateModel compositeTranslateModel, OutputText.Type type) {
+
+        int delay = type.getDelay();
 
         delayedHistorySaveTimer.cancel();
         delayedHistorySaveTimer = new Timer();
         delayedHistorySaveTimer.schedule(new TimerTask() {
             @Override
             public void run() {
+                StaticHelpers.LogThis("SAVE IN DB");
                 compositeTranslateModel.save();
 
                 EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
             }
-        },HISTORY_WORD_SAVE_DELAY);
+        },delay);
     }
 
 
@@ -268,12 +277,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     private void showNewWordsView(CompositeTranslateModel item){
 
-        customTexInputView.setWithoutUpdate(item.getSource());
+        OutputText outputText = customTexInputView.setWithoutUpdate(item.getSource());
         if(!currentLanguage.equals(item.getLang())){
-            //создается новый объект, чтобы отделиться
+            //создается новый объект, чтобы не связываться с прилетевшим объектом
             currentLanguage = TranslateLanguage.cloneFabric(item.getLang());
             languageWasChanged(false);
         }
+        delayedSavingWord(item,outputText.getType());
         fillWordList(item);
     }
 
