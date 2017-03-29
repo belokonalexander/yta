@@ -3,6 +3,7 @@ package ru.belokonalexander.yta;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,7 +18,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ru.belokonalexander.yta.Adapters.CommonAdapter;
 import ru.belokonalexander.yta.Adapters.CompositeTranslateAdapter;
+
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.Database.CompositeTranslateModelDao;
 import ru.belokonalexander.yta.Events.EventCreateType;
@@ -52,7 +55,12 @@ public class FragmentHistory extends Fragment{
             EventBus.getDefault().post(new ShowWordEvent(item));
             ((MainActivity)getActivity()).openActionFragment();
         });
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+
+
+        recyclerView.setLayoutManager(mLayoutManager);
+        //PhantomLastItemAdapter a = new PhantomLastItemAdapter<>(adapter);
         recyclerView.init(adapter, new SolidProvider<CompositeTranslateModel>() {
             @Override
             public List<CompositeTranslateModel> getData(PaginationSlider state) {
@@ -67,6 +75,7 @@ public class FragmentHistory extends Fragment{
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
             }
         });
+
 
 
         return view;

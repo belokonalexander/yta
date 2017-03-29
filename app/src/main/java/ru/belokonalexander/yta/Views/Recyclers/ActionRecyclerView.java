@@ -57,7 +57,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
         this.adapter = adapter;
         this.provider = provider;
 
-        this.setAdapter(adapter);
+        setAdapter(adapter);
 
         getData(UpdateMode.INITIAL);
 
@@ -69,7 +69,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
      */
     void getData(UpdateMode updateMode){
 
-        beforeUpdating();
+        beforeUpdating(updateMode);
         SimpleAsyncTask.run(() -> dataLoading(updateMode), result -> dataLoaded(result,updateMode));
     }
 
@@ -105,15 +105,15 @@ public class ActionRecyclerView<T> extends RecyclerView {
         //проверка - все ли данные отдал поставщик
         allDataWasObtained = result.size() < pageSize;
 
-        afterUpdating();
+        afterUpdating(updateMode);
     }
 
 
-    private void beforeUpdating() {
+    public void beforeUpdating(UpdateMode updateMode) {
         loadingInProgress = true;
     }
 
-    private void afterUpdating(){
+    public void afterUpdating(UpdateMode updateMode){
         loadingInProgress = false;
     }
 

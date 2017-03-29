@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
 import ru.belokonalexander.yta.Adapters.CommonAdapter;
+
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
@@ -16,7 +17,6 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
 
 
-    @Override
     public void init(CommonAdapter<T> adapter, SolidProvider<T> provider) {
         super.init(adapter, provider);
 
@@ -27,8 +27,9 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
                 onScrollHeightController(dy);
             }
         });
-    }
 
+
+    }
 
 
     void onScrollHeightController(int dy){
@@ -43,9 +44,29 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
 
         if((!canScrollVertically(1) || scrollPercent>.7) && !allDataWasObtained && !loadingInProgress) { //todo border
             getData(UpdateMode.ADD);
+
         }
     }
 
+    @Override
+    public void beforeUpdating(UpdateMode updateMode) {
+        super.beforeUpdating(updateMode);
+
+    }
+
+    @Override
+    public void afterUpdating(UpdateMode updateMode) {
+        super.afterUpdating(updateMode);
+
+        if(updateMode==UpdateMode.INITIAL)
+            adapter.setDecoration(CommonAdapter.Decoration.FOOTER);
+
+        if(allDataWasObtained) {
+            int deletePos = adapter.getItemCount();
+            adapter.setDecoration(CommonAdapter.Decoration.SIMPLE);
+            adapter.notifyItemRemoved(deletePos);
+        }
+    }
 
     public LazyLoadingRecyclerView(Context context) {
         super(context);
@@ -58,8 +79,6 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
     public LazyLoadingRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
-
-
 
 
 

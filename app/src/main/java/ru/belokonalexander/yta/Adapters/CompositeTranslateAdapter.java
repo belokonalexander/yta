@@ -26,6 +26,10 @@ public class CompositeTranslateAdapter extends CommonAdapter<CompositeTranslateM
         super(context);
     }
 
+    public CompositeTranslateAdapter(Context context, Decoration decoration){
+        super(context,decoration);
+    }
+
     @Override
     RecyclerView.ViewHolder onCreateVH(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_composite_translate,parent,false);
@@ -36,6 +40,7 @@ public class CompositeTranslateAdapter extends CommonAdapter<CompositeTranslateM
     @Override
     void onBindVH(RecyclerView.ViewHolder holder, int position) {
         CompositeTranslateHolder h = (CompositeTranslateHolder) holder;
+        StaticHelpers.LogThisFt("DATA: " + data.size() + " pos: " + position);
         CompositeTranslateModel item = data.get(position);
 
         h.translateText.setText(item.getTranslate());
