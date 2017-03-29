@@ -62,9 +62,9 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
             adapter.setDecoration(CommonAdapter.Decoration.FOOTER);
 
         if(allDataWasObtained) {
-            int deletePos = adapter.getItemCount();
+
             adapter.setDecoration(CommonAdapter.Decoration.SIMPLE);
-            adapter.notifyItemRemoved(deletePos);
+            adapter.notifyItemChanged(adapter.getItemCount());
         }
     }
 
