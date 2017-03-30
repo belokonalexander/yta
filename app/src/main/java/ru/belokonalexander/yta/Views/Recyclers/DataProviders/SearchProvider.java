@@ -13,7 +13,7 @@ import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
  * адаптер для SolidProvider, реализующий поисковой функционал
  * @param <T>
  */
-public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T> implements SolidProvider<T> {
+public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T> {
 
     //SearchInputData searchInputData;
     Class<T> itemType;
@@ -22,6 +22,9 @@ public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T
         super();
         this.state = new SearchInputData(pageSize);
         this.paginationProviderController = searchProviderController;
+        this.itemType = type;
     }
+
+
 
 }
