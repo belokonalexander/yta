@@ -20,5 +20,6 @@
     <string name="update">Обновить список</string>
     <string name="output_language_cahnge">Смена целевого языка</string>
     <string name="default_app_lang">ru</string>
+    <string name="empty_data">Нет данных</string>
 
 </resources>

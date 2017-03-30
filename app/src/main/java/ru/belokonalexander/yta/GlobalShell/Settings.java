@@ -11,6 +11,6 @@ public class Settings {
         в кэше ищем значения начиная с ТЕКУЩАЯ_ДАТА - CACHE_INTERVAL
     */
     public static final int CACHE_INTERVAL = 1;
-    public static final int HISTORY_WORD_SAVE_DELAY = 5000;
+    public static final int HISTORY_WORD_SAVE_DELAY = 2000;
     public static final int IMMEDIATELY = 0;
 }

@@ -29,6 +29,7 @@ import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
@@ -61,15 +62,17 @@ public class FragmentHistory extends Fragment{
 
         recyclerView.setLayoutManager(mLayoutManager);
         //PhantomLastItemAdapter a = new PhantomLastItemAdapter<>(adapter);
-        recyclerView.init(adapter, new SolidProvider<CompositeTranslateModel>() {
+        recyclerView.init(adapter, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
-            public List<CompositeTranslateModel> getData(PaginationSlider state) {
+            public List<CompositeTranslateModel> getDate(PaginationSlider state) {
                 StaticHelpers.LogThis(" Подгружаю");
-                try {
+
+               /* try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
+
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
                         .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
@@ -106,9 +109,9 @@ public class FragmentHistory extends Fragment{
             StaticHelpers.LogThis("Индекс: " + itemIndex + " / " + adapter.getData().get(itemIndex));
 
         if(itemIndex<0){
-            adapter.addToTop(translateModel);
+            recyclerView.addToTop(translateModel);
         } else {
-            adapter.moveToTop(itemIndex);
+            recyclerView.moveToTop(itemIndex);
         }
 
 
@@ -119,9 +122,9 @@ public class FragmentHistory extends Fragment{
         CompositeTranslateModel translateModel = event.getTranslateModel();
         int itemIndex = adapter.getData().indexOf(translateModel);
         if(itemIndex<0){
-            adapter.addToTop(translateModel);
+            recyclerView.addToTop(translateModel);
         } else {
-            adapter.update(translateModel,itemIndex);
+            recyclerView.update(translateModel,itemIndex);
         }
     }
 

@@ -40,7 +40,7 @@ public class CompositeTranslateAdapter extends CommonAdapter<CompositeTranslateM
     @Override
     void onBindVH(RecyclerView.ViewHolder holder, int position) {
         CompositeTranslateHolder h = (CompositeTranslateHolder) holder;
-        StaticHelpers.LogThisFt("DATA: " + data.size() + " pos: " + position);
+
         CompositeTranslateModel item = data.get(position);
 
         h.translateText.setText(item.getTranslate());

@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface SolidProvider<T> {
 
-    List<T> getData(PaginationSlider state);
+    List<T> getData();
 
 }

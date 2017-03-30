@@ -24,8 +24,10 @@ import ru.belokonalexander.yta.Events.EventCreateType;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
+
 import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
 
 /**
@@ -53,14 +55,9 @@ public class FragmentFavorites extends Fragment {
             ((MainActivity)getActivity()).openActionFragment();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.init(adapter, new SolidProvider<CompositeTranslateModel>() {
+        recyclerView.init(adapter, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
-            public List<CompositeTranslateModel> getData(PaginationSlider state) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            public List<CompositeTranslateModel> getDate(PaginationSlider state) {
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
                         .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
@@ -86,9 +83,9 @@ public class FragmentFavorites extends Fragment {
     public void updateFavoriteStatus(WordFavoriteStatusChangedEvent event){
         CompositeTranslateModel translateModel = event.getTranslateModel();
         if (translateModel.getFavorite()){
-            adapter.addToTop(translateModel);
+            recyclerView.addToTop(translateModel);
         } else {
-            adapter.remove(translateModel);
+            recyclerView.remove(translateModel);
         }
         /*int itemIndex = adapter.getData().indexOf(translateModel);
         if(itemIndex<0){

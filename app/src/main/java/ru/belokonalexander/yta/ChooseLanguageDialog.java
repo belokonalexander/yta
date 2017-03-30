@@ -36,6 +36,9 @@ import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.Views.Recyclers.ActionRecyclerView;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
 
 /**
@@ -57,6 +60,8 @@ public class ChooseLanguageDialog extends DialogFragment {
 
     Button cancel;
     Button updateLanguages;
+
+    ActionRecyclerView<Language> recyclerView;
 
     public void show(FragmentManager manager){
         StaticHelpers.LogThis(" Show dialog");
@@ -84,9 +89,14 @@ public class ChooseLanguageDialog extends DialogFragment {
 
         updateButton.setOnClickListener(v -> updateLanguages());
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = (ActionRecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(languageAdapter);
+        recyclerView.init(languageAdapter, new SolidProvider<Language>() {
+            @Override
+            public List<Language> getData() {
+                return SharedAppPrefs.getInstance().getLanguageLibrary().getLanguages();
+            }
+        });
 
         // присваиваем адаптер списку
         languageAdapter.setOnClickListener(item -> {
@@ -143,7 +153,7 @@ public class ChooseLanguageDialog extends DialogFragment {
             protected void onPostExecute(AllowedLanguages allowedLanguages) {
                 super.onPostExecute(allowedLanguages);
                 if(allowedLanguages.getLanguages().size()!=languageAdapter.getData().size()){
-                    languageAdapter.rewriteAll(allowedLanguages.getLanguages());
+                    recyclerView.rewriteAll(allowedLanguages.getLanguages());
                 }
             }
         }.execute();
@@ -165,13 +175,6 @@ public class ChooseLanguageDialog extends DialogFragment {
             Button neutralButton = d.getButton(Dialog.BUTTON_NEUTRAL);
             neutralButton.setOnClickListener(v -> updateLanguages());
         }
-
-        Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguageLibrary().getLanguages())
-                .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(languages -> {
-            languageAdapter.rewriteAll(languages);
-        });
-
 
 
     }

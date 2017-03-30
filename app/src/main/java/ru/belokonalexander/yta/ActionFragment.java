@@ -96,6 +96,14 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
+        YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
+
+
+        for(int i = 0 ; i < 57; i++){
+            YtaApplication.getDaoSession().getCompositeTranslateModelDao().save(new CompositeTranslateModel(null, "item " + i,
+                    new TranslateLanguage("ru-en"), "translate " + i,new Date(), false, true, new LookupResult()));
+        }
+
         return view;
     }
 

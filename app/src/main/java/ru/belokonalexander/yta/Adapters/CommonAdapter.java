@@ -29,9 +29,8 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
     abstract  RecyclerView.ViewHolder onCreateVH(ViewGroup parent, int viewType);
     abstract  void onBindVH(RecyclerView.ViewHolder holder, int position);
 
-    public void rewriteAll(List<T> data){
+    public void setData(List<T> data) {
         this.data = data;
-        notifyDataSetChanged();
     }
 
     public enum Decoration {
@@ -101,6 +100,10 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
         return data.size();
     }
 
+    public int getRealItems(){
+        return data.size();
+    }
+
     public List<T> getData(){
         return data;
     }
@@ -115,37 +118,7 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
         this.onClickListener = onClickListenet;
     }
 
-    public void moveToTop(int index) {
-        T object = data.get(index);
-        data.remove(index);
-        data.add(0,object);
-        notifyItemMoved(index,0);
-    }
 
-    public void addToTop(T object){
-        data.add(0,object);
-        notifyItemInserted(0);
-    }
-
-    public void update(T item, int index) {
-        T object = data.get(index);
-        object = item;
-        notifyItemChanged(index);
-    }
-
-    public void remove(T object) {
-        int index = data.indexOf(object);
-        if(index>=0){
-            data.remove(index);
-            notifyItemRemoved(index);
-        }
-    }
-
-    public void add(List<T> list) {
-        int was = data.size();
-        data.addAll(list);
-        notifyItemRangeChanged(was,data.size());
-    }
 
 
 

@@ -4,11 +4,15 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import java.util.List;
 
 import ru.belokonalexander.yta.Adapters.CommonAdapter;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
+import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
@@ -18,6 +22,7 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
 /**
  * Представляет базовый класс списока с поставщиком контента, который изменяет данные
+ * Сразу же получает все данные от поставщика
  * @param <T> тип элемента списка адаптера
  */
 
@@ -26,12 +31,8 @@ public class ActionRecyclerView<T> extends RecyclerView {
     /**
      *  адаптер с данными, содержащимися в списке
      */
-    CommonAdapter<T> adapter;
+    protected CommonAdapter<T> adapter;
 
-    /**
-     * стандартное значение кол-ва элементов в списке
-     */
-    private int pageSize = 20;
 
     /**
      * выполняется ли в данный момент подгрузка
@@ -43,10 +44,11 @@ public class ActionRecyclerView<T> extends RecyclerView {
      */
     SolidProvider<T> provider;
 
+
     /**
-     *  все данные из источника были получены
+     *  надпись, появляющаяся, если источник не имеет данных
      */
-    Boolean allDataWasObtained = false;
+    RelativeLayout emptyDataController;
 
 
     /**
@@ -56,11 +58,13 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
         this.adapter = adapter;
         this.provider = provider;
-
         setAdapter(adapter);
 
-        getData(UpdateMode.INITIAL);
+        LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        emptyDataController = (RelativeLayout) layoutInflater.inflate(R.layout.item_empty_data, null);
+        ((ViewGroup)getParent()).addView(emptyDataController);
 
+        getData(UpdateMode.INITIAL);
     }
 
     /**
@@ -79,12 +83,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
      * @return - данные от поставщика
      */
     protected List<T> dataLoading(UpdateMode updateMode) {
-        PaginationSlider caller = new PaginationSlider(pageSize);;
-
-        if (updateMode == UpdateMode.ADD)
-            caller.setOffset(adapter.getItemCount());
-
-        return provider.getData(caller);
+        return provider.getData();
     }
 
     /**
@@ -96,16 +95,15 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
         //если подгрузка, то добавляем данные
         if(!result.isEmpty() && updateMode==UpdateMode.ADD) {
-            adapter.add(result);
+            add(result);
         } else if (!result.isEmpty()) {
             //если другие режимы, то данные переписываются
-            adapter.rewriteAll(result);
+            rewriteAll(result);
         }
 
-        //проверка - все ли данные отдал поставщик
-        allDataWasObtained = result.size() < pageSize;
 
-        afterUpdating(updateMode);
+
+        afterUpdating(updateMode, result);
     }
 
 
@@ -113,10 +111,24 @@ public class ActionRecyclerView<T> extends RecyclerView {
         loadingInProgress = true;
     }
 
-    public void afterUpdating(UpdateMode updateMode){
-        loadingInProgress = false;
+    public void onDataSizeChanged(){
+        if(adapter.getRealItems()==0)
+            enableEmptyController();
+        else disableEmptyController();
     }
 
+    public void afterUpdating(UpdateMode updateMode, List<T> data){
+        loadingInProgress = false;
+        onDataSizeChanged();
+    }
+
+    public void enableEmptyController(){
+        emptyDataController.setVisibility(VISIBLE);
+    }
+
+    public void disableEmptyController(){
+        emptyDataController.setVisibility(INVISIBLE);
+    }
 
     public ActionRecyclerView(Context context) {
         super(context);
@@ -130,4 +142,49 @@ public class ActionRecyclerView<T> extends RecyclerView {
     public ActionRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
+
+
+    public void moveToTop(int index) {
+        T object = adapter.getData().get(index);
+        adapter.getData().remove(index);
+        adapter.getData().add(0,object);
+        adapter.notifyItemMoved(index,0);
+        onDataSizeChanged();
+    }
+
+    public void addToTop(T object){
+        adapter.getData().add(0,object);
+        adapter.notifyItemInserted(0);
+        onDataSizeChanged();
+    }
+
+    public void update(T item, int index) {
+        T object = adapter.getData().get(index);
+        object = item;
+        adapter.notifyItemChanged(index);
+        onDataSizeChanged();
+    }
+
+    public void remove(T object) {
+        int index = adapter.getData().indexOf(object);
+        if(index>=0){
+            adapter.getData().remove(index);
+            adapter.notifyItemRemoved(index);
+        }
+        onDataSizeChanged();
+    }
+
+    public void add(List<T> list) {
+        int was = adapter.getData().size();
+        adapter.getData().addAll(list);
+        adapter.notifyItemRangeChanged(was,adapter.getData().size());
+        onDataSizeChanged();
+    }
+
+    public void rewriteAll(List<T> data){
+        adapter.setData(data);
+        adapter.notifyDataSetChanged();
+        onDataSizeChanged();
+    }
+
 }
