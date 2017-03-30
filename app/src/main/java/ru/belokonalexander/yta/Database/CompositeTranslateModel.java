@@ -55,7 +55,7 @@ import static ru.belokonalexander.yta.GlobalShell.StaticHelpers.getStringOrEmpty
  *  является представлением объекта CompositeTranslateModel в базе данных
  */
 @Entity(indexes = {@Index(value = "source,lang", unique = true)})
-public class CompositeTranslateModel {
+public class CompositeTranslateModel implements SearchEntity{
 
     @Id
     private Long Id;

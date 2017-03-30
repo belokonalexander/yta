@@ -6,8 +6,8 @@ package ru.belokonalexander.yta.Views.Recyclers.DataProviders;
 
 public class PaginationSlider {
 
-    private int pageSize;
-    private int offset;
+    protected int pageSize;
+    protected int offset;
 
     public void nextStep(){
         offset+=pageSize;

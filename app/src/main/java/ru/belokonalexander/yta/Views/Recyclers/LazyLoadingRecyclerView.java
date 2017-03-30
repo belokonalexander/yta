@@ -33,15 +33,12 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
      */
     Boolean allDataWasObtained = false;
 
-    /**
-     * стандартное значение кол-ва элементов в списке
-     */
-    private int pageSize = 20;
 
 
 
-    public void init(CommonAdapter<T> adapter, PaginationProvider.PaginationProviderController<T> provider) {
-        super.init(adapter, new PaginationProvider<T>(provider, pageSize));
+
+    public void init(CommonAdapter<T> adapter, PaginationProvider<T> provider) {
+        super.init(adapter, provider);
 
         addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -87,7 +84,7 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
     public void afterUpdating(UpdateMode updateMode, List<T> result) {
         preloadingIterations = 0;
         //проверка - все ли данные отдал поставщик
-        allDataWasObtained = result.size() < pageSize;
+        allDataWasObtained = result.size() < ((PaginationProvider)provider).getPageSize();
 
 
         if(updateMode==UpdateMode.INITIAL) {

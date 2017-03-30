@@ -31,8 +31,11 @@ import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchInputData;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
+import ru.belokonalexander.yta.Views.Recyclers.SearchRecyclerView;
 
 /**
  * Created by Alexander on 16.03.2017.
@@ -41,7 +44,7 @@ import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
 public class FragmentHistory extends Fragment{
 
     @BindView(R.id.recycler_view)
-    LazyLoadingRecyclerView<CompositeTranslateModel> recyclerView;
+    SearchRecyclerView<CompositeTranslateModel> recyclerView;
 
     CompositeTranslateAdapter adapter;
 
@@ -62,22 +65,15 @@ public class FragmentHistory extends Fragment{
 
         recyclerView.setLayoutManager(mLayoutManager);
         //PhantomLastItemAdapter a = new PhantomLastItemAdapter<>(adapter);
-        recyclerView.init(adapter, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
+        recyclerView.init(adapter, new SearchProvider<CompositeTranslateModel>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
             public List<CompositeTranslateModel> getDate(PaginationSlider state) {
-                StaticHelpers.LogThis(" Подгружаю");
-
-               /* try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
-
+                StaticHelpers.LogThis("Подгрузка: " + state);
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
                         .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
             }
-        });
+        }));
 
 
 

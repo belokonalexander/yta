@@ -55,17 +55,22 @@ public class FragmentFavorites extends Fragment {
             ((MainActivity)getActivity()).openActionFragment();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.init(adapter, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
+        recyclerView.init(adapter, new PaginationProvider<CompositeTranslateModel>(new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
             public List<CompositeTranslateModel> getDate(PaginationSlider state) {
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
                         .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
             }
-        });
+        }));
 
         return view;
     }
+
+    /*
+     new PaginationProvider<T>(provider, pageSize)
+     */
+
 
     @Override
     public void onStop() {

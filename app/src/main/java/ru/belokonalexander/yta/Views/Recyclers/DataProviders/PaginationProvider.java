@@ -8,12 +8,22 @@ import java.util.List;
 
 public class PaginationProvider<T> implements SolidProvider<T> {
 
-    private PaginationSlider state;
-    private PaginationProviderController<T> paginationProviderController;
+    protected PaginationSlider state;
+    protected PaginationProviderController<T> paginationProviderController;
 
-    public PaginationProvider(PaginationProviderController<T> paginationProviderController, int pageSize) {
+    protected int pageSize = 20;
+
+    public PaginationProvider(PaginationProviderController<T> paginationProviderController) {
         this.paginationProviderController = paginationProviderController;
         this.state = new PaginationSlider(pageSize);
+    }
+
+    public PaginationProvider(PaginationProviderController<T> paginationProviderController, PaginationSlider state){
+        this.paginationProviderController = paginationProviderController;
+        this.state = state;
+    }
+
+    public PaginationProvider() {
     }
 
     @Override
@@ -23,6 +33,10 @@ public class PaginationProvider<T> implements SolidProvider<T> {
 
     public void setOffset(int offset) {
         state.setOffset(offset);
+    }
+
+    public int getPageSize(){
+        return pageSize;
     }
 
     public interface PaginationProviderController<T>{
