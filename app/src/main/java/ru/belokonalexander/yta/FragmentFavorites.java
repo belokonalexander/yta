@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.greendao.query.WhereCondition;
 
 import java.util.List;
 
@@ -26,9 +27,12 @@ import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchInputData;
+import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
 import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
+import ru.belokonalexander.yta.Views.Recyclers.SearchRecyclerView;
 
 /**
  * Created by Alexander on 16.03.2017.
@@ -38,7 +42,7 @@ public class FragmentFavorites extends Fragment {
 
 
     @BindView(R.id.recycler_view)
-    LazyLoadingRecyclerView<CompositeTranslateModel> recyclerView;
+    SearchRecyclerView<CompositeTranslateModel> recyclerView;
 
     CompositeTranslateAdapter adapter;
 
@@ -55,14 +59,19 @@ public class FragmentFavorites extends Fragment {
             ((MainActivity)getActivity()).openActionFragment();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.init(adapter, new PaginationProvider<CompositeTranslateModel>(new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
+        recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
             public List<CompositeTranslateModel> getDate(PaginationSlider state) {
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                        .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
+                        .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition(((SearchInputData)state).getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
             }
         }));
+
+        /*
+
+
+         */
 
         return view;
     }

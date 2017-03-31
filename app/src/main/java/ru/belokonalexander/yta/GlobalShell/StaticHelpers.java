@@ -148,4 +148,9 @@ public class StaticHelpers {
         return (string==null) ? "" : string;
     }
 
+    public static String camelCaseToUnderscore(String string){
+        return string.replaceAll("(.)(\\p{Upper})", "$1_$2").toUpperCase();
+    }
+
+
 }

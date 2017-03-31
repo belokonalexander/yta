@@ -17,4 +17,8 @@
 
     <dimen name="default_list_height">48dp</dimen>
 
+    <dimen name="icon_left_right_width">40dp</dimen>
+
+    <dimen name="element_margin">16dp</dimen>
+
 </resources>

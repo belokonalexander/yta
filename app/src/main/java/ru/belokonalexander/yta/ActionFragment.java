@@ -96,13 +96,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-        YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
-
+       //YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
+/*
 
         for(int i = 0 ; i < 57; i++){
             YtaApplication.getDaoSession().getCompositeTranslateModelDao().save(new CompositeTranslateModel(null, "item " + i,
-                    new TranslateLanguage("ru-en"), "translate " + i,new Date(), false, true, new LookupResult()));
-        }
+                    new TranslateLanguage("ru-en"), "translate " + i, new Date(), new Date(), false, true, new LookupResult()));
+        }*/
 
         return view;
     }
@@ -174,7 +174,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     lookupResult = (LookupResult) result.get(1);
                 }
 
-                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, new Date(), false, true, lookupResult);
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, null, null, false, true, lookupResult);
 
                 delayedSavingWord(model, text.getType());
                 fillWordList(model);

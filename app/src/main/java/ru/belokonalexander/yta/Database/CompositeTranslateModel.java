@@ -38,6 +38,7 @@ import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Tr;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.Views.WordList;
 import ru.belokonalexander.yta.YtaApplication;
 
@@ -60,6 +61,7 @@ public class CompositeTranslateModel implements SearchEntity{
     @Id
     private Long Id;
 
+    @SearchField(lazySearch = true, alias = R.string.source_word, order = 1)
     @NotNull
     private String source;      //исходное значение
 
@@ -67,11 +69,15 @@ public class CompositeTranslateModel implements SearchEntity{
     @Convert(converter = TranslateLanguageConverter.class, columnType = String.class)
     private TranslateLanguage lang;        //в виде en-ru
 
+    @SearchField(lazySearch = true, alias = R.string.translate_word, order = 2)
     @NotNull
     private String translateResult;   //результат перевода
 
     @NotNull
     Date updateDate;
+
+    @NotNull
+    Date createDate;
 
     private Boolean favorite;   //сохранено в избранном
 
@@ -85,7 +91,7 @@ public class CompositeTranslateModel implements SearchEntity{
 
     @Keep
     public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult,
-            @NotNull Date updateDate, Boolean favorite, Boolean history, LookupResult lookup) {
+            Date createDate, Date updateDate, Boolean favorite, Boolean history, LookupResult lookup) {
         this.Id = Id;
         this.source = source.trim();
         this.lang = lang;
@@ -94,11 +100,14 @@ public class CompositeTranslateModel implements SearchEntity{
         this.favorite = favorite;
         this.history = history;
         this.lookup = lookup;
+        this.createDate = createDate;
     }
 
     @Generated(hash = 1728432106)
     public CompositeTranslateModel() {
     }
+
+
 
     public static CompositeTranslateModel getBySource(String source, TranslateLanguage translateLanguage) {
         return YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
@@ -108,7 +117,7 @@ public class CompositeTranslateModel implements SearchEntity{
 
     public static CompositeTranslateModel copy(CompositeTranslateModel model){
         return new CompositeTranslateModel(null, model.getSource(), new TranslateLanguage(model.getLang().getLangFrom(),model.getLang().getLangFromDesc(),
-                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
+                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getCreateDate(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
                 model.getLookup()
                 );
     }
@@ -222,6 +231,9 @@ public class CompositeTranslateModel implements SearchEntity{
     }
 
     public void saveInDB(){
+
+        if(this.createDate==null)
+            createDate = new Date();
 
         this.updateDate = new Date();
 
@@ -443,6 +455,14 @@ public class CompositeTranslateModel implements SearchEntity{
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public Date getCreateDate() {
+        return this.createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
 

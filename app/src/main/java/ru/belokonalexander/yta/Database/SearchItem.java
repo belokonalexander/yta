@@ -1,5 +1,12 @@
 package ru.belokonalexander.yta.Database;
 
+import android.content.Context;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * Created by Alexander on 30.03.2017.
  */
@@ -17,6 +24,17 @@ public class SearchItem {
         this.isFullContain = isFullContain;
         this.alias = alias;
         this.order = order;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchItem{" +
+                "name='" + name + '\'' +
+                ", isLazyType=" + isLazyType +
+                ", isFullContain=" + isFullContain +
+                ", alias='" + alias + '\'' +
+                ", order=" + order +
+                '}';
     }
 
     public int getOrder() {
@@ -37,5 +55,58 @@ public class SearchItem {
 
     public Boolean getFullContain() {
         return isFullContain;
+    }
+
+    /**
+     * получает список поисковых параметров из описания класса
+     * @param home  класс, реализующий SearchEntity
+     * @param context
+     * @return
+     */
+    public static List<SearchItem> getSearchFieldsAndType(Class <? extends SearchEntity> home, Context context) {
+        List<SearchItem> result = new ArrayList<>();
+        for (java.lang.reflect.Field field : home.getDeclaredFields()) {
+            if (field.isAnnotationPresent(SearchField.class)) {
+                final SearchField annotation = field.getAnnotation(SearchField.class);
+                result.add(new SearchItem(field.getName(),annotation.lazySearch(), annotation.fullContains(), getLanguagedAlias(annotation.alias(), context),annotation.order()));
+            }
+        }
+
+        Collections.sort(result,new Comparator<SearchItem>() {
+            @Override
+            public int compare(SearchItem o1, SearchItem o2) {
+                return  (o1.getOrder() > o2.getOrder()) ?  1 :
+                        (o1.getOrder() < o2.getOrder()) ? -1 : 0;
+            }
+        });
+
+        return result;
+    }
+
+    /**
+     * отображение названия параметра поиска
+     * @param alias
+     * @param context
+     * @return
+     */
+    private static String getLanguagedAlias(int alias, Context context) {
+        return context.getResources().getString(alias);
+    }
+
+    /**
+     * возвращает количество параметров поиска
+     * @param itemType
+     * @param <T>
+     * @return
+     */
+    public static <T extends SearchEntity> int getSearchFieldsCount(Class<T> itemType) {
+        int count = 0;
+        for (java.lang.reflect.Field field : itemType.getDeclaredFields()) {
+            if (field.isAnnotationPresent(SearchField.class)) {
+                count++;
+            }
+        }
+
+        return count;
     }
 }

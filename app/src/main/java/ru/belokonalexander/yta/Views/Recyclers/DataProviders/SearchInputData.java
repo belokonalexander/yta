@@ -10,6 +10,7 @@ import java.util.List;
 import ru.belokonalexander.yta.Database.SearchEntity;
 import ru.belokonalexander.yta.Database.SearchField;
 import ru.belokonalexander.yta.Database.SearchItem;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 /**
  * Created by Alexander on 30.03.2017.
@@ -19,14 +20,40 @@ public class SearchInputData extends PaginationSlider {
 
     private String key;
     private String value;
-
+    private boolean isFullContains;
     //private List<SearchItem> params;
 
+    public String getSearchCondition(){
+        String c = "1=1";
+        String fc = isFullContains ? "" : "%";
+        if(!value.isEmpty()){
+            c = StaticHelpers.camelCaseToUnderscore(key) + " LIKE '" + value + fc + "'";
+        }
+
+        return c;
+    }
+
+    public boolean isEmpty(){
+        return value.isEmpty();
+    }
 
     public SearchInputData(int pageSize) {
         super(pageSize);
         this.value = "";
         this.key = "";
+        isFullContains = false;
+    }
+
+    public boolean isFullContains() {
+        return isFullContains;
+    }
+
+    public void setFullContains(boolean fullContains) {
+        isFullContains = fullContains;
+    }
+
+    public SearchInputData(){
+        this(0);
     }
 
     public String getKey() {

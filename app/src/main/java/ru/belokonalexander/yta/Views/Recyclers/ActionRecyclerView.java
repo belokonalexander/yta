@@ -24,6 +24,8 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
  * Представляет базовый класс списока с поставщиком контента, который изменяет данные
  * Сразу же получает все данные от поставщика
  * @param <T> тип элемента списка адаптера
+ *
+ * для сохранения правильной логики работы необходимо обернуть Recycler в RelativeLayout
  */
 
 public class ActionRecyclerView<T> extends RecyclerView {
@@ -55,6 +57,9 @@ public class ActionRecyclerView<T> extends RecyclerView {
      * обязательная инициализация
      */
     public void init(CommonAdapter<T> adapter, SolidProvider<T> provider){
+
+        if(!((getParent()) instanceof RelativeLayout))
+            throw new UnsupportedOperationException("Recycler should have Relative Wrapper");
 
         this.adapter = adapter;
         this.provider = provider;
@@ -96,7 +101,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
         //если подгрузка, то добавляем данные
         if(!result.isEmpty() && updateMode==UpdateMode.ADD) {
             add(result);
-        } else if (!result.isEmpty()) {
+        } else {
             //если другие режимы, то данные переписываются
             rewriteAll(result);
         }

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.greendao.query.WhereCondition;
 
 import java.util.List;
 
@@ -65,13 +66,17 @@ public class FragmentHistory extends Fragment{
 
         recyclerView.setLayoutManager(mLayoutManager);
         //PhantomLastItemAdapter a = new PhantomLastItemAdapter<>(adapter);
-        recyclerView.init(adapter, new SearchProvider<CompositeTranslateModel>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
+        recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
             public List<CompositeTranslateModel> getDate(PaginationSlider state) {
-                StaticHelpers.LogThis("Подгрузка: " + state);
+
+
+                SearchInputData searchInputData = (SearchInputData) state;
+                StaticHelpers.LogThis("Подгрузка: " + state + " / " + searchInputData.getSearchCondition());
+
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                        .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true)).limit(state.getPageSize()).offset(state.getOffset())
-                        .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
+                        .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
+                        .orderDesc(CompositeTranslateModelDao.Properties.CreateDate).list();
             }
         }));
 

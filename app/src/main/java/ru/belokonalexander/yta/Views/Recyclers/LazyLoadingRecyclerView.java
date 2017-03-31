@@ -87,7 +87,7 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
         allDataWasObtained = result.size() < ((PaginationProvider)provider).getPageSize();
 
 
-        if(updateMode==UpdateMode.INITIAL) {
+        if(updateMode==UpdateMode.INITIAL || updateMode == UpdateMode.REWRITE) {
             adapter.setDecoration(CommonAdapter.Decoration.FOOTER);
         }
 
