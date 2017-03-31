@@ -100,10 +100,10 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
         //если подгрузка, то добавляем данные
         if(!result.isEmpty() && updateMode==UpdateMode.ADD) {
-            add(result);
+            addInner(result);
         } else {
             //если другие режимы, то данные переписываются
-            rewriteAll(result);
+            rewriteAllInner(result);
         }
 
 
@@ -149,6 +149,10 @@ public class ActionRecyclerView<T> extends RecyclerView {
     }
 
 
+    /**
+     * методы для взаимодействия с содержимом списка - могут быть вызваны извне
+     * @param index
+     */
     public void moveToTop(int index) {
         T object = adapter.getData().get(index);
         adapter.getData().remove(index);
@@ -180,13 +184,25 @@ public class ActionRecyclerView<T> extends RecyclerView {
     }
 
     public void add(List<T> list) {
+        addInner(list);
+    }
+
+    public void rewriteAll(List<T> data){
+        rewriteAllInner(data);
+    }
+
+    /**
+     * protected методы для внутреннего использования
+     * @param list
+     */
+    final protected void addInner(List<T> list) {
         int was = adapter.getData().size();
         adapter.getData().addAll(list);
         adapter.notifyItemRangeChanged(was,adapter.getData().size());
         onDataSizeChanged();
     }
 
-    public void rewriteAll(List<T> data){
+    final protected void rewriteAllInner(List<T> data){
         adapter.setData(data);
         adapter.notifyDataSetChanged();
         onDataSizeChanged();

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,8 @@ public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyc
     EntitySearchView searchView;
 
     ViewGroup searchFieldController;
+
+
 
     public void init(CommonAdapter<T> adapter, SearchProvider<T> provider) {
 
@@ -68,6 +71,13 @@ public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyc
 
         super.init(adapter, provider);
     }
+
+    @Override
+    public void init(CommonAdapter<T> adapter, PaginationProvider<T> provider) {
+        super.init(adapter, provider);
+        throw new UnsupportedOperationException("Initialization only with SearchProvider");
+    }
+
 
     @Override
     public void enableEmptyController() {
@@ -109,5 +119,68 @@ public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyc
         super(context, attrs, defStyle);
     }
 
+
+    @Override
+    public void addToTop(T object) {
+        if(filter(object)!=null)
+            super.addToTop(object);
+    }
+
+
+    @Override
+    public void add(List<T> list) {
+        if(list!=null && filter(list).size()>0)
+            super.add(list);
+    }
+
+    @Override
+    public void rewriteAll(List<T> data) {
+        if(data!=null && filter(data).size()>0)
+            super.rewriteAll(data);
+    }
+
+    /**
+     * проверяет, проходит ли значение по фильтру
+     * @param item
+     * @return
+     */
+    private T filter(T item){
+        if(!getCastProvider().stateIsEmpty()){
+            try {
+                Field field = item.getClass().getDeclaredField(getCastProvider().getFilterKey());
+                field.setAccessible(true);
+                Object value = field.get(item);
+
+                if(!getCastProvider().isFilterValue(value))
+                    return null;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return item;
+    }
+
+    private List<T> filter(List<T> data){
+
+        if(!getCastProvider().stateIsEmpty()){
+            List<T> filtered = new ArrayList<T>();
+            for(T item : data){
+                if(filter(item)!=null){
+                    filtered.add(item);
+                }
+            }
+            return filtered;
+        }
+
+        return data;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private SearchProvider<T> getCastProvider(){
+        return ((SearchProvider)provider);
+    }
 
 }

@@ -74,10 +74,10 @@ public class CompositeTranslateModel implements SearchEntity{
     private String translateResult;   //результат перевода
 
     @NotNull
-    Date updateDate;
+    private Date updateDate;
 
     @NotNull
-    Date createDate;
+    private Date createDate;
 
     private Boolean favorite;   //сохранено в избранном
 

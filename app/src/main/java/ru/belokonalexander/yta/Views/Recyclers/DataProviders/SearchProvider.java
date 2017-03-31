@@ -28,6 +28,14 @@ public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T
         return ((SearchInputData)state).isEmpty();
     }
 
+    public String getFilterValue(){
+        return ((SearchInputData)state).getValue();
+    }
+
+    public boolean isFullContains(){
+        return ((SearchInputData)state).isFullContains();
+    }
+
     public SearchProvider( Class<T> type, PaginationProviderController<T> searchProviderController) {
         super();
         this.state = new SearchInputData(pageSize);
@@ -37,5 +45,28 @@ public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T
 
     public Class<T> getItemType() {
         return itemType;
+    }
+
+    public String getFilterKey() {
+        return ((SearchInputData) state).getKey();
+    }
+
+    /**
+     * проверяет значение value на соответствие фильтру
+     * @param value
+     * @return
+     */
+    public boolean isFilterValue(Object value) {
+        String filter = getFilterValue();
+
+        if(value instanceof String){
+            String val = (String) value;
+            if(!isFullContains()){
+                filter+=".*";
+            }
+            return val.matches(filter);
+        }
+
+        return false;
     }
 }
