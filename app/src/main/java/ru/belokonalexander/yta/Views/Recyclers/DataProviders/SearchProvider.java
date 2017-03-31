@@ -57,14 +57,14 @@ public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T
      * @return
      */
     public boolean isFilterValue(Object value) {
-        String filter = getFilterValue();
+        String filter = getFilterValue().toUpperCase();
 
         if(value instanceof String){
             String val = (String) value;
             if(!isFullContains()){
                 filter+=".*";
             }
-            return val.matches(filter);
+            return val.toUpperCase().matches(filter);
         }
 
         return false;
