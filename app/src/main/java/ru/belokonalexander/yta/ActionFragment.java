@@ -79,7 +79,9 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     View swapTextView;
     SimpleRequestsManager requestsManager = new SimpleRequestsManager();
 
-    Timer delayedHistorySaveTimer = new Timer();
+    SimpleAsyncTask delayedHistorySave;
+
+
 
     @Nullable
     @Override
@@ -136,19 +138,18 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     @Override
     public void onTextAction(OutputText outputText) {
 
-        StaticHelpers.LogThis(" Output -> " + outputText.getType());
 
         if(getTranslete!=null)
             getTranslete.cancel();
         //проверяю значение в истории
         SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(outputText.getValue(),currentLanguage), result -> {
-            StaticHelpers.LogThis(" Результат в базе: " + result);
+
             if(result!=null) {
                 delayedSavingWord(result, outputText.getType());
                 fillWordList(result);
             }
             else {
-                StaticHelpers.LogThis(" ЗАПРООООООООООС: " + outputText.getValue());
+
                 requestTranslateFromApi(outputText);
             }
         });
@@ -219,17 +220,19 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         int delay = type.getDelay();
 
-        delayedHistorySaveTimer.cancel();
-        delayedHistorySaveTimer = new Timer();
-        delayedHistorySaveTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                StaticHelpers.LogThis("SAVE IN DB");
-                compositeTranslateModel.save();
+        //delayedHistorySaveTimer.cancel();
+        //delayedHistorySaveTimer = new Timer();
+        //delayedHistorySaveTimer.schedule(new TimerTask() {
+         delayedHistorySave = SimpleAsyncTask.create(new SimpleAsyncTask.InBackground<Void>() {
+             @Override
+             public Void doInBackground() {
+                 compositeTranslateModel.save();
+                 EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
+                 StaticHelpers.LogThis(" УВЕДОМИЛ ");
+                 return null;
+             }
+         });
 
-                EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
-            }
-        },delay);
     }
 
 
@@ -238,8 +241,30 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         if(getTranslete!=null){
             getTranslete.cancel();
         }
-        delayedHistorySaveTimer.cancel();
+        //delayedHistorySaveTimer.cancel();
         wordList.clearView();
+    }
+
+    @Override
+    public void onTextDone() {
+        StaticHelpers.LogThis(" Фокус на другом элементе ");
+        saveHistoryWord(null);
+    }
+
+
+
+
+    private boolean saveHistoryWord(SimpleAsyncTask.PostExecute<Void> afterSaving){
+        if (delayedHistorySave!=null && !delayedHistorySave.isExecuted()) {
+            StaticHelpers.LogThis("СРХР В ИСТОРИЮ");
+            if(delayedHistorySave.getPostExecute()==null && afterSaving!=null) {
+                delayedHistorySave.setPostExecute(afterSaving);
+            }
+            delayedHistorySave.execute();
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -252,7 +277,19 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     public void onStop() {
         super.onStop();
         requestsManager.clear();
-        EventBus.getDefault().unregister(this);
+
+        SimpleAsyncTask.PostExecute<Void> disableEventBus = new SimpleAsyncTask.PostExecute<Void>() {
+            @Override
+            public void doPostExecute(Void result) {
+                EventBus.getDefault().unregister(ActionFragment.this);
+                StaticHelpers.LogThis("УДАЛИЛ");
+            }};
+
+        if(!saveHistoryWord(disableEventBus))
+             EventBus.getDefault().unregister(this);;
+
+
+
     }
 
     @Override

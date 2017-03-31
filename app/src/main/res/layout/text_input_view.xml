@@ -60,7 +60,7 @@
         android:layout_toLeftOf="@id/side_input_control_panel"
         android:lines="100"
         tools:text="11123123213 ds fds fds fsd fsd fsd fsd fsd fsd dsf ds sd fds f sd fsd "
-        android:inputType="textNoSuggestions|textMultiLine"
+        android:inputType="textMultiLine"
         android:gravity="start"
         android:paddingTop="2dp"
         android:paddingLeft="2dp"

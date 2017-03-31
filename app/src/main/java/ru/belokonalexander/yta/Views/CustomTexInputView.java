@@ -2,6 +2,7 @@ package ru.belokonalexander.yta.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -100,6 +101,7 @@ public class CustomTexInputView extends RelativeLayout {
     }
 
 
+
     /**
      *  инициализируются представления и слушатели
      *  вся работа организовывается на RxTextView, который после успешного прохождения фильтрации текста
@@ -152,6 +154,7 @@ public class CustomTexInputView extends RelativeLayout {
     public interface OnTextActionListener{
         void onTextAction(OutputText text);
         void onTextClear();
+        void onTextDone();
     }
 
     public void setOnTextListener(OnTextActionListener listener){
@@ -162,6 +165,9 @@ public class CustomTexInputView extends RelativeLayout {
         int pad = getResources().getDimensionPixelSize(R.dimen.icon_padding);
         this.setBackgroundResource(R.drawable.input_background);
         this.setPadding(pad,pad,pad,pad);
+        if(onTextActionListener!=null){
+            onTextActionListener.onTextDone();
+        }
         return false;
     }
 

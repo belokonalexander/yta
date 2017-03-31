@@ -13,6 +13,10 @@ public class SimpleAsyncTask<T> {
     private InBackground<T> inBackgroundTask;
     private PostExecute<T> postExecute;
 
+    boolean executed = false;
+
+
+
     private SimpleAsyncTask(InBackground<T> bt, PostExecute<T> pe) {
         this.inBackgroundTask = bt;
         this.postExecute = pe;
@@ -20,8 +24,11 @@ public class SimpleAsyncTask<T> {
         backgroundTaskWrapper = new AsyncTask<Void, Void, T>() {
             @Override
             protected T doInBackground(Void... params) {
+                executed = true;
+
                 if(inBackgroundTask!=null)
                     return inBackgroundTask.doInBackground();
+
                 return null;
             }
 
@@ -32,6 +39,10 @@ public class SimpleAsyncTask<T> {
                     postExecute.doPostExecute(result);
             }
         };
+    }
+
+    public boolean isExecuted() {
+        return executed;
     }
 
     public static<S> SimpleAsyncTask create(InBackground<S> inBackgroundTask, PostExecute<S> postExecute){
@@ -69,4 +80,11 @@ public class SimpleAsyncTask<T> {
         void doPostExecute(T result);
     }
 
+    public void setPostExecute(PostExecute<T> postExecute) {
+        this.postExecute = postExecute;
+    }
+
+    public PostExecute<T> getPostExecute() {
+        return postExecute;
+    }
 }

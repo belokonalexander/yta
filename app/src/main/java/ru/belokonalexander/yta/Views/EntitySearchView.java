@@ -197,7 +197,6 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
         searchTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                StaticHelpers.LogThis("FOCUS");
                 if(hasFocus)
                     showCloseButton();
                 else hideCloseButton();
@@ -245,7 +244,7 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
                 public void run() {
                     dialog.dismiss();
                 }
-            }, 100);
+            }, 150);
         });
 
         alertDialog.show();
