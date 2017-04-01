@@ -218,20 +218,18 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
      */
     private void delayedSavingWord(CompositeTranslateModel compositeTranslateModel, OutputText.Type type) {
 
-        int delay = type.getDelay();
-
-        //delayedHistorySaveTimer.cancel();
-        //delayedHistorySaveTimer = new Timer();
-        //delayedHistorySaveTimer.schedule(new TimerTask() {
          delayedHistorySave = SimpleAsyncTask.create(new SimpleAsyncTask.InBackground<Void>() {
              @Override
              public Void doInBackground() {
                  compositeTranslateModel.save();
                  EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
-                 StaticHelpers.LogThis(" УВЕДОМИЛ ");
                  return null;
              }
          });
+
+        if(type== OutputText.Type.AUTOLOAD){
+            saveHistoryWord();
+        }
 
     }
 
@@ -243,23 +241,21 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         }
         //delayedHistorySaveTimer.cancel();
         wordList.clearView();
+        saveHistoryWord();
     }
 
     @Override
     public void onTextDone() {
         StaticHelpers.LogThis(" Фокус на другом элементе ");
-        saveHistoryWord(null);
+        saveHistoryWord();
     }
 
 
 
 
-    private boolean saveHistoryWord(SimpleAsyncTask.PostExecute<Void> afterSaving){
+    private boolean saveHistoryWord(){
         if (delayedHistorySave!=null && !delayedHistorySave.isExecuted()) {
             StaticHelpers.LogThis("СРХР В ИСТОРИЮ");
-            if(delayedHistorySave.getPostExecute()==null && afterSaving!=null) {
-                delayedHistorySave.setPostExecute(afterSaving);
-            }
             delayedHistorySave.execute();
             return true;
         }
@@ -277,25 +273,16 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     public void onStop() {
         super.onStop();
         requestsManager.clear();
-
-        SimpleAsyncTask.PostExecute<Void> disableEventBus = new SimpleAsyncTask.PostExecute<Void>() {
-            @Override
-            public void doPostExecute(Void result) {
-                EventBus.getDefault().unregister(ActionFragment.this);
-                StaticHelpers.LogThis("УДАЛИЛ");
-            }};
-
-        if(!saveHistoryWord(disableEventBus))
-             EventBus.getDefault().unregister(this);;
-
-
-
+        EventBus.getDefault().unregister(this);;
     }
+
+
 
     @Override
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        saveHistoryWord();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

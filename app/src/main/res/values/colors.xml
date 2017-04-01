@@ -3,9 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    
+
+    <color name="item_background">#ededed</color>
+
     <color name="text_color">#616161</color>
 
+    <color name="background_main">#fff</color>
 
     <color name="text_color_alternative">#464646</color>
 
@@ -21,6 +24,7 @@
     <color name="yandex">#f7b602</color>
 
     <color name="tint_color_active">#ffd000</color>
+
 
     <color name="border_text_color">#c6c6c6</color>
     <color name="soft_white">#ededed</color>

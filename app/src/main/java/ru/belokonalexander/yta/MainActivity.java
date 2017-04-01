@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
                         // Notify listener about keyboard being hidden.
                         StaticHelpers.LogThis(" HIDE ");
-                        root.requestFocus();
+                        clearFocus();;
                     }
                 }
                 // Save current decor view height for the next call.
@@ -80,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void clearFocus(){
+        root.requestFocus();
+    }
 
     public void openActionFragment(){
         mainViewPager.setCurrentItem(0);

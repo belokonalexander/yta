@@ -135,6 +135,8 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ScrollView scrollView = new ScrollView(getContext());
 
+        scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
         TextView textView = (TextView) layoutInflater.inflate(R.layout.word_lookup, null);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
         textView.setClickable(true);
