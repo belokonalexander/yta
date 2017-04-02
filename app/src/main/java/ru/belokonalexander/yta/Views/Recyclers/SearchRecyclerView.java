@@ -1,5 +1,6 @@
 package ru.belokonalexander.yta.Views.Recyclers;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +45,8 @@ public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyc
             LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             searchFieldController = (ViewGroup) layoutInflater.inflate(R.layout.item_search, null);
             ViewGroup parent = (ViewGroup) getParent();
+
+
             parent.addView(searchFieldController);
             RelativeLayout.LayoutParams newParams = (RelativeLayout.LayoutParams) getLayoutParams();
             newParams.addRule(RelativeLayout.BELOW, searchFieldController.getId());

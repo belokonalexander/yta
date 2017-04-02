@@ -1,19 +1,25 @@
 package ru.belokonalexander.yta.Views.Recyclers;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.RelativeLayout;
 
 import java.util.List;
 
 import ru.belokonalexander.yta.Adapters.CommonAdapter;
+import ru.belokonalexander.yta.GlobalShell.Settings;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
+import ru.belokonalexander.yta.Views.Animations.FadeAnimation;
+import ru.belokonalexander.yta.Views.Animations.SimpleAnimationListener;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
@@ -72,6 +78,8 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         emptyDataController = (RelativeLayout) layoutInflater.inflate(R.layout.item_empty_data, null);
+
+        ((ViewGroup)getParent()).setLayoutTransition(new LayoutTransition());
         ((ViewGroup)getParent()).addView(emptyDataController);
 
 
@@ -137,10 +145,12 @@ public class ActionRecyclerView<T> extends RecyclerView {
     }
 
     public void enableEmptyController(){
+        //emptyDataController.startAnimation(FadeAnimation.createFadeIn(emptyDataController));
         emptyDataController.setVisibility(VISIBLE);
     }
 
     public void disableEmptyController(){
+        //emptyDataController.startAnimation(FadeAnimation.createFadeOut(emptyDataController));
         emptyDataController.setVisibility(INVISIBLE);
     }
 
@@ -245,9 +255,12 @@ public class ActionRecyclerView<T> extends RecyclerView {
     }
 
     final protected void rewriteAllInner(List<T> data){
+
+
         adapter.setData(data);
         adapter.notifyDataSetChanged();
         onDataSizeChanged();
+
     }
 
 }

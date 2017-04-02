@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -53,7 +54,6 @@ import ru.belokonalexander.yta.Views.WordList;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.INPUT_LANGUAGE_CHANGE_REQUEST_CODE;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.LANG_LEY;
 import static ru.belokonalexander.yta.ChooseLanguageDialog.OUTPUT_LANGUAGE_CHANGE_REQUEST_CODE;
-import static ru.belokonalexander.yta.GlobalShell.Settings.HISTORY_WORD_SAVE_DELAY;
 
 
 /**
@@ -70,6 +70,9 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     @BindView(R.id.wrapper)
     CustomTexInputView customTexInputView;
+
+    @BindView(R.id.loading_bar)
+    ProgressBar loadingBar;
 
     TranslateLanguage currentLanguage;
 
@@ -98,13 +101,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-       YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
+     /*  YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
 
 
         for(int i = 0 ; i < 1; i++){
             YtaApplication.getDaoSession().getCompositeTranslateModelDao().save(new CompositeTranslateModel(null, "item " + i,
                     new TranslateLanguage("ru-en"), "translate " + i, new Date(), new Date(), true, true, new LookupResult()));
-        }
+        }*/
 
         return view;
     }
@@ -139,6 +142,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     @Override
     public void onTextAction(OutputText outputText) {
 
+
+        loadingBar.setVisibility(View.VISIBLE);
 
         if(getTranslete!=null)
             getTranslete.cancel();
@@ -196,7 +201,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     private void fillWordList(CompositeTranslateModel compositeTranslateModel){
 
-
+        loadingBar.setVisibility(View.INVISIBLE);
 
         wordList.setTranslateResult(compositeTranslateModel, (word, inputLang) -> {
                     if(currentLanguage.equals(inputLang)){

@@ -12,17 +12,8 @@ public class OutputText {
     final Type type;
 
     public enum Type{
-        HANDWRITTEN(Settings.HISTORY_WORD_SAVE_DELAY), AUTOLOAD(Settings.IMMEDIATELY);
+        HANDWRITTEN, AUTOLOAD
 
-        private int delay;
-
-        Type(int d) {
-            this.delay = d;
-        }
-
-        public int getDelay() {
-            return delay;
-        }
     }
 
     public String getValue() {

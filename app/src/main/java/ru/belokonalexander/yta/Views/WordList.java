@@ -212,6 +212,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
      */
     public void clearView() {
         if(this.getChildCount()>0){
+            //startAnimation(FadeAnimation.createFadeOutDestroy(this));
             this.removeAllViews();
         }
     }

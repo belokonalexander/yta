@@ -166,8 +166,9 @@ public class CustomTexInputView extends RelativeLayout {
 
     private boolean goNormalState() {
         int pad = getResources().getDimensionPixelSize(R.dimen.icon_padding);
+        int bot_pad = getResources().getDimensionPixelSize(R.dimen.small_padding);
         this.setBackgroundResource(R.drawable.input_background);
-        this.setPadding(pad,pad,pad,pad);
+        this.setPadding(pad,pad,pad,bot_pad);
         if(onTextActionListener!=null){
             onTextActionListener.onTextDone();
         }
@@ -176,8 +177,9 @@ public class CustomTexInputView extends RelativeLayout {
 
     private boolean goFocusState() {
         int pad = getResources().getDimensionPixelSize(R.dimen.icon_padding);
+        int bot_pad = getResources().getDimensionPixelSize(R.dimen.small_padding);
         this.setBackgroundResource(R.drawable.input_background_focused);
-        this.setPadding(pad,pad,pad,pad);
+        this.setPadding(pad,pad,pad,bot_pad);
         return true;
     }
 
