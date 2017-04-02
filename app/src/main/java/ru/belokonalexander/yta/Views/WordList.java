@@ -197,7 +197,10 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
             original.setText(translate.getSource());
             wordListContainer.addView(wordItem);
 
-        this.addView(layout);
+        ScrollView scrollView = new ScrollView(getContext());
+        scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        scrollView.addView(layout);
+        this.addView(scrollView);
 
         return wordListContainer;
     }

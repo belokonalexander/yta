@@ -114,6 +114,9 @@ public class CustomTexInputView extends RelativeLayout {
         clearButton = (ImageButton) findViewById(R.id.clear_button);
         editText.setOnFocusChangeListener((v, hasFocus) -> focusState = hasFocus ? goFocusState() : goNormalState());
 
+        editText.setHorizontallyScrolling(false);
+        editText.setMaxLines(Integer.MAX_VALUE);
+
         clearButton.setOnClickListener(v ->  {
             clearText();
         });

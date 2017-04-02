@@ -33,7 +33,7 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
      */
     Boolean allDataWasObtained = false;
 
-
+    public final int MIN_PRELOAD_SCROLL = 5;
 
 
 
@@ -44,7 +44,7 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                onScrollHeightController(dy);
+                onScrollHeightController();
             }
         });
 
@@ -57,15 +57,20 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
             LOAD_BORDER = .5 * getHeight();
     }
 
-    void onScrollHeightController(int dy){
-
+    void onScrollHeightController(){
+        //StaticHelpers.LogThis(" ПРБУЮ ОБНОВИТЬ ");
         //максимальная позиция скроллера
         int totalScrollSize = computeVerticalScrollRange()-getHeight();
-
+        if(totalScrollSize<=0){
+            //скроллер не инициализирован
+            return;
+        }
         //текущая позиция скроллера
         int currentScrollSize = computeVerticalScrollOffset();
 
-        if((!canScrollVertically(1) || currentScrollSize > totalScrollSize - LOAD_BORDER) && !allDataWasObtained && !loadingInProgress && preloadingIterations > 5) {
+        //StaticHelpers.LogThis("РАЗМЕР ИЗМЕНЕН: " + " ТЕКУЩАЯ: " + currentScrollSize+ " ВСЕГО: " + totalScrollSize + " ГРАНИЦА: " + LOAD_BORDER);
+        if( (!canScrollVertically(1) || currentScrollSize > totalScrollSize - LOAD_BORDER) && !allDataWasObtained && !loadingInProgress && preloadingIterations > MIN_PRELOAD_SCROLL) {
+            StaticHelpers.LogThis("Подгрузка пошла");
             getData(UpdateMode.ADD);
         }
 
@@ -75,9 +80,18 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
 
     @Override
     public void onDataSizeChanged() {
-        if(allDataWasObtained && adapter.getRealItems()==0)
+
+        StaticHelpers.LogThis("РАЗМЕР ИЗМЕНЕН: " + adapter.getData());
+
+        if(/*allDataWasObtained && */adapter.getRealItems()==0)
             enableEmptyController();
         else disableEmptyController();
+
+
+        //данные обновились и список сдвинулся -> пробуем подгрузить данные и отменяем ограничение по минимальному порогу прокрутки
+        preloadingIterations = MIN_PRELOAD_SCROLL + 1;
+        onScrollHeightController();
+
     }
 
     @Override
@@ -87,14 +101,11 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
         allDataWasObtained = result.size() < ((PaginationProvider)provider).getPageSize();
 
 
-        if(updateMode==UpdateMode.INITIAL || updateMode == UpdateMode.REWRITE) {
-            adapter.setDecoration(CommonAdapter.Decoration.FOOTER);
-        }
-
         if(allDataWasObtained) {
             adapter.setDecoration(CommonAdapter.Decoration.SIMPLE);
             adapter.notifyDataSetChanged();
-        }
+        } else if(adapter.getDecoration()!= CommonAdapter.Decoration.FOOTER)
+            adapter.setDecoration(CommonAdapter.Decoration.FOOTER);
 
         super.afterUpdating(updateMode,result);
     }
@@ -104,6 +115,11 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
         if (updateMode == UpdateMode.ADD)
             ((PaginationProvider)provider).setOffset(adapter.getRealItems());
         return super.dataLoading(updateMode);
+    }
+
+    @Override
+    public void removeAll() {
+        super.removeAll();
     }
 
     public LazyLoadingRecyclerView(Context context) {

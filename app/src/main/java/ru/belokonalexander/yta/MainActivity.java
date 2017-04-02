@@ -104,12 +104,12 @@ public class MainActivity extends AppCompatActivity {
 
                     break;
                 case 1:
-                    fragment = new LibraryFragment();
+                    fragment = new FragmentHistory();
 
                     break;
 
                 case 2:
-                    fragment = new SettingsFragment();
+                    fragment = new FragmentFavorites();
             }
 
             return fragment;

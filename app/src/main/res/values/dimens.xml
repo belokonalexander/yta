@@ -22,4 +22,7 @@
 
     <dimen name="element_margin">16dp</dimen>
 
+    <dimen name="animation">5</dimen>
+    
+    
 </resources>

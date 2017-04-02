@@ -98,13 +98,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-       //YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
-/*
+       YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
 
-        for(int i = 0 ; i < 57; i++){
+
+        for(int i = 0 ; i < 1; i++){
             YtaApplication.getDaoSession().getCompositeTranslateModelDao().save(new CompositeTranslateModel(null, "item " + i,
-                    new TranslateLanguage("ru-en"), "translate " + i, new Date(), new Date(), false, true, new LookupResult()));
-        }*/
+                    new TranslateLanguage("ru-en"), "translate " + i, new Date(), new Date(), true, true, new LookupResult()));
+        }
 
         return view;
     }
@@ -114,6 +114,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         LayoutInflater mInflater=LayoutInflater.from(getContext());
         View customView = mInflater.inflate(R.layout.current_languages, null);
         toolbar.addView(customView);
+        toolbar.setContentInsetsAbsolute(0,0);
         languageFromTextView = (TextView) customView.findViewById(R.id.language_from);
         languageToTextView = (TextView) customView.findViewById(R.id.language_to);
         swapTextView = customView.findViewById(R.id.swap_language_button);
@@ -221,6 +222,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
          delayedHistorySave = SimpleAsyncTask.create(new SimpleAsyncTask.InBackground<Void>() {
              @Override
              public Void doInBackground() {
+                 compositeTranslateModel.setHistory(true);
                  compositeTranslateModel.save();
                  EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
                  return null;

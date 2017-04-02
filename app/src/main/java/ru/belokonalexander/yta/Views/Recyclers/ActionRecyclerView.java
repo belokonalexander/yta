@@ -12,6 +12,7 @@ import java.util.List;
 
 import ru.belokonalexander.yta.Adapters.CommonAdapter;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
@@ -52,6 +53,10 @@ public class ActionRecyclerView<T> extends RecyclerView {
      */
     RelativeLayout emptyDataController;
 
+    /**
+     * высота элемента списка по-умолчанию
+     */
+    int defaultItemHeight;
 
     /**
      * обязательная инициализация
@@ -68,6 +73,9 @@ public class ActionRecyclerView<T> extends RecyclerView {
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         emptyDataController = (RelativeLayout) layoutInflater.inflate(R.layout.item_empty_data, null);
         ((ViewGroup)getParent()).addView(emptyDataController);
+
+
+        defaultItemHeight = getContext().getResources().getDimensionPixelSize(R.dimen.default_list_height);
 
         getData(UpdateMode.INITIAL);
     }
@@ -88,6 +96,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
      * @return - данные от поставщика
      */
     protected List<T> dataLoading(UpdateMode updateMode) {
+        StaticHelpers.LogThis(" ПОЛУЧАЮ ДАННЫЕ ");
         return provider.getData();
     }
 
@@ -99,13 +108,14 @@ public class ActionRecyclerView<T> extends RecyclerView {
     protected void dataLoaded(List<T> result, UpdateMode updateMode) {
 
         //если подгрузка, то добавляем данные
-        if(!result.isEmpty() && updateMode==UpdateMode.ADD) {
-            addInner(result);
+        if(updateMode==UpdateMode.ADD) {
+            if(!result.isEmpty()) {
+                addInner(result);
+            }
         } else {
             //если другие режимы, то данные переписываются
             rewriteAllInner(result);
         }
-
 
 
         afterUpdating(updateMode, result);
@@ -124,7 +134,6 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
     public void afterUpdating(UpdateMode updateMode, List<T> data){
         loadingInProgress = false;
-        onDataSizeChanged();
     }
 
     public void enableEmptyController(){
@@ -159,27 +168,60 @@ public class ActionRecyclerView<T> extends RecyclerView {
         adapter.getData().add(0,object);
         adapter.notifyItemMoved(index,0);
         onDataSizeChanged();
+        scrollToTop();
     }
 
     public void addToTop(T object){
         adapter.getData().add(0,object);
         adapter.notifyItemInserted(0);
         onDataSizeChanged();
+        scrollToTop();
+    }
+
+    /**
+     * скроллит на вверх списка, если текущее значение скроллера не больше размера границы
+     */
+    public void scrollToTop(){
+        StaticHelpers.LogThis(" CURRENT: " + computeVerticalScrollOffset() + " / " + defaultItemHeight);
+        if(computeVerticalScrollOffset()<defaultItemHeight){
+            scrollToPosition(0);
+        }
     }
 
     public void update(T item, int index) {
+        StaticHelpers.LogThis(" ОБНОВЛЕНИЕ ");
+
         T object = adapter.getData().get(index);
         object = item;
         adapter.notifyItemChanged(index);
-        onDataSizeChanged();
+
     }
 
     public void remove(T object) {
+
+        StaticHelpers.LogThis(" УДАЛИЛИ ");
+
         int index = adapter.getData().indexOf(object);
         if(index>=0){
             adapter.getData().remove(index);
             adapter.notifyItemRemoved(index);
         }
+
+        onDataSizeChanged();
+    }
+
+    public void removeAll(){
+
+        StaticHelpers.LogThis(" УДАЛИЛИ ВСЕ");
+
+        if(adapter.getDecoration()== CommonAdapter.Decoration.FOOTER)
+            adapter.setDecoration(CommonAdapter.Decoration.SIMPLE);
+
+        int index = adapter.getRealItems();
+        adapter.getData().clear();
+
+
+        adapter.notifyDataSetChanged();
         onDataSizeChanged();
     }
 

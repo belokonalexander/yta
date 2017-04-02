@@ -24,4 +24,11 @@
     <string name="search_params">Параметры поиска</string>
     <string name="source_word">Поиск по оригиналу</string>
     <string name="translate_word">Поиск по переводу</string>
+    <string name="history_title">История</string>
+    <string name="favorites_title">Избранное</string>
+    <string name="history_clear">Очистить историю</string>
+    <string name="history_clear_are_you_sure">Вы уверены, что хотите очистить историю поиска?</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 </resources>

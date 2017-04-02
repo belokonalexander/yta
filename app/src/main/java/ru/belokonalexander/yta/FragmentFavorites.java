@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,12 +47,16 @@ public class FragmentFavorites extends Fragment {
 
     CompositeTranslateAdapter adapter;
 
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites,container,false);
         ButterKnife.bind(this, view);
+
+        toolbar.setTitle(getResources().getString(R.string.favorites_title));
 
         adapter = new CompositeTranslateAdapter(getContext());
         adapter.setOnClickListener(item -> {
@@ -62,6 +67,9 @@ public class FragmentFavorites extends Fragment {
         recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
             @Override
             public List<CompositeTranslateModel> getDate(PaginationSlider state) {
+
+
+
                 return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
                         .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition(((SearchInputData)state).getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
                         .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();

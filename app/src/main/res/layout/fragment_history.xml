@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/background_main"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     >
 
-    <ru.belokonalexander.yta.Views.Recyclers.SearchRecyclerView
-    android:id="@+id/recycler_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    <include layout="@layout/toolbar"/>
 
-    />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-</RelativeLayout>
+        <ru.belokonalexander.yta.Views.Recyclers.SearchRecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    </RelativeLayout>
+</LinearLayout>

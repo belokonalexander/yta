@@ -3,10 +3,13 @@ package ru.belokonalexander.yta;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -46,14 +49,27 @@ public class FragmentHistory extends Fragment{
 
     @BindView(R.id.recycler_view)
     SearchRecyclerView<CompositeTranslateModel> recyclerView;
-
     CompositeTranslateAdapter adapter;
+
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         ButterKnife.bind(this, view);
+
+        toolbar.setTitle(getResources().getString(R.string.history_title));
+
+        MenuItem clearHistory = toolbar.getMenu().add(getString(R.string.history_clear));
+        clearHistory.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        clearHistory.setIcon(R.drawable.ic_delete_white_36dp);
+        clearHistory.setOnMenuItemClickListener(item -> {
+            clearHistory();
+            return false;
+        });
+
 
         adapter =  new CompositeTranslateAdapter(getContext());
         adapter.setOnClickListener(item -> {
@@ -83,6 +99,41 @@ public class FragmentHistory extends Fragment{
 
 
         return view;
+    }
+
+    private void clearHistory() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.history_clear);
+        builder.setMessage(R.string.history_clear_are_you_sure);
+        builder.setNegativeButton(R.string.no, (dialog, which) -> {
+
+        });
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> {
+            //userSingleRelation.execute((u, resultWaiter) -> CurrentApi.getInstanse().getApplicationApi().cancelFriendship(u, resultWaiter), v);
+
+            recyclerView.removeAll();
+            SimpleAsyncTask.run(new SimpleAsyncTask.InBackground<Object>() {
+                @Override
+                public Object doInBackground() {
+                    YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
+                            .where(CompositeTranslateModelDao.Properties.Favorite.eq(false))
+                            .buildDelete().executeDeleteWithoutDetachingEntities();
+
+                    for(CompositeTranslateModel item : YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll()){
+                        item.setHistory(false);
+                        YtaApplication.getDaoSession().update(item);
+                    }
+
+                    return null;
+                }
+            });
+
+
+            dialog.dismiss();
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override

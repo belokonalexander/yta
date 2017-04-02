@@ -11,7 +11,8 @@ public class PaginationProvider<T> implements SolidProvider<T> {
     protected PaginationSlider state;
     protected PaginationProviderController<T> paginationProviderController;
 
-    protected int pageSize = 20;
+
+    protected int pageSize = 12;
 
     public PaginationProvider(PaginationProviderController<T> paginationProviderController) {
         this.paginationProviderController = paginationProviderController;

@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+<RelativeLayout
+    android:id="@+id/toolbar_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/toolbar_wrapper"
+    android:layout_alignParentTop="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+
     >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:id="@+id/default_background"
+        android:background="@drawable/black_background_for_text_reverse"/>
+
+
 
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
@@ -13,14 +25,17 @@
         android:minHeight="?android:actionBarSize"
         android:background="@color/colorPrimary"
         android:id="@+id/toolbar"
-        android:contentInsetLeft="0dp"
-        android:contentInsetStart="0dp"
-        app:contentInsetLeft="0dp"
-        app:contentInsetStart="0dp"
-        android:contentInsetRight="0dp"
-        android:contentInsetEnd="0dp"
-        app:contentInsetRight="0dp"
-        app:contentInsetEnd="0dp"
+
+
         />
 
-</LinearLayout>
+    <View
+        android:id="@+id/toolbar_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/toolbar"
+        android:background="@drawable/toolbar_dropshadow" />
+
+</RelativeLayout>
+
+

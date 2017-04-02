@@ -28,6 +28,10 @@ public class SearchProvider<T extends SearchEntity> extends PaginationProvider<T
         return ((SearchInputData)state).isEmpty();
     }
 
+    public void setStateEmpty(){
+        ((SearchInputData)state).setValue("");
+    }
+
     public String getFilterValue(){
         return ((SearchInputData)state).getValue();
     }

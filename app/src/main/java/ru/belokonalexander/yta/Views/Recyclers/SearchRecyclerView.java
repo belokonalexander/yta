@@ -94,12 +94,17 @@ public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyc
         showSearchController();
     }
 
+
     private void showSearchController() {
-        searchFieldController.setVisibility(VISIBLE);
+        if(searchFieldController!=null) {
+            searchFieldController.setVisibility(VISIBLE);
+        }
     }
 
     private void hideSearchController() {
-        searchFieldController.setVisibility(GONE);
+        if(searchFieldController!=null) {
+            searchFieldController.setVisibility(GONE);
+        }
     }
 
     @Override
@@ -137,6 +142,14 @@ public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyc
     public void rewriteAll(List<T> data) {
         if(data!=null && filter(data).size()>0)
             super.rewriteAll(data);
+    }
+
+    @Override
+    public void removeAll() {
+        getCastProvider().setStateEmpty();
+        searchView.clearTextWithoutUpdate();
+        super.removeAll();
+
     }
 
     /**
