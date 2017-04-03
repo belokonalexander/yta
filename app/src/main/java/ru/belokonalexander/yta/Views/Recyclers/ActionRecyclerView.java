@@ -145,12 +145,14 @@ public class ActionRecyclerView<T> extends RecyclerView {
     }
 
     public void enableEmptyController(){
-        //emptyDataController.startAnimation(FadeAnimation.createFadeIn(emptyDataController));
+        if(onDataContentChangeListener!=null)
+            onDataContentChangeListener.onEmpty();
         emptyDataController.setVisibility(VISIBLE);
     }
 
     public void disableEmptyController(){
-        //emptyDataController.startAnimation(FadeAnimation.createFadeOut(emptyDataController));
+        if(onDataContentChangeListener!=null)
+            onDataContentChangeListener.onFilled();
         emptyDataController.setVisibility(INVISIBLE);
     }
 
@@ -200,11 +202,13 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
     public void update(T item, int index) {
         StaticHelpers.LogThis(" ОБНОВЛЕНИЕ ");
-
         T object = adapter.getData().get(index);
         object = item;
         adapter.notifyItemChanged(index);
+    }
 
+    public void update() {
+        adapter.notifyDataSetChanged();
     }
 
     public void remove(T object) {
@@ -261,6 +265,17 @@ public class ActionRecyclerView<T> extends RecyclerView {
         adapter.notifyDataSetChanged();
         onDataSizeChanged();
 
+    }
+
+    public void setOnDataContentChangeListener(OnDataContentChangeListener onDataContentChangeListener) {
+        this.onDataContentChangeListener = onDataContentChangeListener;
+    }
+
+    OnDataContentChangeListener onDataContentChangeListener;
+
+    public interface OnDataContentChangeListener{
+        void onEmpty();
+        void onFilled();
     }
 
 }

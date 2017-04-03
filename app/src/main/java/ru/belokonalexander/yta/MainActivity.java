@@ -1,26 +1,29 @@
 package ru.belokonalexander.yta;
 
-import android.content.Context;
 import android.graphics.Rect;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.Views.CustomViewPager;
 
 public class MainActivity extends AppCompatActivity {
 
+    final int STANDART_SCROLL_DURATION_FACTOR = 2;
+    final int QUICK_SCROLL_DURATION_FACTOR = 1;
+
+
     @BindView(R.id.container)
-    ViewPager mainViewPager;
+    CustomViewPager mainViewPager;
 
     @BindView(R.id.tabs)
     TabLayout tabLayout;
@@ -31,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     SectionsPagerAdapter sectionsPagerAdapter;
 
 
+    Fragment[] fragments;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +44,18 @@ public class MainActivity extends AppCompatActivity {
 
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mainViewPager.setAdapter(sectionsPagerAdapter);
+
         tabLayout.setupWithViewPager(mainViewPager);
+        mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
+        fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites() };
 
+        mainViewPager.setOffscreenPageLimit(fragments.length);
 
+        setGlobalLayout();
+
+    }
+
+    private void setGlobalLayout() {
         // Threshold for minimal keyboard height.
         final int MIN_KEYBOARD_HEIGHT_PX = 150;
 
@@ -77,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                 lastVisibleDecorViewHeight = visibleDecorViewHeight;
             }
         });
-
     }
 
     public void clearFocus(){
@@ -85,7 +98,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openActionFragment(){
+        mainViewPager.setScrollDurationFactor(QUICK_SCROLL_DURATION_FACTOR);
         mainViewPager.setCurrentItem(0);
+        mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -96,23 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Fragment fragment = null;
-            switch (position)
-            {
-                case 0:
-                    fragment = new ActionFragment();
-
-                    break;
-                case 1:
-                    fragment = new FragmentHistory();
-
-                    break;
-
-                case 2:
-                    fragment = new FragmentFavorites();
-            }
-
-            return fragment;
+                 return fragments[position];
         }
 
         @Override
@@ -125,11 +124,11 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "0";
+                    return getString(R.string.translate_title);
                 case 1:
-                    return "1";
+                    return getString(R.string.history_title);
                 case 2:
-                    return "2";
+                    return getString(R.string.favorites_title);
 
             }
             return null;

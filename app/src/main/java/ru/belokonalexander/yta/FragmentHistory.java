@@ -27,12 +27,14 @@ import ru.belokonalexander.yta.Adapters.CompositeTranslateAdapter;
 
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.Database.CompositeTranslateModelDao;
-import ru.belokonalexander.yta.Events.EventCreateType;
+
+import ru.belokonalexander.yta.Events.FavoriteClearEvent;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.Views.Recyclers.ActionRecyclerView;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchInputData;
@@ -70,6 +72,17 @@ public class FragmentHistory extends Fragment{
             return false;
         });
 
+        recyclerView.setOnDataContentChangeListener(new ActionRecyclerView.OnDataContentChangeListener() {
+            @Override
+            public void onEmpty() {
+                clearHistory.setVisible(false);
+            }
+
+            @Override
+            public void onFilled() {
+                clearHistory.setVisible(true);
+            }
+        });
 
         adapter =  new CompositeTranslateAdapter(getContext());
         adapter.setOnClickListener(item -> {
@@ -180,5 +193,14 @@ public class FragmentHistory extends Fragment{
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void clearFavorite(FavoriteClearEvent event){
+        StaticHelpers.LogThis(" ОЧИЩАЕМ ");
+        List<CompositeTranslateModel> data = adapter.getData();
+        for(CompositeTranslateModel model : data)
+            model.setFavorite(false);
+
+        recyclerView.update();
+    }
 
 }

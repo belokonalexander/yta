@@ -18,6 +18,8 @@
         style="@style/ImageControlButton"
         android:layout_centerInParent="true"
         android:id="@+id/swap_language_button"
+        android:clickable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
         />
 
         <RelativeLayout
@@ -41,6 +43,8 @@
                     android:ellipsize="end"
                     android:lines="1"
 
+                    android:clickable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     />
         </RelativeLayout>
 
@@ -63,6 +67,8 @@
                 android:ellipsize="end"
                 android:lines="1"
 
+                android:clickable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 />
         </RelativeLayout>
     </RelativeLayout>

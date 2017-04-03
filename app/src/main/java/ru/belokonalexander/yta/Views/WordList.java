@@ -96,6 +96,8 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         }
     }
 
+
+
     /**
      *  интерфейс, обрабатывающий события для второстепенных переводов
      */
@@ -158,6 +160,10 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         return linearLayout;
     }
 
+    public void clearFavoriteStatus(){
+        translate.setFavorite(false);
+        updateFavoriteButton();
+    }
 
     private void updateFavoriteButton(){
         if(translate.getFavorite()){

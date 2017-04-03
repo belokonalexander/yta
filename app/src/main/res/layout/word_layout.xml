@@ -24,6 +24,8 @@
         android:id="@+id/save_word"
         android:src="@drawable/ic_bookmark_black_24dp"
         android:tint="@color/tint_color_dark"
+        android:clickable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
         />
 
     </LinearLayout>

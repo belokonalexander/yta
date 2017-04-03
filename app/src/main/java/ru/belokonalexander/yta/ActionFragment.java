@@ -31,7 +31,8 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
-import ru.belokonalexander.yta.Events.EventCreateType;
+
+import ru.belokonalexander.yta.Events.FavoriteClearEvent;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
@@ -93,13 +94,12 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
 
+
         //инициализации представления фрагмента
-        Observable.fromCallable(() -> SharedAppPrefs.getInstance().getLanguage())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::initViews);
+        SimpleAsyncTask.run(() -> SharedAppPrefs.getInstance().getLanguage(), this::initViews);
 
         requestsManager.addRequest(getTranslete);
+
 
      /*  YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
 
@@ -135,7 +135,6 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         currentLanguage = language;
         initHeader();
         customTexInputView.setOnTextListener(this);
-        //customTexInputView.setText("пока");
     }
 
 
@@ -262,7 +261,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     private boolean saveHistoryWord(){
         if (delayedHistorySave!=null && !delayedHistorySave.isExecuted()) {
-            StaticHelpers.LogThis("СРХР В ИСТОРИЮ");
+            StaticHelpers.LogThis("СРХР В ИСТОРИЮ:");
             delayedHistorySave.execute();
             return true;
         }
@@ -312,6 +311,11 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             showNewWordsView(translateModel);
         }
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void clearFavorite(FavoriteClearEvent event){
+        wordList.clearFavoriteStatus();
     }
 
     private void showNewWordsView(CompositeTranslateModel item){

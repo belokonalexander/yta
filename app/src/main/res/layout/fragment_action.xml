@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingTop="@dimen/small_padding"
-                    android:animateLayoutChanges="true"
+
                     android:id="@+id/word_list"
                     />
 
