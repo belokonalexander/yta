@@ -3,6 +3,7 @@ package ru.belokonalexander.yta.Views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -68,7 +69,7 @@ public class CustomTexInputView extends RelativeLayout {
         lastType = OutputText.Type.AUTOLOAD;
         editText.setText(text);
         editText.setSelection(text.length());
-        editText.requestFocus();
+        //editText.requestFocus();
     }
 
     public void clearText(){
@@ -119,7 +120,12 @@ public class CustomTexInputView extends RelativeLayout {
 
         clearButton.setOnClickListener(v ->  {
             clearText();
+            editText.requestFocus();
+            //InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            //imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         });
+
+
 
         RxTextView.textChanges(editText)
                 .skip(1)                    //пропускаю первый (инициализирующий) эммит
@@ -172,6 +178,10 @@ public class CustomTexInputView extends RelativeLayout {
         if(onTextActionListener!=null){
             onTextActionListener.onTextDone();
         }
+
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+
         return false;
     }
 
@@ -180,6 +190,10 @@ public class CustomTexInputView extends RelativeLayout {
         int bot_pad = getResources().getDimensionPixelSize(R.dimen.small_padding);
         this.setBackgroundResource(R.drawable.input_background_focused);
         this.setPadding(pad,pad,pad,bot_pad);
+
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+
         return true;
     }
 

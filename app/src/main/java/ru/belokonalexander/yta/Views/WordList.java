@@ -1,5 +1,7 @@
 package ru.belokonalexander.yta.Views;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -15,6 +17,7 @@ import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
@@ -53,6 +57,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
     public void setTranslateResult(CompositeTranslateModel translateResult, OnWordClickListener onClickListener) {
         this.translate = translateResult;
         this.onWordClick = onClickListener;
+
         inflateContent();
     }
 
@@ -143,7 +148,13 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         textView.setMovementMethod(LinkMovementMethod.getInstance());
         textView.setClickable(true);
 
-        textView.setText(translate.getLookupString(onWordClick));
+        textView.setText(translate.getLookupString((word, language) -> onWordClick.onWordClick(word,language)));
+        textView.setOnTouchListener((v, event) -> {
+            requestFocus();
+            return false;
+        });
+
+
         //textView.setVerticalScrollBarEnabled(true);
 
         LinearLayout linearLayout = new LinearLayout(getContext());
@@ -184,17 +195,29 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
 
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout layout = (RelativeLayout) layoutInflater.inflate(R.layout.word_layout,null);
+
         LinearLayout wordListContainer = (LinearLayout) layout.findViewById(R.id.text_list);
         favorite = (ImageButton) layout.findViewById(R.id.save_word);
 
         updateFavoriteButton();
 
         favorite.setOnClickListener(v -> {
+            requestFocus();
             translate.changeFavoriteStatus();
         });
 
             String text = translate.getTranslate();
             ViewGroup wordItem = (ViewGroup) layoutInflater.inflate(R.layout.word_item, null);
+            wordItem.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText(null, text);
+                    clipboard.setPrimaryClip(clip);
+                    requestFocus();
+                    Toast.makeText(getContext(),getResources().getString(R.string.translate_result_saved), Toast.LENGTH_LONG).show();
+                }
+            });
             TextView translateResult = (TextView) wordItem.findViewById(R.id.t_word);
             translateResult.setText(text);
 
@@ -218,17 +241,18 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
      */
     public void clearView() {
         if(this.getChildCount()>0){
-            //startAnimation(FadeAnimation.createFadeOutDestroy(this));
             this.removeAllViews();
         }
     }
 
     public WordList(Context context) {
         super(context);
+
     }
 
     public WordList(Context context, AttributeSet attrs) {
         super(context, attrs);
+
     }
 
     public WordList(Context context, AttributeSet attrs, int defStyleAttr) {

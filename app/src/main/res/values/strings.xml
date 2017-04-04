@@ -36,4 +36,5 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="translate_title">Перевод</string>
+    <string name="translate_result_saved">Результат перевода сохранен в буфер</string>
 </resources>

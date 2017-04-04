@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         setGlobalLayout();
 
+
     }
 
     private void setGlobalLayout() {
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
                         // Notify listener about keyboard being hidden.
                         StaticHelpers.LogThis(" HIDE ");
-                        clearFocus();;
+                        clearFocus();
                     }
                 }
                 // Save current decor view height for the next call.
