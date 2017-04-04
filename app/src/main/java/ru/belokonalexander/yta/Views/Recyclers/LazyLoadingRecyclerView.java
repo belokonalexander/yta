@@ -33,7 +33,7 @@ public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
      */
     Boolean allDataWasObtained = false;
 
-    public final int MIN_PRELOAD_SCROLL = 5;
+    public final int MIN_PRELOAD_SCROLL = 3;
 
 
 

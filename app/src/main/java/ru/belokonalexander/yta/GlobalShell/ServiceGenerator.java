@@ -30,27 +30,36 @@ public class ServiceGenerator {
     }
 
 
-    public static <T> T getService(Class<T> service){
+    public static <T> T getService(Class<T> service, boolean cache){
 
         String[] meta = (service == TranslateApi.class) ? YtaApplication.getAppContext().getResources().getStringArray(R.array.translate_api) :
                                                        YtaApplication.getAppContext().getResources().getStringArray(R.array.dictionary_api);
 
-        return createService(service, meta);
+        return createService(service, cache, meta);
     }
 
     public static TranslateApi getTranslateApi(){
-        return getService(TranslateApi.class);
+        return getService(TranslateApi.class, true);
     }
 
     public static DictionaryApi getDictionaryApi(){
-        return getService(DictionaryApi.class);
+        return getService(DictionaryApi.class, true);
+    }
+
+    public static TranslateApi getTranslateApiWithoutCache(){
+        return getService(TranslateApi.class, false);
+    }
+
+    public static DictionaryApi getDictionaryApiWithoutCache(){
+        return getService(DictionaryApi.class, false);
     }
 
 
-    private static <T> T createService(Class<T> service, String[] meta) {
+
+    private static <T> T createService(Class<T> service, boolean cache,String[] meta) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(meta[0])
-                .client(getBaseInterceptor(meta[1]))
+                .client(getBaseInterceptor(meta[1],cache))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -61,7 +70,7 @@ public class ServiceGenerator {
 
 
 
-    private static OkHttpClient getBaseInterceptor(String key) {
+    private static OkHttpClient getBaseInterceptor(String key, boolean cache) {
         OkHttpClient.Builder httpClient =
                 new OkHttpClient.Builder();
 
@@ -80,10 +89,10 @@ public class ServiceGenerator {
             return chain.proceed(request);
         });
 
-        return httpClient.addInterceptor(getResponseCacheInterceptor()).build();
+        return httpClient.addInterceptor(getResponseCacheInterceptor(cache)).build();
     }
 
-    private static Interceptor getResponseCacheInterceptor(){
+    private static Interceptor getResponseCacheInterceptor(boolean cache){
         return new Interceptor(){
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -91,15 +100,15 @@ public class ServiceGenerator {
                 Request request = chain.request();
                 String signature = request.url().newBuilder().removeAllQueryParameters("key").toString(); //signature - ключ в таблице кеширования, с удаленным параметром api-key
 
-                //проверяем, есть ли интернет соединение
-                if(!StaticHelpers.isNetworkAvailable(YtaApplication.getAppContext())){
+                //проверяем, есть ли интернет соединение и разрешено ли брать записи из кеша при ошибке
+                if(!StaticHelpers.isNetworkAvailable(YtaApplication.getAppContext()) && cache){
 
                     //если нет соединения, то берем последнюю запись из кэша по сигнатуре и подменяем запрос
                     CacheModel cacheModel = CacheModel.getTopRow(signature, CacheModel.CacheGetType.ANY);
                     if(cacheModel==null)
                         throw new UnknownHostException("Unable to resolve host \""+request.url().host()+"\"");
                     else {
-                        //TODO предупредить пользователя, что соединения нет)
+                        //TODO можно предупредить пользователя, что соединения нет и берется запись из кеша
                     }
 
                     return getCachedRow(request, cacheModel);
@@ -107,10 +116,12 @@ public class ServiceGenerator {
 
                 //соединение есть, но вместо запроса мы можем подменить ответ записью из кеша
                 //ищем запись
-                CacheModel cacheMode = CacheModel.getTopRow(signature, CacheModel.CacheGetType.TIMER);
-                if(cacheMode!=null) {
-                    StaticHelpers.LogThis("КЕШИРОВАННАЯ ЗАПИСЬ: " + cacheMode.getSignature() + " time: " + cacheMode.getUpdateDate());
-                    return getCachedRow(request, cacheMode);
+                if(cache) {
+                    CacheModel cacheMode = CacheModel.getTopRow(signature, CacheModel.CacheGetType.TIMER);
+                    if (cacheMode != null) {
+                        StaticHelpers.LogThis("КЕШИРОВАННАЯ ЗАПИСЬ: " + cacheMode.getSignature() + " time: " + cacheMode.getUpdateDate());
+                        return getCachedRow(request, cacheMode);
+                    }
                 }
 
                 //выполняю реальный запрос к api

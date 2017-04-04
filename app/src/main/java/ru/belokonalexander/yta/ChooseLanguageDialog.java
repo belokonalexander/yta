@@ -2,7 +2,6 @@ package ru.belokonalexander.yta;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,33 +10,23 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import ru.belokonalexander.yta.Adapters.CommonAdapter;
 import ru.belokonalexander.yta.Adapters.LanguageAdapter;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
-import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
-import ru.belokonalexander.yta.GlobalShell.OnApiSuccessResponseListener;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
 import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.Recyclers.ActionRecyclerView;
-import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
 
@@ -53,13 +42,15 @@ public class ChooseLanguageDialog extends DialogFragment {
 
     SimpleRequestsManager requestsManager = new SimpleRequestsManager();
 
-    Language part;
+
     LanguageAdapter languageAdapter;
     Button updateButton;
     ApiChainRequestWrapper getLanguages;
 
     Button cancel;
     Button updateLanguages;
+    Toast toast;
+
 
     ActionRecyclerView<Language> recyclerView;
 
@@ -73,7 +64,7 @@ public class ChooseLanguageDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         requestsManager.addRequest(getLanguages);
-
+        toast = Toast.makeText(getContext(),null,Toast.LENGTH_SHORT);
         languageAdapter = new LanguageAdapter(getContext());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -94,12 +85,16 @@ public class ChooseLanguageDialog extends DialogFragment {
         recyclerView.init(languageAdapter, new SolidProvider<Language>() {
             @Override
             public List<Language> getData() {
-                return SharedAppPrefs.getInstance().getLanguageLibrary().getLanguages();
+
+                AllowedLanguages.TranslateLangType type = getTargetRequestCode()==INPUT_LANGUAGE_CHANGE_REQUEST_CODE ?
+                        AllowedLanguages.TranslateLangType.TO : AllowedLanguages.TranslateLangType.FROM;
+
+                return SharedAppPrefs.getInstance().getLanguageLibrary().getLanguages(type);
             }
         });
 
         // присваиваем адаптер списку
-        languageAdapter.setOnClickListener(item -> {
+        languageAdapter.setOnDelayedMainClick(item -> {
             Intent response = new Intent();
             response.putExtra(LANG_LEY,item);
             getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, response);
@@ -124,11 +119,15 @@ public class ChooseLanguageDialog extends DialogFragment {
 
         String hash = StaticHelpers.getParentHash(this.getClass());
         getLanguages = ApiChainRequestWrapper.getApartInstance(hash, result -> {
+
             if(!(result.get(0) instanceof Throwable)){
-                updateLanguageLLibrary((AllowedLanguages) result.get(0));
+                updateLanguageLibrary((AllowedLanguages) result.get(0));
+            } else {
+                toast.setText(getString(R.string.api_error));
+                toast.show();
             }
             updateButton.setEnabled(true);
-        }, ServiceGenerator.getTranslateApi().getLangs(getContext().getResources().getString(R.string.default_app_lang)));
+        }, ServiceGenerator.getTranslateApiWithoutCache().getLangs(getContext().getResources().getString(R.string.default_app_lang)));
 
 
 
@@ -140,21 +139,29 @@ public class ChooseLanguageDialog extends DialogFragment {
         getLanguages.execute();
     }
 
-    public void updateLanguageLLibrary(AllowedLanguages allowedLanguages){
+    public void updateLanguageLibrary(AllowedLanguages allowedLanguages){
         new AsyncTask<Object,Void,AllowedLanguages>() {
             @Override
             protected AllowedLanguages doInBackground(Object[] params) {
                 SharedAppPrefs.getInstance().setLanguageLibrary(allowedLanguages);
-                StaticHelpers.LogThis("библиотека обновлена");
+
                 return allowedLanguages;
             }
 
             @Override
             protected void onPostExecute(AllowedLanguages allowedLanguages) {
                 super.onPostExecute(allowedLanguages);
-                if(allowedLanguages.getLanguages().size()!=languageAdapter.getData().size()){
-                    recyclerView.rewriteAll(allowedLanguages.getLanguages());
-                }
+
+                AllowedLanguages.TranslateLangType type = getTargetRequestCode()==INPUT_LANGUAGE_CHANGE_REQUEST_CODE ?
+                        AllowedLanguages.TranslateLangType.TO : AllowedLanguages.TranslateLangType.FROM;
+
+                if(allowedLanguages.getLanguages(type).size()!=languageAdapter.getData().size()){
+                    recyclerView.rewriteAll(allowedLanguages.getLanguages(type));
+                    toast.setText(getResources().getString(R.string.library_was_updated));
+                    toast.show();
+                } else
+                    toast.setText(getResources().getString(R.string.library_has_no_new_elements));
+                    toast.show();
             }
         }.execute();
     }

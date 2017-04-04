@@ -12,7 +12,7 @@ public class PaginationProvider<T> implements SolidProvider<T> {
     protected PaginationProviderController<T> paginationProviderController;
 
 
-    protected int pageSize = 12;
+    protected int pageSize = 20;
 
     public PaginationProvider(PaginationProviderController<T> paginationProviderController) {
         this.paginationProviderController = paginationProviderController;

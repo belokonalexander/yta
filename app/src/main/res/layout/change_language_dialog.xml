@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/border_text_color"
+    android:background="@color/item_background"
     >
 
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="@dimen/default_list_height"
+        android:layout_height="@dimen/small_list_height"
         style="@style/AppCardView"
         android:id="@+id/control_panel_wrapper"
         android:layout_alignParentBottom="true"
@@ -17,7 +16,7 @@
         >
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/default_list_height"
+                android:layout_height="@dimen/small_list_height"
                 android:id="@+id/control_panel"
                 android:orientation="horizontal"
                 android:background="@android:color/white"
@@ -30,7 +29,11 @@
                     android:id="@+id/cancel"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/normal_text_color_accent"
                     android:text="@string/cancel"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:theme="@style/MainButton"
                     />
 
                 <Button
@@ -39,7 +42,10 @@
                     android:id="@+id/update"
                     android:layout_toLeftOf="@id/cancel"
                     android:layout_toStartOf="@id/cancel"
+                    android:textColor="@color/normal_text_color_accent"
                     android:text="@string/update"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_centerVertical="true"
                     />
 
             </RelativeLayout>
@@ -61,20 +67,18 @@
         style="@style/AppCardView"
         android:id="@+id/title_wrapper"
         >
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/OneLineTextView"
-            android:id="@+id/title"
-            android:padding="@dimen/icon_padding"
-            android:layout_alignParentTop="true"
-            android:textColor="@color/text_color_alternative"
-            android:textStyle="bold"
-            android:text="123"
-            android:gravity="center_vertical"
-            android:background="@android:color/white"
-            />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/OneLineTextView"
+                android:id="@+id/title"
+                android:padding="@dimen/icon_padding"
+                android:layout_alignParentTop="true"
+                android:textStyle="bold"
+                android:textColor="@color/normal_text_color_accent"
+                android:gravity="center_vertical"
+                android:background="@android:color/white"
+                />
 
     </android.support.v7.widget.CardView>
 

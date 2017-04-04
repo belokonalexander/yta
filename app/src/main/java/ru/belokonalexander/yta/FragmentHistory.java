@@ -1,6 +1,7 @@
 package ru.belokonalexander.yta;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +33,7 @@ import ru.belokonalexander.yta.Events.FavoriteClearEvent;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
+import ru.belokonalexander.yta.GlobalShell.Settings;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.Recyclers.ActionRecyclerView;
@@ -85,9 +87,9 @@ public class FragmentHistory extends Fragment{
         });
 
         adapter =  new CompositeTranslateAdapter(getContext());
-        adapter.setOnClickListener(item -> {
-            EventBus.getDefault().post(new ShowWordEvent(item));
-            ((MainActivity)getActivity()).openActionFragment();
+        adapter.setOnDelayedMainClick(item -> {
+                    ((MainActivity) getActivity()).openActionFragment(1);
+                    EventBus.getDefault().post(new ShowWordEvent(item));
         });
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
@@ -160,6 +162,8 @@ public class FragmentHistory extends Fragment{
         super.onStart();
         EventBus.getDefault().register(this);
     }
+
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void addNewWordInHistory(WordSavedInHistoryEvent event){

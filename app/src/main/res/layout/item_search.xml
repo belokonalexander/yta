@@ -33,7 +33,7 @@
                 android:id="@+id/search_view"
                 android:layout_centerVertical="true"
 
-                app:buttonsColor="@color/tint_color_dark"
+                app:buttonsColor="@color/tint_color"
                 />
 
         </RelativeLayout>

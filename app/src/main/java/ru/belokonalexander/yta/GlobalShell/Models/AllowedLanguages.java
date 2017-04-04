@@ -50,30 +50,47 @@ public class AllowedLanguages {
                 '}';
     }
 
+
+
+    public enum TranslateLangType{
+        FROM,
+        TO,
+        BOTH;
+    }
+
+
     /**
-     * Set используется для исключения повторений в контейнере,
-     * но все же более удобно и обощенно возвращать отсторированный List
-     * @return список с доступными для перевода языками
+     *  Получить список языков для перевода
+      * @param type - тип языка, который необходимо получить
+     * @return
      */
-    public List<Language> getLanguages(){
+    public List<Language> getLanguages(TranslateLangType type){
+
 
         /**
-         *  не знаю, для всех ли языков в langs есть переводы,
-         *  поэтому достаю фактические значения из dirs и их описание
+         * Set используется для исключения повторений в контейнере,
+         * но все же более удобно и обощенно возвращать отсторированный List
          */
         TreeSet<Language> result = new TreeSet<>();
 
         for(String dir : dirs) {
-            String firstStringCode = dir.substring(0, dir.indexOf("-"));
-            String secondStringCode = dir.substring(dir.indexOf("-")+1, dir.length());
-            Language first = new Language(firstStringCode, getDesc(firstStringCode));
-            Language second = new Language(secondStringCode, getDesc(secondStringCode));
-            result.add(first);
-            result.add(second);
+            if(type==TranslateLangType.FROM || type==TranslateLangType.BOTH){
+                String firstStringCode = dir.substring(0, dir.indexOf("-"));
+                Language first = new Language(firstStringCode, getDesc(firstStringCode));
+                result.add(first);
+            }
+
+            if(type==TranslateLangType.TO || type==TranslateLangType.BOTH) {
+                String secondStringCode = dir.substring(dir.indexOf("-") + 1, dir.length());
+                Language second = new Language(secondStringCode, getDesc(secondStringCode));
+                result.add(second);
+            }
         }
 
       return new ArrayList<>(result);
     };
+
+
 
     public String getDesc(String code){
         return langs.get(code);

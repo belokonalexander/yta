@@ -19,4 +19,6 @@ public class Settings {
     public static final int THROTTLE_CLICK_VALUE_LOCAL = 300;
     public static final int SEARCH_DEBOUNCE_LOCAL = 300;
 
+    public static final int CLICK_DELAY = 150;
+
 }

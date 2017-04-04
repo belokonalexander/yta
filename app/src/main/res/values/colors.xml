@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#193f6e</color>
 
-    <color name="item_background">#ededed</color>
+    <color name="colorPrimarySmooth">#bb193f6e</color>
+    <color name="colorPrimaryAnother">#fe193f6e</color>
+    <color name="colorPrimaryDark">#0f223c</color>
 
-    <color name="text_color">#616161</color>
+    <color name="colorAccent">#3c6ca6</color>
+
+    <color name="normal_text_color">#565656</color>
+    <color name="normal_text_color_smooth">#c3565656</color>
+    <color name="normal_text_color_white">#ffffff</color>
+
+    <color name="normal_text_color_accent">#3c6ca6</color>
+    <color name="normal_text_color_hint">#818181</color>
 
     <color name="background_main">#fff</color>
-
-    <color name="text_color_alternative">#464646</color>
-
-    <color name="tint_color">#aaa</color>
-    <color name="tint_color_alternative">#000000</color>
-    <color name="tint_color_dark">#4e4e4e</color>
-    <color name="yellow">#f1c100</color>
-
-    <color name="text_hint_color">#b7b7b7</color>
-
-    //----lookup
-    <color name="about">#ab4855</color>
-    <color name="yandex">#f7b602</color>
-
-    <color name="tint_color_active">#ffd000</color>
+    <color name="item_background">#c2c2c2</color>
+    <color name="yandex_accent">#3c6ca6</color>
 
 
-    <color name="border_text_color">#c6c6c6</color>
-    <color name="soft_white">#ededed</color>
+    <color name="tint_color">#1f334f</color>
+    <color name="tint_color_active">#f56b39</color>
+    <color name="tint_color_accent">#33b5e5</color>
+
+    <color name="ripple">#efefef</color>
+
+    <color name="pre_primary">#a5c1e6</color>
+    <color name="white">#fff</color>
+    <color name="transparent">#00ffffff</color>
+
+    <color name="input_active">#a5c1e6</color>
+    <color name="input_normal">#c9c2c2c2</color>
+
 </resources>

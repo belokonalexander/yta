@@ -10,9 +10,14 @@ import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -66,9 +71,9 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
 
         try {
             textSize = a.getDimension(R.styleable.EntitySearchView_textSize, getContext().getResources().getDimension(R.dimen.text_normal)) / context.getResources().getDisplayMetrics().density;
-            textColor = a.getColor(R.styleable.EntitySearchView_textColor, getContext().getResources().getColor(R.color.text_color));
-            buttonsColor = a.getColor(R.styleable.EntitySearchView_buttonsColor, getContext().getResources().getColor(R.color.text_color));
-            hintTextColor = a.getColor(R.styleable.EntitySearchView_hintTextColor, getContext().getResources().getColor(R.color.text_hint_color));
+            textColor = a.getColor(R.styleable.EntitySearchView_textColor, getContext().getResources().getColor(R.color.normal_text_color));
+            buttonsColor = a.getColor(R.styleable.EntitySearchView_buttonsColor, getContext().getResources().getColor(R.color.normal_text_color));
+            hintTextColor = a.getColor(R.styleable.EntitySearchView_hintTextColor, getContext().getResources().getColor(R.color.normal_text_color_hint));
             iconified  = a.getBoolean(R.styleable.EntitySearchView_iconified,false);
             elementMargin = a.getDimension(R.styleable.EntitySearchView_element_margin, getContext().getResources().getDimension(R.dimen.element_margin)) / context.getResources().getDisplayMetrics().density;
         } finally {
@@ -156,6 +161,7 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
         //тектовое поле поиска
         EditText searchTextView = (EditText) this.findViewById(R.id.search_src_text);
         queryArea = searchTextView;
+        queryArea.setPadding(StaticHelpers.dpToPixels(16),0,0,0);
         ViewGroup searchPlate = (ViewGroup) this.findViewById(R.id.search_plate);
         searchPlate.setBackgroundColor(ContextCompat.getColor(getContext(),android.R.color.transparent));
         searchButton = this.findViewById(R.id.search_button);
@@ -166,8 +172,18 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
         imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_search_white_24dp));
         if(searchParams.size()>1)
             imageView.setOnClickListener(v -> onParamsKeyClick());
+
+        int[] attrs = new int[]{R.attr.selectableItemBackgroundBorderless};
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs);
+        int backgroundResource = typedArray.getResourceId(0, 0);
+        imageView.setClickable(true);
+        imageView.setBackgroundResource(backgroundResource);
+        typedArray.recycle();
+
+
         imageView.setLayoutParams(lp);
         imageView.setColorFilter(buttonsColor, PorterDuff.Mode.MULTIPLY);
+        imageView.setPadding(StaticHelpers.dpToPixels(14),0,0,0);
         searchPlate.addView(imageView, 0);
 
         searchTextView.setTextColor(textColor);
@@ -176,17 +192,21 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
 
        //кнопка отмены
         closeBtn = (ImageView) this.findViewById(R.id.search_close_btn);
-        closeBtn.setPadding(0,0,0,0);
+        closeBtn.setPadding(0,0,StaticHelpers.dpToPixels(8),0);
         hideCloseButton();
 
         ImageView searchGo = (ImageView) findViewById(R.id.search_go_btn);
-        searchGo.setPadding(0,0,0,0);
+        searchGo.setPadding(0,0,StaticHelpers.dpToPixels(8),0);
         ((LinearLayout.LayoutParams)searchGo.getLayoutParams()).setMargins((int) elementMargin,0,0,0);
         //searchGo.setBackgroundColor(ContextCompat.getColor(getContext(),android.R.color.transparent));
         searchGo.setColorFilter(buttonsColor, PorterDuff.Mode.MULTIPLY);
 
         View submitLayout = findViewById(R.id.submit_area);
         submitLayout.setBackgroundColor(ContextCompat.getColor(getContext(),android.R.color.transparent));
+
+        View searchEdit = findViewById(R.id.search_edit_frame);
+        ((LinearLayout.LayoutParams)searchEdit.getLayoutParams()).setMargins(0,0,0,0);
+
 
         //если режим отображения задан как развернутый (т.е не надо кликать по иконке, чтобы открылся TextView
         if(!iconified){
@@ -202,11 +222,31 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus)
                     showCloseButton();
-                else hideCloseButton();
+                else {
+                    hideCloseButton();
+                }
             }
         });
 
+
+        queryArea.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchEdit.getWindowToken(), 0);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+
     }
+
+
 
 
     private void hideCloseButton(){
@@ -291,9 +331,11 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
     private void rxLazy()
     {
 
-        RxSearchView.queryTextChangeEvents(this)
+
+        RxSearchView.queryTextChanges(this)
                 .skip(1)
                 .filter(searchViewQueryTextEvent -> {
+
                     if(clearUpdateFlag) {
                         clearUpdateFlag = false;
                         return false;
@@ -311,8 +353,10 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
                     }
                     return true;
                 })
-                .filter(f -> (getCurrentSearchItem().getLazyType() || (!getCurrentSearchItem().getLazyType() && f.isSubmitted())))
                 .subscribe(f -> startSearch());
+
+
+
     }
 
 

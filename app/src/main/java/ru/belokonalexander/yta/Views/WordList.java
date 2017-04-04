@@ -48,6 +48,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
     private CompositeTranslateModel translate;
     private OnWordClickListener onWordClick;
     ImageButton favorite;
+    Toast toastNotification = Toast.makeText(getContext(), null, Toast.LENGTH_SHORT);
 
     /**
      *
@@ -82,7 +83,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
                 getContext().startActivity(i);
             }
         },start, to , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(),R.color.yandex)),start, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(),R.color.yandex_accent)),start, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         ss.setSpan(new StyleSpan(Typeface.ITALIC),0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         StaticHelpers.LogThis(ss);
 
@@ -182,7 +183,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
             favorite.setColorFilter(getContext().getResources().getColor(R.color.tint_color_active), PorterDuff.Mode.SRC_IN);
         } else {
             favorite.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_bookmark_border_white_24dp));
-            favorite.setColorFilter(getContext().getResources().getColor(R.color.tint_color_dark), PorterDuff.Mode.SRC_IN);
+            favorite.setColorFilter(getContext().getResources().getColor(R.color.tint_color_accent), PorterDuff.Mode.SRC_IN);
         }
 
     }
@@ -215,7 +216,10 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
                     ClipData clip = ClipData.newPlainText(null, text);
                     clipboard.setPrimaryClip(clip);
                     requestFocus();
-                    Toast.makeText(getContext(),getResources().getString(R.string.translate_result_saved), Toast.LENGTH_LONG).show();
+
+                    toastNotification.setText(getResources().getString(R.string.translate_result_saved));
+                    toastNotification.show();
+
                 }
             });
             TextView translateResult = (TextView) wordItem.findViewById(R.id.t_word);

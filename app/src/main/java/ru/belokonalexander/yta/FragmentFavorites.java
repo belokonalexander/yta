@@ -84,9 +84,9 @@ public class FragmentFavorites extends Fragment {
 
 
         adapter = new CompositeTranslateAdapter(getContext());
-        adapter.setOnClickListener(item -> {
+        adapter.setOnDelayedMainClick(item -> {
             EventBus.getDefault().post(new ShowWordEvent(item));
-            ((MainActivity)getActivity()).openActionFragment();
+            ((MainActivity)getActivity()).openActionFragment(2);
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
@@ -128,6 +128,10 @@ public class FragmentFavorites extends Fragment {
                         YtaApplication.getDaoSession().update(item);
 
                     }
+
+                    YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
+                            .where(CompositeTranslateModelDao.Properties.Favorite.eq(false),CompositeTranslateModelDao.Properties.History.eq(false))
+                            .buildDelete().executeDeleteWithoutDetachingEntities();
 
                     return null;
                 }

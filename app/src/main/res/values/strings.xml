@@ -36,5 +36,8 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="translate_title">Перевод</string>
-    <string name="translate_result_saved">Результат перевода сохранен в буфер</string>
+    <string name="translate_result_saved">Перевод скопирован</string>
+    <string name="library_was_updated">Библиотека была обновлена</string>
+    <string name="library_has_no_new_elements">Библиотека содержит актуальные данные</string>
+    <string name="api_error">Ошибка при запросe</string>
 </resources>

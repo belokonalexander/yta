@@ -31,8 +31,6 @@ public class ApiChainRequestWrapper implements IApiRequest {
     //локер, для синхронизации обращений к статическому runningRequests
     private static final Object listLock = new Object();
 
-    List<Observable> chain = new ArrayList<>();
-
     //ответы на запросы
     private List<Object> results = new ArrayList<>();
 
@@ -94,7 +92,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
                 1) Не прерывать цепочку при возникновении ошибок
                 2) Сохранить порядок ответов, например в @results может быть [..., Exception, ...]
                     - получается, что DelayError обработчики использовать не получится - составить верный порядок не удастся
-                    - также не получится использовать методы типа OnError, которые или генерируют новые Observable (мы не знаем на каком именно прервались),
+                    - также не получится использовать методы типа OnError, которые или генерируют новые Observable (мы не знаем на каком именно запросе прервались),
                       или передают управление на OnError или OnComplete
                     -> Решение: генерируем новый Observable в flatMap и вешаем на него обработчик, который заменит оригинал в случае ошибки и выбросит в результат Throwable
                 3) Всегда вызывается onComplete и слушателю передается @results
@@ -138,6 +136,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
             if(state!=State.SLEEP)
                 subscriber.dispose();
 
+            results.clear();
             //StaticHelpers.LogThis(" Выполняю: " + hash + " в списке: " + runningRequests);
             state = State.RUNNING;
             registerInList();

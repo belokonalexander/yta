@@ -14,14 +14,14 @@
         android:layout_height="wrap_content"
 
         tools:text="12321312 dsf sdf sd fds fsd fsd fsd fsd fsdf sdf sd fsd "
-        android:textColor="@color/text_color"
+        android:textColor="@color/tint_color_active"
         android:textSize="@dimen/text_large"
         android:paddingTop="4dp"
         android:paddingRight="4dp"
         android:paddingBottom="2dp"
         android:paddingLeft="@dimen/composite_text_padding"
         android:id="@+id/t_word"
-        android:textStyle="bold"
+
         />
 
     <TextView
@@ -29,6 +29,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/original_word"
         android:paddingLeft="@dimen/composite_text_padding"
+        android:textColor="@color/normal_text_color"
         tools:text="12321312 dsf sdf sd fds fsd fsd fsd fsd fsdf sdf sd fsd "
         android:textSize="@dimen/text_normal"
         android:textStyle="italic"

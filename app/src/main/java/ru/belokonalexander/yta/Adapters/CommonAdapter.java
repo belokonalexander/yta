@@ -1,6 +1,7 @@
 package ru.belokonalexander.yta.Adapters;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
+import ru.belokonalexander.yta.GlobalShell.Settings;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 
@@ -114,10 +116,31 @@ public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView
 
     OnClickListener<T> onClickListener;
 
-    public void setOnClickListener(OnClickListener<T> onClickListenet) {
-        this.onClickListener = onClickListenet;
+    public void setOnClickListener(OnClickListener<T> onClickListener) {
+        this.onClickListener = onClickListener;
     }
 
+
+    private boolean mainClickExecuting = false;
+
+    /**
+     * назначить главному клику по компоненту задержку, например, для отрисовки анимации
+     * или для других действий
+     * @param onClickListener
+     */
+    public void setOnDelayedMainClick(OnClickListener<T> onClickListener){
+        this.onClickListener = item -> {
+            if(mainClickExecuting)
+                return;
+
+            mainClickExecuting = true;
+            new Handler().postDelayed(() -> {
+                onClickListener.onClick(item);
+                mainClickExecuting = false;
+            }, Settings.CLICK_DELAY);
+
+        };
+    }
 
 
 

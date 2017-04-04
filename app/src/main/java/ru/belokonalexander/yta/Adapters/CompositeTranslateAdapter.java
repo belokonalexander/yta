@@ -54,7 +54,7 @@ public class CompositeTranslateAdapter extends CommonAdapter<CompositeTranslateM
             h.saveWordButton.setColorFilter(context.getResources().getColor(R.color.tint_color_active), PorterDuff.Mode.SRC_IN);
         } else {
             h.saveWordButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_bookmark_border_white_24dp));
-            h.saveWordButton.setColorFilter(context.getResources().getColor(R.color.tint_color_dark), PorterDuff.Mode.SRC_IN);
+            h.saveWordButton.setColorFilter(context.getResources().getColor(R.color.tint_color_accent), PorterDuff.Mode.SRC_IN);
         }
 
     }

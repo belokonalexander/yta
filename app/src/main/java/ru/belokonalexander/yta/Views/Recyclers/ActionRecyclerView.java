@@ -81,7 +81,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
         ((ViewGroup)getParent()).setLayoutTransition(new LayoutTransition());
         ((ViewGroup)getParent()).addView(emptyDataController);
-
+        disableEmptyController();
 
         defaultItemHeight = getContext().getResources().getDimensionPixelSize(R.dimen.default_list_height);
 
@@ -104,7 +104,6 @@ public class ActionRecyclerView<T> extends RecyclerView {
      * @return - данные от поставщика
      */
     protected List<T> dataLoading(UpdateMode updateMode) {
-        StaticHelpers.LogThis(" ПОЛУЧАЮ ДАННЫЕ ");
         return provider.getData();
     }
 

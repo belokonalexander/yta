@@ -1,15 +1,20 @@
 package ru.belokonalexander.yta;
 
+import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 
 
 import butterknife.BindView;
@@ -17,10 +22,12 @@ import butterknife.ButterKnife;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomViewPager;
 
+import static java.security.AccessController.getContext;
+
 public class MainActivity extends AppCompatActivity {
 
     final int STANDART_SCROLL_DURATION_FACTOR = 2;
-    final int QUICK_SCROLL_DURATION_FACTOR = 1;
+
 
 
     @BindView(R.id.container)
@@ -47,12 +54,65 @@ public class MainActivity extends AppCompatActivity {
         mainViewPager.setAdapter(sectionsPagerAdapter);
 
         tabLayout.setupWithViewPager(mainViewPager);
+
+
+
+
         mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
         fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites() };
 
         mainViewPager.setOffscreenPageLimit(fragments.length);
 
+        setTabItems();
         setGlobalLayout();
+
+
+
+
+    }
+
+    private void setTabItems() {
+
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int tabIconColor = ContextCompat.getColor(MainActivity.this.getBaseContext(), R.color.normal_text_color_white);
+                tab.getIcon().setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                int tabIconColor = ContextCompat.getColor(MainActivity.this.getBaseContext(), R.color.pre_primary);
+                tab.getIcon().setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+
+        TabLayout.Tab tab = tabLayout.getTabAt(0);
+        Drawable icon =  ContextCompat.getDrawable(getBaseContext(),R.drawable.ic_translate_white_24dp);
+        icon.setColorFilter(ContextCompat.getColor(MainActivity.this.getBaseContext(), R.color.normal_text_color_white),PorterDuff.Mode.SRC_IN);
+        tab.setIcon(icon);
+
+
+        icon =  ContextCompat.getDrawable(getBaseContext(),R.drawable.ic_history_white_24dp);
+        icon.setColorFilter(ContextCompat.getColor(MainActivity.this.getBaseContext(), R.color.pre_primary),PorterDuff.Mode.SRC_IN);
+        tab = tabLayout.getTabAt(1);
+        tab.setIcon(icon);
+
+        icon =  ContextCompat.getDrawable(getBaseContext(),R.drawable.ic_bookmark_white_24dp);
+        icon.setColorFilter(ContextCompat.getColor(MainActivity.this.getBaseContext(), R.color.pre_primary),PorterDuff.Mode.SRC_IN);
+        tab = tabLayout.getTabAt(2);
+        tab.setIcon(icon);
+
+
+
+
 
 
     }
@@ -99,10 +159,23 @@ public class MainActivity extends AppCompatActivity {
         root.requestFocus();
     }
 
-    public void openActionFragment(){
-        mainViewPager.setScrollDurationFactor(QUICK_SCROLL_DURATION_FACTOR);
+    public void openActionFragment(int fromPosition){
+        onOpenAnotherFragment();
+        int slideSpeed = Math.max(1,STANDART_SCROLL_DURATION_FACTOR+1-fromPosition);
+        mainViewPager.setScrollDurationFactor(slideSpeed);
         mainViewPager.setCurrentItem(0);
         mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
+    }
+
+    private void onOpenAnotherFragment() {
+        try { // hide keyboard
+            InputMethodManager inputManager = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -113,20 +186,24 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-                 return fragments[position];
+            onOpenAnotherFragment();
+            return fragments[position];
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 3;
         }
 
-        @Override
+
+
+       /* @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case 0:
+                case 0: {
+
                     return getString(R.string.translate_title);
+                }
                 case 1:
                     return getString(R.string.history_title);
                 case 2:
@@ -134,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
             return null;
-        }
+        }*/
     }
 
 

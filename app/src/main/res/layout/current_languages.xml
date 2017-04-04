@@ -13,7 +13,7 @@
         >
 
     <ImageButton
-        android:tint="@color/tint_color_alternative"
+        android:tint="@color/normal_text_color_white"
         android:src="@drawable/ic_compare_arrows_black_36dp"
         style="@style/ImageControlButton"
         android:layout_centerInParent="true"
@@ -29,11 +29,12 @@
             android:layout_toStartOf="@id/swap_language_button"
             android:layout_centerVertical="true"
             android:paddingRight="8dp"
+
             >
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_color_alternative"
+                    android:textColor="@color/normal_text_color_white"
                     android:text="Русский"
                     android:id="@+id/language_from"
                     android:textSize="@dimen/text_header"
@@ -54,11 +55,12 @@
             android:layout_toRightOf="@id/swap_language_button"
             android:paddingLeft="8dp"
             android:layout_centerVertical="true"
+
             >
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_color_alternative"
+                android:textColor="@color/normal_text_color_white"
                 android:text="Азербайджанский"
                 android:id="@+id/language_to"
                 android:textSize="@dimen/text_header"
