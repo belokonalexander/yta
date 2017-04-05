@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="api_error_codes" >
+        <item>401</item>
+        <item>402</item>
+        <item>404</item>
+        <item>413</item>
+        <item>422</item>
+        <item>501</item>
+    </integer-array>
+
+
+    <string-array name="api_error_description">
+        <item>"Неправильный API-ключ"</item>
+        <item>"API-ключ заблокирован. Пожалуйста, сообщите о данной ошибке разработчику"</item>
+        <item>"Превышено суточное ограничение на объем переведенного текста"</item>
+        <item>"Превышен максимально допустимый размер текста"</item>
+        <item>"Текст не может быть переведен"</item>
+        <item>"Заданное направление перевода не поддерживается"</item>
+    </string-array>
+
+</resources>
+
+

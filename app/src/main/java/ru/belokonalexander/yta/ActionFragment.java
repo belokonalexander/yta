@@ -39,6 +39,7 @@ import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
+import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
@@ -50,6 +51,7 @@ import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 
+import ru.belokonalexander.yta.Views.ErrorResolver;
 import ru.belokonalexander.yta.Views.OutputText;
 import ru.belokonalexander.yta.Views.WordList;
 
@@ -190,8 +192,9 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
 
             }  else {
-                //TODO критическая ошибка при запросе
-                StaticHelpers.LogThis(" критическая ошибка при запросе ");
+                //критическая ошибка при запросе
+                wordList.displayError((ApplicationException) result.get(0), () -> getTranslete.execute());
+                loadingBar.setVisibility(View.INVISIBLE);
             }
         }, requests);
 

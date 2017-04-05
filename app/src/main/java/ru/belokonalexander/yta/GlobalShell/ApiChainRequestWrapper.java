@@ -1,9 +1,7 @@
 package ru.belokonalexander.yta.GlobalShell;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -11,7 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-
+import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 
 
 /**
@@ -102,7 +100,11 @@ public class ApiChainRequestWrapper implements IApiRequest {
                     .flatMap((Function<Observable, ObservableSource<?>>) observable -> observable.onErrorResumeNext(new Function<Throwable, ObservableSource>() {
                         @Override
                         public ObservableSource apply(Throwable throwable) throws Exception {
-                            return Observable.just(throwable);
+
+                            //упаковываем ошибку в читаемый вид
+
+
+                            return Observable.just(new ApplicationException(throwable));
                         }
                     })).subscribeOn(Schedulers.newThread())
                       .observeOn(AndroidSchedulers.mainThread());

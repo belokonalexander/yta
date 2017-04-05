@@ -32,5 +32,6 @@
 
     <color name="input_active">#a5c1e6</color>
     <color name="input_normal">#c9c2c2c2</color>
+    <color name="error_color">#d40c0c</color>
 
 </resources>

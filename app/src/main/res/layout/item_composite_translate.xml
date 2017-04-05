@@ -18,10 +18,9 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/default_list_height"
-            android:foreground="?attr/selectableItemBackground"
             android:paddingLeft="@dimen/icon_padding"
             android:paddingRight="@dimen/icon_padding"
-            android:background="@color/white"
+            style="@style/ClickableItem"
             >
 
 

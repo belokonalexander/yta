@@ -76,4 +76,9 @@
     </style>
 
 
+    <style name="ClickableItem">
+        <item name="android:background">@drawable/cardholder_click_selector</item>
+    </style>
+
+
 </resources>

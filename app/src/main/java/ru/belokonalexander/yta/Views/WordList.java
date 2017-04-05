@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -20,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -28,9 +30,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
+import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
+import ru.belokonalexander.yta.GlobalShell.Settings;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
+import ru.belokonalexander.yta.Views.Animations.FadeAnimation;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
@@ -40,7 +45,7 @@ import ru.belokonalexander.yta.YtaApplication;
 /**
  *  ViewGroup, который представляет результаты перевода
  */
-public class WordList extends LinearLayout implements YandexLicenseLabelView {
+public class WordList extends LinearLayout implements YandexLicenseLabelView, ErrorProjector {
 
     /**
      *  главная модель
@@ -102,6 +107,40 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView {
         }
     }
 
+    @Override
+    public void displayError(ApplicationException error, ErrorResolver errorResolver) {
+        clearView();
+        LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewGroup errorLayout = (ViewGroup) layoutInflater.inflate(R.layout.layout_error, null);
+
+        Button resolveButton = (Button) errorLayout.findViewById(R.id.resolve_button);
+        TextView errorText = (TextView) errorLayout.findViewById(R.id.error_msg);
+        errorText.setText(error.getDetailMessage());
+
+
+        if(errorResolver!=null){
+            resolveButton.setOnClickListener(v -> {
+                resolveButton.setEnabled(false);
+                new Handler().postDelayed(() -> {
+                    errorResolver.resolve();
+                    resolveButton.setEnabled(true);
+                }, Settings.CLICK_DELAY);
+            });
+        } else
+            resolveButton.setVisibility(INVISIBLE);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.TOP;
+        params.setMargins(0,StaticHelpers.dpToPixels(8),0,0);
+
+        errorLayout.setLayoutParams(params);
+
+        addView(errorLayout);
+
+        errorLayout.startAnimation(FadeAnimation.createFadeIn(errorLayout));
+
+
+    }
 
 
     /**
