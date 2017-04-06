@@ -19,6 +19,7 @@ import org.greenrobot.greendao.async.AsyncOperationListener;
 import org.greenrobot.greendao.async.AsyncSession;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,7 +56,7 @@ import static ru.belokonalexander.yta.GlobalShell.StaticHelpers.getStringOrEmpty
  *  является представлением объекта CompositeTranslateModel в базе данных
  */
 @Entity(indexes = {@Index(value = "source,lang", unique = true)})
-public class CompositeTranslateModel implements SearchEntity{
+public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     @Id
     private Long Id;

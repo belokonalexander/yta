@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
@@ -21,6 +22,7 @@ import java.util.List;
 import ru.belokonalexander.yta.Adapters.LanguageAdapter;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
+import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.ServiceGenerator;
 import ru.belokonalexander.yta.GlobalShell.SharedAppPrefs;
@@ -50,6 +52,8 @@ public class ChooseLanguageDialog extends DialogFragment {
     Button cancel;
     Button updateLanguages;
     Toast toast;
+
+    public final String IS_RECYCLER_DATA = "ListData";
 
 
     ActionRecyclerView<Language> recyclerView;
@@ -93,6 +97,7 @@ public class ChooseLanguageDialog extends DialogFragment {
             }
         });
 
+
         // присваиваем адаптер списку
         languageAdapter.setOnDelayedMainClick(item -> {
             Intent response = new Intent();
@@ -123,15 +128,26 @@ public class ChooseLanguageDialog extends DialogFragment {
             if(!(result.get(0) instanceof Throwable)){
                 updateLanguageLibrary((AllowedLanguages) result.get(0));
             } else {
-                toast.setText(getString(R.string.api_error));
+                toast.setText(getString(R.string.error)+": "+((ApplicationException)result.get(0)).getDetailMessage());
                 toast.show();
             }
             updateButton.setEnabled(true);
         }, ServiceGenerator.getTranslateApiWithoutCache().getLangs(getContext().getResources().getString(R.string.default_app_lang)));
 
 
+        if(savedInstanceState==null)
+            recyclerView.initData();
+        else
+            recyclerView.setInitialData((List<Language>) savedInstanceState.getSerializable(IS_RECYCLER_DATA));
+
 
         return builder.create();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(IS_RECYCLER_DATA,recyclerView.getCurrentData());
     }
 
     private void updateLanguages(){
@@ -184,5 +200,11 @@ public class ChooseLanguageDialog extends DialogFragment {
         }
 
 
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //setRetainInstance(true);
     }
 }

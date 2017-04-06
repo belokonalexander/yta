@@ -3,6 +3,7 @@ package ru.belokonalexander.yta.GlobalShell.Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,7 +16,7 @@ import java.util.TreeSet;
  * Created by Alexander on 17.03.2017.
  */
 
-public class AllowedLanguages {
+public class AllowedLanguages implements Serializable {
 
     @SerializedName("dirs")
     @Expose

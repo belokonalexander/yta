@@ -11,6 +11,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.belokonalexander.yta.Adapters.CommonAdapter;
@@ -85,7 +86,21 @@ public class ActionRecyclerView<T> extends RecyclerView {
 
         defaultItemHeight = getContext().getResources().getDimensionPixelSize(R.dimen.default_list_height);
 
+
+    }
+
+    public void initData(){
         getData(UpdateMode.INITIAL);
+    }
+
+    public void setInitialData(List<T> data){
+        StaticHelpers.LogThisFt(" SET: " + data);
+        dataLoaded(data,UpdateMode.INITIAL);
+
+    }
+
+    public ArrayList<T> getCurrentData(){
+        return (ArrayList<T>) adapter.getData();
     }
 
     /**

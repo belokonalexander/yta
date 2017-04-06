@@ -3,13 +3,14 @@ package ru.belokonalexander.yta.GlobalShell.Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Alexander on 19.03.2017.
  */
 
-public class TranslateResult {
+public class TranslateResult implements Serializable{
 
 
         @SerializedName("code")

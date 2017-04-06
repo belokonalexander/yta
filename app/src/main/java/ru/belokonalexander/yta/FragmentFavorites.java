@@ -16,6 +16,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.greendao.query.WhereCondition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -27,6 +28,7 @@ import ru.belokonalexander.yta.Events.FavoriteClearEvent;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.Recyclers.ActionRecyclerView;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
@@ -50,17 +52,23 @@ public class FragmentFavorites extends Fragment {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
+    ArrayList<CompositeTranslateModel> listData = new ArrayList<>();
+
+    public final String IS_RECYCLER_DATA = "ListData";
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites,container,false);
         ButterKnife.bind(this, view);
 
+        StaticHelpers.LogThisFt(" ON CREATE VIEW FAVORITES");
+
         toolbar.setTitle(getResources().getString(R.string.favorites_title));
 
         MenuItem clearFavorite = toolbar.getMenu().add(getString(R.string.history_clear));
         clearFavorite.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        clearFavorite.setIcon(R.drawable.ic_delete_white_36dp);
+        clearFavorite.setIcon(R.drawable.ic_delete_white_24dp);
         clearFavorite.setOnMenuItemClickListener(item -> {
             clearFavorite();
             return false;
@@ -99,10 +107,11 @@ public class FragmentFavorites extends Fragment {
             }
         }));
 
-        /*
 
-
-         */
+        if(savedInstanceState==null)
+            recyclerView.initData();
+        else
+            recyclerView.setInitialData((List<CompositeTranslateModel>) savedInstanceState.getSerializable(IS_RECYCLER_DATA));
 
         return view;
     }
@@ -170,4 +179,12 @@ public class FragmentFavorites extends Fragment {
             recyclerView.remove(translateModel);
         }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(IS_RECYCLER_DATA,recyclerView.getCurrentData());
+    }
+
+
 }

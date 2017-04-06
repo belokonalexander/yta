@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -29,7 +30,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
+import ru.belokonalexander.yta.GlobalShell.ClickableSpanTest;
 import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.Settings;
@@ -64,7 +68,8 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
         this.translate = translateResult;
         this.onWordClick = onClickListener;
 
-        inflateContent();
+        if(translateResult!=null)
+            inflateContent();
     }
 
     @Override
@@ -72,33 +77,31 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
 
 
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        TextView label = (TextView) layoutInflater.inflate(R.layout.word_lookup, null);
+        ViewGroup wrapper = (ViewGroup) layoutInflater.inflate(R.layout.wrapped_text_view, null);
+        TextView label = (TextView) wrapper.findViewById(R.id.text_view);
         SpannableString ss = new SpannableString(YtaApplication.getAppContext().getResources().getString(R.string.ya_license));
 
         int start = ss.toString().indexOf("«");
         int to = ss.toString().indexOf("»")+1;
 
-        ss.setSpan(new StyleSpan(Typeface.ITALIC),0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ss.setSpan(new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-                String url = getContext().getResources().getString(R.string.ya_url);
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                getContext().startActivity(i);
-            }
-        },start, to , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(),R.color.yandex_accent)),start, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ss.setSpan(new StyleSpan(Typeface.ITALIC),0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        StaticHelpers.LogThis(ss);
 
-        label.setMovementMethod(LinkMovementMethod.getInstance());
-        label.setClickable(true);
+
+        ss.setSpan(new StyleSpan(Typeface.ITALIC),0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+        ss.setSpan(TouchableSpan.getTouchableSpan(v -> {
+            String url = getContext().getResources().getString(R.string.ya_url);
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            getContext().startActivity(i);
+        }),start, to , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
         label.setText(ss);
-        label.setGravity(Gravity.CENTER);
-        //label.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.cardview_dark_background));
-        label.setPadding(StaticHelpers.dpToPixels(16), StaticHelpers.dpToPixels(16),StaticHelpers.dpToPixels(16),StaticHelpers.dpToPixels(16));
-        container.addView(label);
+        label.setMovementMethod(LinkTouchMovementMethod.getInstance());
+
+
+        container.addView(wrapper);
     }
 
     public void tryToUpdateFavoriteStatus(CompositeTranslateModel translateModel) {
@@ -185,7 +188,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
         scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         TextView textView = (TextView) layoutInflater.inflate(R.layout.word_lookup, null);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setMovementMethod(LinkTouchMovementMethod.getInstance());
         textView.setClickable(true);
 
         textView.setText(translate.getLookupString((word, language) -> onWordClick.onWordClick(word,language)));
@@ -269,10 +272,15 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
             original.setText(translate.getSource());
             wordListContainer.addView(wordItem);
 
-        ScrollView scrollView = new ScrollView(getContext());
-        scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        scrollView.addView(layout);
-        this.addView(scrollView);
+
+        //внешний скроллер добавляется только при пустом lookup (т.е текст был длинный)
+        if(translate.lookupIsDummy()) {
+            ScrollView scrollView = new ScrollView(getContext());
+            scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            scrollView.addView(layout);
+            this.addView(scrollView);
+        } else
+            this.addView(layout);
 
         return wordListContainer;
     }
@@ -283,9 +291,16 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
      *  очистка представления
      */
     public void clearView() {
+
         if(this.getChildCount()>0){
             this.removeAllViews();
         }
+
+    }
+
+    public void clearState(){
+        clearView();
+        translate = null;
     }
 
     public WordList(Context context) {
@@ -302,8 +317,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
         super(context, attrs, defStyleAttr);
     }
 
-
-
-
-
+    public CompositeTranslateModel getTranslate() {
+        return translate;
+    }
 }

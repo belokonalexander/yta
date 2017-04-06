@@ -1,26 +1,28 @@
 package ru.belokonalexander.yta.GlobalShell.Models.Lookup;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.view.View;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
+import ru.belokonalexander.yta.R;
+import ru.belokonalexander.yta.Views.TouchableSpan;
 import ru.belokonalexander.yta.Views.WordList;
+import ru.belokonalexander.yta.YtaApplication;
 
 /**
  * Created by Alexander on 22.03.2017.
  */
 
-public class LookupStyledField {
+public class LookupStyledField implements Serializable {
 
     private int start;
     private int finish;
@@ -49,22 +51,19 @@ public class LookupStyledField {
             switch (value.type){
                 case ABOUT:
                         result.setSpan(new StyleSpan(Typeface.ITALIC),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        result.setSpan(new ForegroundColorSpan(Color.parseColor("#da6cda")),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        result.setSpan(new ForegroundColorSpan(ContextCompat.getColor(YtaApplication.getAppContext(), R.color.about)),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
 
                 case NUM:
-                        result.setSpan(new ForegroundColorSpan(Color.parseColor("#c2c2c2")),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        result.setSpan(new ForegroundColorSpan(ContextCompat.getColor(YtaApplication.getAppContext(), R.color.about)),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
 
                 case SYNONYM:
                     if(clickableSpan!=null)
-                        result.setSpan(new ClickableSpan() {
-                            @Override
-                            public void onClick(View widget) {
-                                StaticHelpers.LogThis("lang: " + language);
-                                clickableSpan.onWordClick(((TextView)widget).getText().toString().substring(value.start,value.finish), language);
-                            }
-                        }, value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        result.setSpan(TouchableSpan.getTouchableSpan(widget -> {
+                            StaticHelpers.LogThis("lang: " + language);
+                            clickableSpan.onWordClick(((TextView)widget).getText().toString().substring(value.start,value.finish), language);
+                        }), value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
 
                 case SYNONYMS_AREA:
@@ -72,18 +71,18 @@ public class LookupStyledField {
                     //result.setSpan(new BackgroundColorSpan(Color.parseColor("#aa696cf5")), value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                     result.setSpan(new StyleSpan(Typeface.ITALIC),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    result.setSpan(new ForegroundColorSpan(Color.parseColor("#696cf5")),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    result.setSpan(new ForegroundColorSpan(ContextCompat.getColor(YtaApplication.getAppContext(), R.color.clickable_span)),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
 
                 case MEAN:
-                        result.setSpan(new ForegroundColorSpan(Color.parseColor("#ab4855")),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        result.setSpan(new ForegroundColorSpan(ContextCompat.getColor(YtaApplication.getAppContext(), R.color.mean)),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
 
                 case SOURCE:
                         result.setSpan(new StyleSpan(Typeface.ITALIC),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case EXAMPLE:
-                        result.setSpan(new ForegroundColorSpan(Color.parseColor("#696cf5")),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        result.setSpan(new ForegroundColorSpan(ContextCompat.getColor(YtaApplication.getAppContext(), R.color.example)),value.start, value.finish, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
 
             }

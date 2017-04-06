@@ -88,31 +88,39 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     SimpleAsyncTask delayedHistorySave;
 
+    public final String IS_WORD_LIST = "WordListData";
+    public final String IS_LANGUAGE = "Language";
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //setRetainInstance(true);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        StaticHelpers.LogThisFt("SAVED STATE: " + savedInstanceState);
+
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
 
 
-        //инициализации представления фрагмента
-        SimpleAsyncTask.run(() -> SharedAppPrefs.getInstance().getLanguage(), this::initViews);
+        if(savedInstanceState==null)
+            //инициализации представления фрагмента
+            SimpleAsyncTask.run(() -> SharedAppPrefs.getInstance().getLanguage(), this::initViews);
+        else {
+            //восстановление состояния фрагмента
+            CompositeTranslateModel compositeTranslateModel = (CompositeTranslateModel) savedInstanceState.getSerializable(IS_WORD_LIST);
+            TranslateLanguage language = (TranslateLanguage) savedInstanceState.getSerializable(IS_LANGUAGE);
+            initViews(language);
+            fillWordList(compositeTranslateModel);
+        }
+
+
 
         requestsManager.addRequest(getTranslete);
-
-        customTexInputView.setText("Lorem Ipsum - это текст-\"рыба\", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной \"рыбой\" для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.");
-     /*  YtaApplication.getDaoSession().getCompositeTranslateModelDao().deleteAll();
-
-
-        for(int i = 0 ; i < 1; i++){
-            YtaApplication.getDaoSession().getCompositeTranslateModelDao().save(new CompositeTranslateModel(null, "item " + i,
-                    new TranslateLanguage("ru-en"), "translate " + i, new Date(), new Date(), true, true, new LookupResult()));
-        }*/
-
-
 
         return view;
     }
@@ -234,6 +242,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
              public Void doInBackground() {
                  compositeTranslateModel.setHistory(true);
                  compositeTranslateModel.save();
+                 StaticHelpers.LogThisFt("Реаьно сохраняю: " + compositeTranslateModel);
                  EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
                  return null;
              }
@@ -252,13 +261,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             getTranslete.cancel();
         }
         //delayedHistorySaveTimer.cancel();
-        wordList.clearView();
+        wordList.clearState();
         saveHistoryWord();
     }
 
     @Override
     public void onTextDone() {
-        StaticHelpers.LogThis(" Фокус на другом элементе ");
+        StaticHelpers.LogThisFt(" Фокус на другом элементе ");
         saveHistoryWord();
     }
 
@@ -267,7 +276,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     private boolean saveHistoryWord(){
         if (delayedHistorySave!=null && !delayedHistorySave.isExecuted()) {
-            StaticHelpers.LogThis("СРХР В ИСТОРИЮ:");
+            StaticHelpers.LogThisFt("СРХР В ИСТОРИЮ:");
             delayedHistorySave.execute();
             return true;
         }
@@ -371,9 +380,18 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         }
     }
 
+    /**
+     * реакция на смену языка
+     * @param reset необходимо ли повторять последнюю операцию, но с новым языком
+     */
     private void languageWasChanged(boolean reset){
         languageToTextView.setText(currentLanguage.getLangToDesc());
         languageFromTextView.setText(currentLanguage.getLangFromDesc());
+        SimpleAsyncTask.run(() -> {
+            SharedAppPrefs.getInstance().setLanguage(currentLanguage);
+            return null;
+        });
+
         if(reset)
             customTexInputView.reset();
     }
@@ -384,6 +402,18 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         ChooseLanguageDialog dialog = new ChooseLanguageDialog();
         dialog.setTargetFragment(this,directionCode);
         dialog.show(getActivity().getSupportFragmentManager());
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        CompositeTranslateModel result = wordList.getTranslate();
+        if(result!=null)
+            outState.putSerializable(IS_WORD_LIST, wordList.getTranslate());
+
+        outState.putSerializable(IS_LANGUAGE,currentLanguage);
     }
 }
 

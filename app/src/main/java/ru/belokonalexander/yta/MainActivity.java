@@ -47,24 +47,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
 
-        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mainViewPager.setAdapter(sectionsPagerAdapter);
+            setContentView(R.layout.activity_main);
 
-        tabLayout.setupWithViewPager(mainViewPager);
+            StaticHelpers.LogThisFt("MAIN ACT: " + savedInstanceState);
 
 
+                ButterKnife.bind(this);
+
+                sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+                mainViewPager.setAdapter(sectionsPagerAdapter);
 
 
-        mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
-        fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites() };
+                tabLayout.setupWithViewPager(mainViewPager);
 
-        mainViewPager.setOffscreenPageLimit(fragments.length);
 
-        setTabItems();
-        setGlobalLayout();
+                mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
+                fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites()};
+
+                mainViewPager.setOffscreenPageLimit(fragments.length);
+
+                setTabItems();
+                setGlobalLayout();
 
 
 
@@ -163,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         onOpenAnotherFragment();
         int slideSpeed = Math.max(1,STANDART_SCROLL_DURATION_FACTOR+1-fromPosition);
         mainViewPager.setScrollDurationFactor(slideSpeed);
-        mainViewPager.setCurrentItem(0);
+        mainViewPager.setCurrentItem(0,true);
         mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
     }
 

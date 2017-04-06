@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 
 //класс, описывающий текущий языковые настройки перевода
-public class TranslateLanguage implements  Serializable, Cloneable {
+public class TranslateLanguage implements  Serializable {
 
 
     private Language from;

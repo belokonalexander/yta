@@ -30,8 +30,16 @@
     <color name="white">#fff</color>
     <color name="transparent">#00ffffff</color>
 
-    <color name="input_active">#a5c1e6</color>
+    <color name="input_active">#33b5e5</color>
     <color name="input_normal">#c9c2c2c2</color>
     <color name="error_color">#d40c0c</color>
+
+
+    <color name="about">#da6cda</color>
+    <color name="num">#c2c2c2</color>
+    <color name="clickable_span">#696cf5</color>
+    <color name="mean">#ab4855</color>
+    <color name="example">#696cf5</color>
+
 
 </resources>

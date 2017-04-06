@@ -1,13 +1,10 @@
 package ru.belokonalexander.yta;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -23,7 +20,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import ru.belokonalexander.yta.Adapters.CommonAdapter;
 import ru.belokonalexander.yta.Adapters.CompositeTranslateAdapter;
 
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
@@ -33,7 +29,7 @@ import ru.belokonalexander.yta.Events.FavoriteClearEvent;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
-import ru.belokonalexander.yta.GlobalShell.Settings;
+import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.Recyclers.ActionRecyclerView;
@@ -41,8 +37,6 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationProvider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchInputData;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchProvider;
-import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
-import ru.belokonalexander.yta.Views.Recyclers.LazyLoadingRecyclerView;
 import ru.belokonalexander.yta.Views.Recyclers.SearchRecyclerView;
 
 /**
@@ -58,17 +52,27 @@ public class FragmentHistory extends Fragment{
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
+    public final String IS_RECYCLER_DATA = "ListData";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         ButterKnife.bind(this, view);
 
+
+
         toolbar.setTitle(getResources().getString(R.string.history_title));
 
         MenuItem clearHistory = toolbar.getMenu().add(getString(R.string.history_clear));
         clearHistory.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        clearHistory.setIcon(R.drawable.ic_delete_white_36dp);
+        clearHistory.setIcon(R.drawable.ic_delete_white_24dp);
         clearHistory.setOnMenuItemClickListener(item -> {
             clearHistory();
             return false;
@@ -111,9 +115,18 @@ public class FragmentHistory extends Fragment{
             }
         }));
 
-
+        if(savedInstanceState==null)
+            recyclerView.initData();
+        else
+            recyclerView.setInitialData((List<CompositeTranslateModel>) savedInstanceState.getSerializable(IS_RECYCLER_DATA));
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(IS_RECYCLER_DATA,recyclerView.getCurrentData());
     }
 
     private void clearHistory() {

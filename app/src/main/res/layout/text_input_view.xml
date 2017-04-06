@@ -62,7 +62,7 @@
             style="@style/SpinKitView.Small.Circle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:SpinKit_Color="@color/colorAccent"
+            app:SpinKit_Color="@color/tint_color_accent"
             android:layout_alignParentRight="true"
             android:id="@+id/loading_bar"
             android:visibility="invisible"

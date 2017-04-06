@@ -14,7 +14,7 @@
 
     <ImageButton
         android:tint="@color/normal_text_color_white"
-        android:src="@drawable/ic_compare_arrows_black_36dp"
+        android:src="@drawable/ic_compare_arrows_black_24dp"
         style="@style/ImageControlButton"
         android:layout_centerInParent="true"
         android:id="@+id/swap_language_button"

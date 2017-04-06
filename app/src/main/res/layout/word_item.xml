@@ -35,6 +35,7 @@
         android:textStyle="italic"
         tools:visibility="visible"
         android:paddingBottom="@dimen/small_padding"
+
         />
 
 </LinearLayout>

@@ -3,10 +3,12 @@ package ru.belokonalexander.yta.Views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
@@ -125,6 +127,19 @@ public class CustomTexInputView extends RelativeLayout {
             //imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         });
 
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    StaticHelpers.LogThisFt(" CLEAR FOCUS ");
+                    clearFocus();
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
 
 
         RxTextView.textChanges(editText)
@@ -176,6 +191,7 @@ public class CustomTexInputView extends RelativeLayout {
         this.setBackgroundResource(R.drawable.input_background);
         this.setPadding(pad,pad,pad,bot_pad);
         if(onTextActionListener!=null){
+            StaticHelpers.LogThisFt(" ON TEXT DONE ");
             onTextActionListener.onTextDone();
         }
 
