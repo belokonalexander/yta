@@ -111,16 +111,11 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             initViews(language);
 
             Object lastStateWordList = savedInstanceState.getSerializable(IS_WORD_LIST);
-            StaticHelpers.LogThisFt("ОБЪЕКТ:  " + lastStateWordList);
-
                 if(!(lastStateWordList instanceof ApplicationException)) {
-                    StaticHelpers.LogThisFt("ОБЪЕКТCompositeTranslateModel:  " + lastStateWordList);
                     CompositeTranslateModel compositeTranslateModel = (CompositeTranslateModel) lastStateWordList;
                     fillWordList(compositeTranslateModel);
                 }
         }
-
-
 
         requestsManager.addRequest(getTranslete);
 
