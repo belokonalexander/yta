@@ -62,6 +62,7 @@ public class CustomTexInputView extends RelativeLayout {
 
 
     public void setText(String text){
+
         lastType = OutputText.Type.AUTOLOAD;
         editText.setText(text);
         editText.setSelection(text.length());
@@ -128,9 +129,12 @@ public class CustomTexInputView extends RelativeLayout {
                         //вызывается событие отчистки, если поле было до этого не пустым
                         if(!lastResult.equals("")) {
                             lastResult = "";
+                            lastType = OutputText.Type.HANDWRITTEN;
+
                             if (onTextActionListener != null) {
                                 onTextActionListener.onTextClear();
                             }
+
                         }
                         return false;
                     }

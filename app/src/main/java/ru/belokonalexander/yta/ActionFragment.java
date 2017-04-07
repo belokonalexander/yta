@@ -19,6 +19,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -109,6 +113,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         }
 
         requestsManager.addRequest(getTranslete);
+
 
         return view;
     }

@@ -136,7 +136,8 @@ public class ServiceGenerator {
                 //кеширую результат
                 if(response.code()==200) {
                     CacheModel cacheModel = new CacheModel(null, signature, responseBody.contentType().toString(), responseBodyString, new Date());
-                    YtaApplication.getDaoSession().getCacheModelDao().insertOrReplace(cacheModel);
+                    CacheModel.saveInCache(cacheModel);
+
                 }
 
                 //создадаю новый response для отправки обработчику

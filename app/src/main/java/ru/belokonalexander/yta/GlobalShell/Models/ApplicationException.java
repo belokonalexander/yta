@@ -65,6 +65,9 @@ public class ApplicationException extends Exception {
                 e.printStackTrace();
             }
         }
+
+        StaticHelpers.LogThisFt("ошибка: " + error);
+        error.printStackTrace();
     }
 
 }

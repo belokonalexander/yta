@@ -29,6 +29,10 @@ public class StaticHelpers {
         Log.e("FT", obj.toString());
     }
 
+    public static void LogThisHis(Object obj){
+        Log.e("HIS", obj.toString());
+    }
+
     public static void LogThisDB(Object obj){
         Log.e("DB", obj.toString());
     }

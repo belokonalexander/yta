@@ -3,18 +3,17 @@ package ru.belokonalexander.yta.Database;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Unique;
-import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.Calendar;
 import java.util.Date;
-import org.greenrobot.greendao.query.Query;
+import java.util.List;
+import java.util.Random;
 
 import ru.belokonalexander.yta.GlobalShell.Settings;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
@@ -109,26 +108,73 @@ public class CacheModel {
 
     public static CacheModel getTopRow(String signature, CacheGetType type) {
 
-
+        CacheModel model;
         //добавляем доп.условие для выборки свежих данных
         if(type==CacheGetType.TIMER) {
-            Calendar current = Calendar.getInstance();
-            current.setTime(new Date());
-            current.add(Calendar.SECOND, -Settings.CACHE_INTERVAL);
-            Date currentDate = current.getTime();
-            return ((YtaApplication)YtaApplication.getAppContext()).getDaoSession().getCacheModelDao().queryBuilder()
-                    .where(CacheModelDao.Properties.Signature.eq(signature), (CacheModelDao.Properties.UpdateDate.gt(currentDate)))
+            model = YtaApplication.getDaoSession().getCacheModelDao().queryBuilder()
+                    .where(CacheModelDao.Properties.Signature.eq(signature), (CacheModelDao.Properties.UpdateDate.gt(getCacheTimeBorder()))).orderDesc(CacheModelDao.Properties.UpdateDate)
                     .unique();
+
+
+        } else model = YtaApplication.getDaoSession().getCacheModelDao().queryBuilder().where(CacheModelDao.Properties.Signature.eq(signature)).orderDesc(CacheModelDao.Properties.UpdateDate).unique();
+
+        if(model!=null) {
+            model.setUpdateDate(new Date());
+            YtaApplication.getDaoSession().getCacheModelDao().save(model);
         }
 
-        return ((YtaApplication)YtaApplication.getAppContext()).getDaoSession().getCacheModelDao().queryBuilder().where(CacheModelDao.Properties.Signature.eq(signature)).unique();
+
+        return model;
     }
 
+    /**
+     * удаляет все неактуальные данные или сокращает размер записей в кеше
+     */
+    public static void clearCache(){
+
+        YtaApplication.getDaoSession().getCacheModelDao().queryBuilder()
+                .where(CacheModelDao.Properties.UpdateDate.lt(getCacheTimeBorder()))
+                .buildDelete().executeDeleteWithoutDetachingEntities();
+
+        //сокращаем размер записей
+        int count = (int) YtaApplication.getDaoSession().getCacheModelDao().count();
+        if(count>Settings.CACHE_MAX_SIZE){
+            List<CacheModel> deletedModels = YtaApplication.getDaoSession().getCacheModelDao().queryBuilder().orderAsc(CacheModelDao.Properties.UpdateDate).limit(count-Settings.CACHE_MAX_SIZE +Settings.CACHE_MAX_SIZE /2 ).list();
+            YtaApplication.getDaoSession().getCacheModelDao().deleteInTx(deletedModels);
+        }
+
+    }
+
+    public static boolean saveInCache(CacheModel model){
+
+        YtaApplication.getDaoSession().getCacheModelDao().insertOrReplace(model);
+        if(new Random().nextInt(Settings.CACHE_DELETE_PROB)==0){
+            clearCache();
+            return true;
+        }
+        return false;
+    }
+
+    public static Date getCacheTimeBorder(){
+        Calendar current = Calendar.getInstance();
+        current.setTime(new Date());
+        current.add(Calendar.SECOND, -Settings.CACHE_INTERVAL);
+        return current.getTime();
+    }
 
     public Date getUpdateDate() {
         return this.updateDate;
     }
 
+    public static void print(String title){
+
+        StaticHelpers.LogThisDB(title + ": \n");
+
+        for(CacheModel item : YtaApplication.getDaoSession().getCacheModelDao().queryBuilder().orderAsc(CacheModelDao.Properties.UpdateDate).list()){
+
+            StaticHelpers.LogThisDB("---> " + item);
+        }
+    }
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
