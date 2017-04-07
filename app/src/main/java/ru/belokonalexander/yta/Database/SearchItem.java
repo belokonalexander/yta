@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by Alexander on 30.03.2017.
+ * Содержит извлеченный мета данные о поиске по объекту
  */
 
 public class SearchItem {

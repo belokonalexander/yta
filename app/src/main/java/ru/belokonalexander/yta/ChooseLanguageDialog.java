@@ -33,7 +33,7 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
 
 /**
- * Created by Alexander on 24.03.2017.
+ * диалог, для смены одного из языков перевода
  */
 
 public class ChooseLanguageDialog extends DialogFragment {
@@ -50,7 +50,6 @@ public class ChooseLanguageDialog extends DialogFragment {
     ApiChainRequestWrapper getLanguages;
 
     Button cancel;
-    Button updateLanguages;
     Toast toast;
 
     public final String IS_RECYCLER_DATA = "ListData";
@@ -58,10 +57,7 @@ public class ChooseLanguageDialog extends DialogFragment {
 
     ActionRecyclerView<Language> recyclerView;
 
-    public void show(FragmentManager manager){
-        StaticHelpers.LogThis(" Show dialog");
-        super.show(manager,"changeLanguage");
-    }
+
 
     @NonNull
     @Override
@@ -86,19 +82,14 @@ public class ChooseLanguageDialog extends DialogFragment {
 
         recyclerView = (ActionRecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.init(languageAdapter, new SolidProvider<Language>() {
-            @Override
-            public List<Language> getData() {
-
-                AllowedLanguages.TranslateLangType type = getTargetRequestCode()==INPUT_LANGUAGE_CHANGE_REQUEST_CODE ?
-                        AllowedLanguages.TranslateLangType.TO : AllowedLanguages.TranslateLangType.FROM;
-
-                return SharedAppPrefs.getInstance().getLanguageLibrary().getLanguages(type);
-            }
+        recyclerView.init(languageAdapter, () -> {
+            AllowedLanguages.TranslateLangType type = getTargetRequestCode()==INPUT_LANGUAGE_CHANGE_REQUEST_CODE ?
+                    AllowedLanguages.TranslateLangType.TO : AllowedLanguages.TranslateLangType.FROM;
+            return SharedAppPrefs.getInstance().getLanguageLibrary().getLanguages(type);
         });
 
 
-        // присваиваем адаптер списку
+        // обработка клика на элементе списка
         languageAdapter.setOnDelayedMainClick(item -> {
             Intent response = new Intent();
             response.putExtra(LANG_LEY,item);
@@ -155,6 +146,10 @@ public class ChooseLanguageDialog extends DialogFragment {
         getLanguages.execute();
     }
 
+    /**
+     * обновление списка допустимых переводов
+     * @param allowedLanguages
+     */
     public void updateLanguageLibrary(AllowedLanguages allowedLanguages){
         new AsyncTask<Object,Void,AllowedLanguages>() {
             @Override
@@ -188,23 +183,8 @@ public class ChooseLanguageDialog extends DialogFragment {
         requestsManager.clear();
     }
 
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-        AlertDialog d = (AlertDialog)getDialog();
-        if(d != null)
-        {
-            Button neutralButton = d.getButton(Dialog.BUTTON_NEUTRAL);
-            neutralButton.setOnClickListener(v -> updateLanguages());
-        }
 
-
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
+    public void show(FragmentManager manager){
+        super.show(manager,"changeLanguage");
     }
 }

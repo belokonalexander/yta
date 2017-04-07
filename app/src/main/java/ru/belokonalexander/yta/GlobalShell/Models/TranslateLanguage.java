@@ -3,10 +3,9 @@ package ru.belokonalexander.yta.GlobalShell.Models;
 import java.io.Serializable;
 
 /**
- * Created by Alexander on 18.03.2017.
+ * класс, описывающий языковые настройки перевода (FROM -> TO)
  */
 
-//класс, описывающий текущий языковые настройки перевода
 public class TranslateLanguage implements  Serializable {
 
 

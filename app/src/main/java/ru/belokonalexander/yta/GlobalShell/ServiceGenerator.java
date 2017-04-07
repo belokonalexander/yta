@@ -20,7 +20,7 @@ import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
- * Created by Alexander on 19.03.2017.
+ * Генерирует сервис для API запросов, т.к используются 2 url'а: для переводчика и для словаря
  */
 
 public class ServiceGenerator {
@@ -108,7 +108,7 @@ public class ServiceGenerator {
                     if(cacheModel==null)
                         throw new UnknownHostException("Unable to resolve host \""+request.url().host()+"\"");
                     else {
-                        //TODO можно предупредить пользователя, что соединения нет и берется запись из кеша
+                        //можно предупредить пользователя, что соединения нет и берется запись из кеша
                     }
 
                     return getCachedRow(request, cacheModel);
@@ -119,7 +119,6 @@ public class ServiceGenerator {
                 if(cache) {
                     CacheModel cacheMode = CacheModel.getTopRow(signature, CacheModel.CacheGetType.TIMER);
                     if (cacheMode != null) {
-                        StaticHelpers.LogThis("КЕШИРОВАННАЯ ЗАПИСЬ: " + cacheMode.getSignature() + " time: " + cacheMode.getUpdateDate());
                         return getCachedRow(request, cacheMode);
                     }
                 }

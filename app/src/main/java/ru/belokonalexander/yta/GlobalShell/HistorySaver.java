@@ -1,21 +1,15 @@
 package ru.belokonalexander.yta.GlobalShell;
 
-/**
- * Created by Alexander on 07.04.2017.
- */
-
 
 import org.greenrobot.eventbus.EventBus;
 
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
-import ru.belokonalexander.yta.GlobalShell.SimpleAsyncTask;
-import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
-import ru.belokonalexander.yta.Views.OutputText;
+import ru.belokonalexander.yta.Views.Helpers.OutputText;
 
 /**
- * объект, который сохраняет результат в историю переводом
+ * объект, который сохраняет результат в историю перевода
  * зачем это нужно -> пользователь подтверждает, что хочет сохранить слово в переводе (например событие DONE на клавиатуре)
  * однако, мы не можем сразу же сохранить слово по этому событию, т.к не факт, что ответ от свервера успел прийти
  * Поэтому мы создаем намерение сохранить слово, и по этому намерению проверяется каждый ответ свервера

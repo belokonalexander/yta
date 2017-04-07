@@ -17,7 +17,7 @@ import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 
 /**
- * Created by Alexander on 27.03.2017.
+ * Адаптер для CompositeTranslate элементов
  */
 
 public class CompositeTranslateAdapter extends CommonAdapter<CompositeTranslateModel> {

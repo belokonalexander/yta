@@ -3,11 +3,11 @@ package ru.belokonalexander.yta.Events;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 
 /**
- * Created by Alexander on 27.03.2017.
+ * Событие - изменение статуса слова
  */
 
 public class WordFavoriteStatusChangedEvent {
-    CompositeTranslateModel translateModel;
+    private CompositeTranslateModel translateModel;
 
     public WordFavoriteStatusChangedEvent(CompositeTranslateModel translateModel) {
 

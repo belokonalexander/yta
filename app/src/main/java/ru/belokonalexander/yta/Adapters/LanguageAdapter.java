@@ -17,7 +17,7 @@ import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.R;
 
 /**
- * Created by Alexander on 24.03.2017.
+ * Адаптер для списка языков
  */
 
 public class LanguageAdapter extends CommonAdapter<Language> {

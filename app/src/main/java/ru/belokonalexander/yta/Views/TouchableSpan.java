@@ -8,10 +8,10 @@ import android.view.View;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
 
-/**
- * Created by Alexander on 06.04.2017.
- */
 
+/**
+ * span, который реагирует на нажатия (с отрисовкой)
+ */
 public abstract class TouchableSpan extends ClickableSpan {
     private boolean mIsPressed;
     private int mPressedBackgroundColor;

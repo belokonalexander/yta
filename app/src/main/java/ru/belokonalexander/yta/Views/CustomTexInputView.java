@@ -2,26 +2,15 @@ package ru.belokonalexander.yta.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-
 import com.jakewharton.rxbinding2.widget.RxTextView;
-
 import java.util.concurrent.TimeUnit;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
+import ru.belokonalexander.yta.Views.Helpers.OutputText;
 
-
-/**
- * Created by Alexander on 16.03.2017.
- */
 
 /**
  *  Описывает основную логику  для перевода текста
@@ -36,7 +25,7 @@ public class CustomTexInputView extends RelativeLayout {
     /**
      *  поле ввода текста
      */
-    private EditText editText;
+    private CustomEditText editText;
 
     /**
      * кнопка отчистки поля ввода
@@ -59,7 +48,11 @@ public class CustomTexInputView extends RelativeLayout {
     private boolean focusState;
 
 
-
+    /**
+     * задает текств поле, но без его последующей реакции
+     * @param text
+     * @return
+     */
     public OutputText setWithoutUpdate(String text){
         lastResult = text;
         editText.setText(text);
@@ -67,11 +60,11 @@ public class CustomTexInputView extends RelativeLayout {
         return new OutputText(text, OutputText.Type.AUTOLOAD);
     }
 
+
     public void setText(String text){
         lastType = OutputText.Type.AUTOLOAD;
         editText.setText(text);
         editText.setSelection(text.length());
-        //editText.requestFocus();
     }
 
     public void clearText(){
@@ -113,7 +106,7 @@ public class CustomTexInputView extends RelativeLayout {
      */
     private void defineViews(){
 
-        editText = (EditText) findViewById(R.id.input_text);
+        editText = (CustomEditText) findViewById(R.id.input_text);
         clearButton = (ImageButton) findViewById(R.id.clear_button);
         editText.setOnFocusChangeListener((v, hasFocus) -> focusState = hasFocus ? goFocusState() : goNormalState());
 
@@ -123,23 +116,9 @@ public class CustomTexInputView extends RelativeLayout {
         clearButton.setOnClickListener(v ->  {
             clearText();
             editText.requestFocus();
-            //InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            //imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         });
 
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    StaticHelpers.LogThisFt(" CLEAR FOCUS ");
-                    clearFocus();
-                    return true;
-                }
-
-                return false;
-            }
-        });
-
+        editText.setOnKeyActionListener(this::clearFocus);
 
 
         RxTextView.textChanges(editText)
@@ -191,7 +170,6 @@ public class CustomTexInputView extends RelativeLayout {
         this.setBackgroundResource(R.drawable.input_background);
         this.setPadding(pad,pad,pad,bot_pad);
         if(onTextActionListener!=null){
-            StaticHelpers.LogThisFt(" ON TEXT DONE ");
             onTextActionListener.onTextDone(new OutputText(editText.getText().toString()));
         }
 

@@ -1,7 +1,7 @@
 package ru.belokonalexander.yta.Views.Recyclers.DataProviders;
 
 /**
- * Created by Alexander on 28.03.2017.
+ * элемент для страничного поиска
  */
 
 public class PaginationSlider {

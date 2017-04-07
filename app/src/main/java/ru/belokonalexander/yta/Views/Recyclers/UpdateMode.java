@@ -1,7 +1,7 @@
 package ru.belokonalexander.yta.Views.Recyclers;
 
 /**
- * Created by Alexander on 28.03.2017.
+ * режим обновления для ActionRecyclerView
  */
 
 public enum UpdateMode {

@@ -1,17 +1,16 @@
-package ru.belokonalexander.yta.Views;
+package ru.belokonalexander.yta.Views.Helpers;
 
-import ru.belokonalexander.yta.GlobalShell.Settings;
-
-import static ru.belokonalexander.yta.Views.OutputText.Type.AUTOLOAD;
+import static ru.belokonalexander.yta.Views.Helpers.OutputText.Type.AUTOLOAD;
 
 /**
- * Created by Alexander on 28.03.2017.
+ * текстовый результат, который выдвет CustomTextInputView
+ * кроме текста также содержит метод ввода - ручной или программный
  */
 
 public class OutputText {
 
-    final String value;
-    final Type type;
+    private final String value;
+    private final Type type;
 
     public enum Type{
         HANDWRITTEN, AUTOLOAD

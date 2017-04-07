@@ -8,10 +8,12 @@ import android.view.animation.Interpolator;
 
 import java.lang.reflect.Field;
 
-/**
- * Created by Alexander on 03.04.2017.
- */
+import ru.belokonalexander.yta.Views.Helpers.ScrollerCustomDuration;
 
+
+/**
+ * ViewPager с пониженной скоростью перелистывания и отменой ручной прокрутки
+ */
 public class CustomViewPager extends ViewPager {
 
     public CustomViewPager(Context context) {
@@ -26,10 +28,7 @@ public class CustomViewPager extends ViewPager {
 
     private ScrollerCustomDuration mScroller = null;
 
-    /**
-     * Override the Scroller instance with our own class so we can change the
-     * duration
-     */
+
     private void postInitViewPager() {
         try {
             Class<?> viewpager = ViewPager.class;
@@ -45,9 +44,7 @@ public class CustomViewPager extends ViewPager {
         }
     }
 
-    /**
-     * Set the factor by which the duration will change
-     */
+
     public void setScrollDurationFactor(double scrollFactor) {
         mScroller.setScrollDurationFactor(scrollFactor);
     }

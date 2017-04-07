@@ -17,7 +17,7 @@ import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
- * Created by Alexander on 16.03.2017.
+ * Библиотека статических методов
  */
 
 public class StaticHelpers {
@@ -33,6 +33,12 @@ public class StaticHelpers {
         Log.e("DB", obj.toString());
     }
 
+
+    /**
+     * есть ли доступ к сети
+     * @param context
+     * @return
+     */
     public static boolean isNetworkAvailable(Context context) {
         try {
             ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -41,15 +47,17 @@ public class StaticHelpers {
 
         } catch (NullPointerException e) {
 
+            //на некоторых устройствах возникает исключение в getState()
+            //ниже описанный метод исправляет такое поведение
+            //однако не тестировал второй способ отдельно от первого и не могу пока оставить только его
+
             try {
                 ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 if (activeNetwork != null) { // connected to the internet
                     if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
-                        // connected to wifi
                         return true;
                     } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
-                        // connected to the mobile provider's data plan
                         return true;
                     }
                 } else {
@@ -74,18 +82,7 @@ public class StaticHelpers {
         return hash;
     }
 
-    public static String getParentHash(Class c, String additionalId)
-    {
-        String hash;
-        try {
-            hash = Thread.currentThread().getStackTrace()[3].getClassName() + "." + Thread.currentThread().getStackTrace()[3].getMethodName();
-        } catch (Exception e)
-        {
-            hash = c.getCanonicalName();
-        }
-        //TODO add hash function
-        return hash+additionalId;
-    }
+
 
 
     public static String loadStringFromRawResource(int resId) {
@@ -122,15 +119,6 @@ public class StaticHelpers {
     }
 
 
-    public static void swapStringsValues(String s1, String s2) {
-
-        int len1=s1.length();
-
-        s1=s1+s2;
-        s2=s1.substring(0,len1);
-        s1=s1.substring(len1);
-
-    }
 
     public static String getStringOrEmptyDelim(String string){
         return (string==null) ? "" : ", " + string;

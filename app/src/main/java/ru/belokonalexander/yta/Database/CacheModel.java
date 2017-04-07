@@ -18,7 +18,7 @@ import ru.belokonalexander.yta.GlobalShell.Settings;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
- * Created by Alexander on 17.03.2017.
+ * Все запросы к API кешируются и хранятся в данной таблице
  */
 
 @Entity

@@ -3,9 +3,9 @@ package ru.belokonalexander.yta.GlobalShell;
 import android.os.AsyncTask;
 
 /**
- * Created by Alexander on 27.03.2017.
+ * враппер для упрощенного испоьзования AsyncTask
+ * @param <T>
  */
-
 public class SimpleAsyncTask<T> {
 
     private AsyncTask<Void,Void,T> backgroundTaskWrapper;

@@ -3,7 +3,9 @@ package ru.belokonalexander.yta.Views.Recyclers.DataProviders;
 import java.util.List;
 
 /**
- * Created by Alexander on 30.03.2017.
+ * поставщик контента в список
+ * реализует страничную погрузку данных
+ * @param <T>
  */
 
 public class PaginationProvider<T> implements SolidProvider<T> {
@@ -11,8 +13,8 @@ public class PaginationProvider<T> implements SolidProvider<T> {
     protected PaginationSlider state;
     protected PaginationProviderController<T> paginationProviderController;
 
-
-    protected int pageSize = 20;
+    //стандартный размер данных
+    protected int pageSize = 40;
 
     public PaginationProvider(PaginationProviderController<T> paginationProviderController) {
         this.paginationProviderController = paginationProviderController;

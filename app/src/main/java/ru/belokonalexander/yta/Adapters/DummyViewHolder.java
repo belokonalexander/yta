@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Created by Alexander on 29.03.2017.
+ *  Фиктивный холдер, например для создания футера
  */
 
 public class DummyViewHolder extends RecyclerView.ViewHolder {

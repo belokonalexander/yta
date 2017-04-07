@@ -1,4 +1,4 @@
-package ru.belokonalexander.yta.Views;
+package ru.belokonalexander.yta.Views.Helpers;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

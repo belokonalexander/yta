@@ -13,9 +13,8 @@ import ru.belokonalexander.yta.Database.SearchItem;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
 /**
- * Created by Alexander on 30.03.2017.
+ * элемент для страничного поиска + поиска по фильтру
  */
-
 public class SearchInputData extends PaginationSlider {
 
     private String key;

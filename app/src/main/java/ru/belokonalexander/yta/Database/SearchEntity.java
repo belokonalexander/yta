@@ -1,7 +1,7 @@
 package ru.belokonalexander.yta.Database;
 
 /**
- * Created by Alexander on 30.03.2017.
+ * Данный интерфейс должны реализовывать объекты, которые пригодны для поиска
  */
 
 public interface SearchEntity {

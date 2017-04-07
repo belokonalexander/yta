@@ -5,9 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-/**
- * Created by Alexander on 19.03.2017.
- */
+
 
 public class Syn implements Serializable {
 

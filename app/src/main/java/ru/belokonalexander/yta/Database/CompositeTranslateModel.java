@@ -46,10 +46,6 @@ import static ru.belokonalexander.yta.GlobalShell.StaticHelpers.getStringOrEmpty
 import static ru.belokonalexander.yta.GlobalShell.StaticHelpers.getStringOrEmptyBrackets;
 import static ru.belokonalexander.yta.GlobalShell.StaticHelpers.getStringOrEmptyDelim;
 
-/**
- * Created by Alexander on 26.03.2017.
- */
-
 
 /**
  *  описывает таблицу с историей и избранным
@@ -265,8 +261,11 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     }
 
 
-
-
+    /**
+     * преобразование Lookup результата в SpannableString
+     * @param listener
+     * @return
+     */
     public SpannableString getLookupString(WordList.OnWordClickListener listener) {
 
         /**

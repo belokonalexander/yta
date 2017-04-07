@@ -12,9 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Created by Alexander on 17.03.2017.
- */
 
 public class AllowedLanguages implements Serializable {
 

@@ -25,9 +25,10 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchInputData;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchProvider;
 
 /**
- * Created by Alexander on 31.03.2017.
+ * список с подгрузкой, реализующий функционал поиска
+ * @param <T>
+ * стоит обратить вниманеие на Override методы по добавлению элементов - они работают в зависимости от текущего фильтра
  */
-
 public class SearchRecyclerView<T extends SearchEntity> extends LazyLoadingRecyclerView<T> {
 
 

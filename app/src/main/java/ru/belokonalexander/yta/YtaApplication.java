@@ -10,14 +10,14 @@ import ru.belokonalexander.yta.Database.DaoMaster;
 import ru.belokonalexander.yta.Database.DaoSession;
 
 
-/**
- * Created by Alexander on 17.03.2017.
- */
+
 
 public class YtaApplication extends Application {
 
 
     private static DaoSession daoSession;
+
+    //хранится Application контекст
     private static Context context;
 
     @Override

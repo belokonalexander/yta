@@ -13,14 +13,9 @@ import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 
 
 /**
- * Created by Alexander on 19.03.2017.
+ * Цепочка запросов - группирует запросы в один логический элемент и выполняет их группой
+ * Также содержит список выполняющихся в данный момент запросов, что позволяет отменять одновременное выполнение одинаковых запросов,
  */
-
-/**
-    Цепочка запросов - группирует запросы в один логический элемент и выполняет их группой
-    Также содержит список выполняющихся в данный момент запросов, что позволяет отменять одновременное выполнение одинаковых запросов,
-
-*/
 public class ApiChainRequestWrapper implements IApiRequest {
 
     // список с выполняющимися в данный момент запросами
@@ -141,7 +136,7 @@ public class ApiChainRequestWrapper implements IApiRequest {
                 subscriber.dispose();
 
             results.clear();
-            //StaticHelpers.LogThis(" Выполняю: " + hash + " в списке: " + runningRequests);
+
             state = State.RUNNING;
             registerInList();
             taskExecutor.subscribe(resetSubscriber());
@@ -164,7 +159,6 @@ public class ApiChainRequestWrapper implements IApiRequest {
     @Override
     public boolean cancel() {
 
-            StaticHelpers.LogThis(" Отменить запрос : " + runningRequests);
 
             if(state != State.FINISHED) {
                 unregisterSelf();

@@ -6,9 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by Alexander on 19.03.2017.
- */
+
 
 public class Def implements Serializable {
 

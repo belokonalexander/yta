@@ -40,7 +40,7 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchProvider;
 import ru.belokonalexander.yta.Views.Recyclers.SearchRecyclerView;
 
 /**
- * Created by Alexander on 16.03.2017.
+ * Фрагмент для окна "История поиска", по логике аналогичен фрагменту FragmentFavorites
  */
 
 public class FragmentHistory extends Fragment{
@@ -54,11 +54,7 @@ public class FragmentHistory extends Fragment{
 
     public final String IS_RECYCLER_DATA = "ListData";
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
-    }
+
 
     @Nullable
     @Override
@@ -100,19 +96,13 @@ public class FragmentHistory extends Fragment{
 
 
         recyclerView.setLayoutManager(mLayoutManager);
-        //PhantomLastItemAdapter a = new PhantomLastItemAdapter<>(adapter);
-        recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, new PaginationProvider.PaginationProviderController<CompositeTranslateModel>() {
-            @Override
-            public List<CompositeTranslateModel> getDate(PaginationSlider state) {
+        recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, state -> {
 
+            SearchInputData searchInputData = (SearchInputData) state;
 
-                SearchInputData searchInputData = (SearchInputData) state;
-                StaticHelpers.LogThis("Подгрузка: " + state + " / " + searchInputData.getSearchCondition());
-
-                return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                        .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
-                        .orderDesc(CompositeTranslateModelDao.Properties.CreateDate).list();
-            }
+            return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
+                    .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
+                    .orderDesc(CompositeTranslateModelDao.Properties.CreateDate).list();
         }));
 
         if(savedInstanceState==null)
@@ -137,23 +127,19 @@ public class FragmentHistory extends Fragment{
 
         });
         builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-            //userSingleRelation.execute((u, resultWaiter) -> CurrentApi.getInstanse().getApplicationApi().cancelFriendship(u, resultWaiter), v);
 
             recyclerView.removeAll();
-            SimpleAsyncTask.run(new SimpleAsyncTask.InBackground<Object>() {
-                @Override
-                public Object doInBackground() {
-                    YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
-                            .where(CompositeTranslateModelDao.Properties.Favorite.eq(false))
-                            .buildDelete().executeDeleteWithoutDetachingEntities();
+            SimpleAsyncTask.run(() -> {
+                YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder()
+                        .where(CompositeTranslateModelDao.Properties.Favorite.eq(false))
+                        .buildDelete().executeDeleteWithoutDetachingEntities();
 
-                    for(CompositeTranslateModel item : YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll()){
-                        item.setHistory(false);
-                        YtaApplication.getDaoSession().update(item);
-                    }
-
-                    return null;
+                for(CompositeTranslateModel item : YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll()){
+                    item.setHistory(false);
+                    YtaApplication.getDaoSession().update(item);
                 }
+
+                return null;
             });
 
 
@@ -182,13 +168,7 @@ public class FragmentHistory extends Fragment{
     public void addNewWordInHistory(WordSavedInHistoryEvent event){
 
         CompositeTranslateModel translateModel = event.getTranslateModel();
-        StaticHelpers.LogThis(" Новое слово: " + translateModel);
         int itemIndex = adapter.getData().indexOf(translateModel);
-
-        StaticHelpers.LogThis("Индекс: " + itemIndex);
-
-        if(itemIndex>=0)
-            StaticHelpers.LogThis("Индекс: " + itemIndex + " / " + adapter.getData().get(itemIndex));
 
         if(itemIndex<0){
             recyclerView.addToTop(translateModel);
@@ -210,9 +190,12 @@ public class FragmentHistory extends Fragment{
         }
     }
 
+    /**
+     * когда очищается список с избранным - сбрасываются все зибранные элементы
+     * @param event
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void clearFavorite(FavoriteClearEvent event){
-        StaticHelpers.LogThis(" ОЧИЩАЕМ ");
         List<CompositeTranslateModel> data = adapter.getData();
         for(CompositeTranslateModel model : data)
             model.setFavorite(false);

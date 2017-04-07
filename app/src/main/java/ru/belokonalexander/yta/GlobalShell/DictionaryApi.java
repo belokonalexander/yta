@@ -6,9 +6,6 @@ import retrofit2.http.Query;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
 
 
-/**
- * Created by Alexander on 17.03.2017.
- */
 
 public interface DictionaryApi {
 

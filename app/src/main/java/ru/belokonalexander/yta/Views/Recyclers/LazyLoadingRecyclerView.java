@@ -15,9 +15,9 @@ import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
 /**
- * Created by Alexander on 28.03.2017.
+ * класс для ленивого отображения списка с подгрузкой
+ * @param <T> тип элемента списка
  */
-
 public class LazyLoadingRecyclerView<T>  extends ActionRecyclerView<T>{
 
     private double LOAD_BORDER = 0; //px - количество пикселов до конца списка, перед началом подгрузкой

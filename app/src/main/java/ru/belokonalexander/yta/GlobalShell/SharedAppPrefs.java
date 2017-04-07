@@ -12,7 +12,7 @@ import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
- * Created by Alexander on 18.03.2017.
+ * Хранилище. Содержит библиотеку языков перевода и последний язык перевода
  */
 
 public class SharedAppPrefs {

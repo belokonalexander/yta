@@ -24,9 +24,6 @@ import ru.belokonalexander.yta.Views.Animations.SimpleAnimationListener;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.PaginationSlider;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SolidProvider;
 
-/**
- * Created by Alexander on 28.03.2017.
- */
 
 /**
  * Представляет базовый класс списока с поставщиком контента, который изменяет данные
@@ -66,7 +63,7 @@ public class ActionRecyclerView<T> extends RecyclerView {
     int defaultItemHeight;
 
     /**
-     * обязательная инициализация
+     * обязательная инициализация с назначением поставщика
      */
     public void init(CommonAdapter<T> adapter, SolidProvider<T> provider){
 

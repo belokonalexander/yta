@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
@@ -22,13 +21,13 @@ import butterknife.ButterKnife;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomViewPager;
 
-import static java.security.AccessController.getContext;
-
+/**
+ * главное активити приложения - ViewPager + 3 Фрагмента
+ */
 public class MainActivity extends AppCompatActivity {
 
-    final int STANDART_SCROLL_DURATION_FACTOR = 2;
 
-
+    final int STANDARD_SCROLL_DURATION_FACTOR = 2;
 
     @BindView(R.id.container)
     CustomViewPager mainViewPager;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
     SectionsPagerAdapter sectionsPagerAdapter;
 
-
     Fragment[] fragments;
 
     @Override
@@ -49,32 +47,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
             setContentView(R.layout.activity_main);
+            ButterKnife.bind(this);
 
-            StaticHelpers.LogThisFt("MAIN ACT: " + savedInstanceState);
+            sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+            mainViewPager.setAdapter(sectionsPagerAdapter);
+            tabLayout.setupWithViewPager(mainViewPager);
+            mainViewPager.setScrollDurationFactor(STANDARD_SCROLL_DURATION_FACTOR);
+            fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites()};
+            mainViewPager.setOffscreenPageLimit(fragments.length);
+            setTabItems();
 
-
-                ButterKnife.bind(this);
-
-                sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-                mainViewPager.setAdapter(sectionsPagerAdapter);
-
-
-                tabLayout.setupWithViewPager(mainViewPager);
-
-
-                mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
-                fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites()};
-
-                mainViewPager.setOffscreenPageLimit(fragments.length);
-
-                setTabItems();
-                setGlobalLayout();
 
 
 
 
     }
 
+    /**
+     * инициализация табов для TabLayout
+     */
     private void setTabItems() {
 
 
@@ -116,61 +107,20 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-
     }
 
-    private void setGlobalLayout() {
-        // Threshold for minimal keyboard height.
-        final int MIN_KEYBOARD_HEIGHT_PX = 150;
-
-        // Top-level window decor view.
-        final View decorView = getWindow().getDecorView();
-
-        // Register global layout listener.
-        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            private final Rect windowVisibleDisplayFrame = new Rect();
-            private int lastVisibleDecorViewHeight;
-
-            @Override
-            public void onGlobalLayout() {
-                // Retrieve visible rectangle inside window.
-                decorView.getWindowVisibleDisplayFrame(windowVisibleDisplayFrame);
-                final int visibleDecorViewHeight = windowVisibleDisplayFrame.height();
-
-                // Decide whether keyboard is visible from changing decor view height.
-                if (lastVisibleDecorViewHeight != 0) {
-                    if (lastVisibleDecorViewHeight > visibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX) {
-                        // Calculate current keyboard height (this includes also navigation bar height when in fullscreen mode).
-                        int currentKeyboardHeight = decorView.getHeight() - windowVisibleDisplayFrame.bottom;
-                        // Notify listener about keyboard being shown.
-                        //listener.onKeyboardShown(currentKeyboardHeight);
-                        StaticHelpers.LogThis(" SHOWN ");
-                    } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
-                        // Notify listener about keyboard being hidden.
-                        StaticHelpers.LogThis(" HIDE ");
-                        clearFocus();
-                    }
-                }
-                // Save current decor view height for the next call.
-                lastVisibleDecorViewHeight = visibleDecorViewHeight;
-            }
-        });
-    }
-
-    public void clearFocus(){
-        root.requestFocus();
-    }
 
     public void openActionFragment(int fromPosition){
         onOpenAnotherFragment();
-        int slideSpeed = Math.max(1,STANDART_SCROLL_DURATION_FACTOR+1-fromPosition);
+        int slideSpeed = Math.max(1, STANDARD_SCROLL_DURATION_FACTOR +1-fromPosition);
         mainViewPager.setScrollDurationFactor(slideSpeed);
         mainViewPager.setCurrentItem(0,true);
-        mainViewPager.setScrollDurationFactor(STANDART_SCROLL_DURATION_FACTOR);
+        mainViewPager.setScrollDurationFactor(STANDARD_SCROLL_DURATION_FACTOR);
     }
 
+    /**
+     * прячу клавиатуру при переходах
+     */
     private void onOpenAnotherFragment() {
         try { // hide keyboard
             InputMethodManager inputManager = (InputMethodManager)
@@ -199,23 +149,6 @@ public class MainActivity extends AppCompatActivity {
             return 3;
         }
 
-
-
-       /* @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0: {
-
-                    return getString(R.string.translate_title);
-                }
-                case 1:
-                    return getString(R.string.history_title);
-                case 2:
-                    return getString(R.string.favorites_title);
-
-            }
-            return null;
-        }*/
     }
 
 

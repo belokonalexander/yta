@@ -8,18 +8,12 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Parcelable;
-import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,21 +25,18 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
-import ru.belokonalexander.yta.GlobalShell.ClickableSpanTest;
 import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 import ru.belokonalexander.yta.GlobalShell.Settings;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.Views.Animations.FadeAnimation;
+import ru.belokonalexander.yta.Views.Helpers.ErrorProjector;
+import ru.belokonalexander.yta.Views.Helpers.ErrorResolver;
+import ru.belokonalexander.yta.Views.Helpers.LinkTouchMovementMethod;
+import ru.belokonalexander.yta.Views.Helpers.YandexLicenseLabelView;
 import ru.belokonalexander.yta.YtaApplication;
-
-/**
- * Created by Alexander on 21.03.2017.
- */
 
 /**
  *  ViewGroup, который представляет результаты перевода
@@ -56,11 +47,11 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
      *  главная модель
      */
     private CompositeTranslateModel translate;
+
+
     private OnWordClickListener onWordClick;
     ImageButton favorite;
     Toast toastNotification = Toast.makeText(getContext(), null, Toast.LENGTH_SHORT);
-
-
     ApplicationException lastError;
 
     /**
@@ -76,9 +67,12 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
             inflateContent();
     }
 
+    /**
+     * создание view для надписи о лицензии перевода
+     * @param container
+     */
     @Override
     public void inflateYandexLicenceLabel(ViewGroup container) {
-
 
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup wrapper = (ViewGroup) layoutInflater.inflate(R.layout.wrapped_text_view, null);
@@ -88,10 +82,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
         int start = ss.toString().indexOf("«");
         int to = ss.toString().indexOf("»")+1;
 
-
-
         ss.setSpan(new StyleSpan(Typeface.ITALIC),0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
 
         ss.setSpan(TouchableSpan.getTouchableSpan(v -> {
             String url = getContext().getResources().getString(R.string.ya_url);
@@ -99,21 +90,27 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
             i.setData(Uri.parse(url));
             getContext().startActivity(i);
         }),start, to , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-
         label.setText(ss);
         label.setMovementMethod(LinkTouchMovementMethod.getInstance());
-
 
         container.addView(wrapper);
     }
 
+    /**
+     * попытка обновить статус избранного для view
+     * @param translateModel модель, для которой требуется обновление
+     */
     public void tryToUpdateFavoriteStatus(CompositeTranslateModel translateModel) {
         if(translateModel.equals(translate)){
             updateFavoriteButton();
         }
     }
 
+    /**
+     * Данное view может отображать сообщение об ошибке
+     * @param error
+     * @param errorResolver
+     */
     @Override
     public void displayError(ApplicationException error, ErrorResolver errorResolver) {
         clearView();
@@ -144,14 +141,9 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.TOP;
         params.setMargins(0,StaticHelpers.dpToPixels(8),0,0);
-
         errorLayout.setLayoutParams(params);
-
         addView(errorLayout);
-
         errorLayout.startAnimation(FadeAnimation.createFadeIn(errorLayout));
-
-
     }
 
 
@@ -206,16 +198,10 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
             return false;
         });
 
-
-        //textView.setVerticalScrollBarEnabled(true);
-
         LinearLayout linearLayout = new LinearLayout(getContext());
         linearLayout.setOrientation(VERTICAL);
-
         linearLayout.addView(textView);
-
         scrollView.addView(linearLayout);
-
         lastContainer.addView(scrollView);
 
 

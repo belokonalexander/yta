@@ -1,7 +1,7 @@
 package ru.belokonalexander.yta.GlobalShell;
 
 /**
- * Created by Alexander on 18.03.2017.
+ * Глобальные настройки приложения
  */
 
 public class Settings {
@@ -11,7 +11,6 @@ public class Settings {
         в кэше ищем значения начиная с ТЕКУЩАЯ_ДАТА - CACHE_INTERVAL
     */
     public static final int CACHE_INTERVAL = 1;
-
     public static final int FADE_ANIMATION_DURATION = 200;
 
     public static final int THROTTLE_CLICK_VALUE = 1500;

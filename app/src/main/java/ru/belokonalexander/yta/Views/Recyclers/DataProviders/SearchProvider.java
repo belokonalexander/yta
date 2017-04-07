@@ -5,9 +5,6 @@ import java.util.List;
 import ru.belokonalexander.yta.Database.SearchEntity;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 
-/**
- * Created by Alexander on 30.03.2017.
- */
 
 /**
  * адаптер для SolidProvider, реализующий поисковой функционал

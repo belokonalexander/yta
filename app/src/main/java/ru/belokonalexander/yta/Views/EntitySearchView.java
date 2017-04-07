@@ -10,8 +10,7 @@ import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.text.TextWatcher;
+
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
-import com.jakewharton.rxbinding2.support.v7.widget.SearchViewQueryTextEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Predicate;
+
 import ru.belokonalexander.yta.Database.SearchEntity;
 import ru.belokonalexander.yta.Database.SearchItem;
 import ru.belokonalexander.yta.GlobalShell.Settings;
@@ -42,7 +40,10 @@ import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.Views.Recyclers.DataProviders.SearchInputData;
 
 /**
- * Created by alexander on 10.10.2016.
+ *  SearchView, которое инициализируется SearchEntity объектом
+ *  с помощью рефлексси достаются поля (@SearchField), по которым может осуществляться поиск,
+ *  инициализируется диалоговое окно
+ *  Задача - отдать слушателю объект SearchInputData с значениями key + value
  */
 public class EntitySearchView extends android.support.v7.widget.SearchView {
 
@@ -154,7 +155,7 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
     }
 
     /**
-     * инициализация представлений
+     * инициализация представлений, в основном тут косметические действия для дефолтного SearchEntity
      */
     private void initViews() {
 
@@ -236,6 +237,7 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(searchEdit.getWindowToken(), 0);
+                    clearFocus();
                     return true;
                 }
 
@@ -328,6 +330,10 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
 
 
     boolean clearUpdateFlag = false;
+
+    /**
+     * ленивый поиск
+     */
     private void rxLazy()
     {
 
@@ -360,7 +366,9 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
     }
 
 
-
+    /**
+     * поиск с подтверждением
+     */
     private void rxNotLazy()
     {
 
@@ -417,7 +425,7 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
 
 
     public enum QueryTypeSettings{
-        //для разного поиска - разные значения задержки ввода, например для "удаленного" api поиска значение debounce больше
+        //для разного поиска - разные значения задержки ввода, например для "удаленного" api поиска значение debounce может быть больше
         LOCAL_QUERY(Settings.SEARCH_DEBOUNCE_LOCAL,Settings.THROTTLE_CLICK_VALUE_LOCAL),
         REMOTE_QUERY(Settings.SEARCH_DEBOUNCE,Settings.THROTTLE_CLICK_VALUE);
 

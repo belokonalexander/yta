@@ -19,7 +19,7 @@ import static ru.belokonalexander.yta.Adapters.CommonAdapter.Decoration.FOOTER;
 import static ru.belokonalexander.yta.Adapters.CommonAdapter.Decoration.SIMPLE;
 
 /**
- * Created by Alexander on 24.03.2017.
+ *  обобщенный адаптер
  */
 
 public abstract class CommonAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

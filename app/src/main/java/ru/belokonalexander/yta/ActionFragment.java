@@ -44,8 +44,8 @@ import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 
-import ru.belokonalexander.yta.Views.ErrorResolver;
-import ru.belokonalexander.yta.Views.OutputText;
+import ru.belokonalexander.yta.Views.Helpers.ErrorResolver;
+import ru.belokonalexander.yta.Views.Helpers.OutputText;
 import ru.belokonalexander.yta.Views.WordList;
 
 import static ru.belokonalexander.yta.ChooseLanguageDialog.INPUT_LANGUAGE_CHANGE_REQUEST_CODE;
@@ -54,7 +54,7 @@ import static ru.belokonalexander.yta.ChooseLanguageDialog.OUTPUT_LANGUAGE_CHANG
 
 
 /**
- * Created by Alexander on 16.03.2017.
+ * фрагмент, реализующий функционал перевода
  */
 
 public class ActionFragment extends Fragment implements CustomTexInputView.OnTextActionListener {
@@ -72,30 +72,21 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     ProgressBar loadingBar;
 
     TranslateLanguage currentLanguage;
-
     ApiChainRequestWrapper getTranslete;
     TextView languageFromTextView;
     TextView languageToTextView;
     View swapTextView;
     SimpleRequestsManager requestsManager = new SimpleRequestsManager();
-
     HistorySaver historySaver = new HistorySaver();
 
 
     public final String IS_WORD_LIST = "WordListData";
     public final String IS_LANGUAGE = "Language";
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        StaticHelpers.LogThisFt("SAVED STATE: " + savedInstanceState);
 
         View view = inflater.inflate(R.layout.fragment_action,container,false);
         ButterKnife.bind(this, view);
@@ -148,14 +139,20 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     }
 
 
+    /**
+     * ОБработка события: в текстовом поле был изменен текст
+     * @param outputText
+     */
     @Override
     public void onTextAction(OutputText outputText) {
 
 
         loadingBar.setVisibility(View.VISIBLE);
 
+        //прерываем предыдущий запрос
         if(getTranslete!=null)
             getTranslete.cancel();
+
         //проверяю значение в истории
         SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(outputText.getValue(),currentLanguage), result -> {
 
@@ -172,6 +169,10 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     }
 
+    /**
+     * запрос пеервода с сервера
+     * @param text
+     */
     private void requestTranslateFromApi(OutputText text){
 
         //отправляю запрос
@@ -214,7 +215,10 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     }
 
 
-
+    /**
+     * заполнение результата перевода
+     * @param compositeTranslateModel
+     */
     private void fillWordList(CompositeTranslateModel compositeTranslateModel){
 
         loadingBar.setVisibility(View.INVISIBLE);
@@ -229,31 +233,36 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     }
 
 
-
-
-
+    /**
+     * текстовое поле было очищено
+     */
     @Override
     public void onTextClear() {
+        //запрос прерывается
         if(getTranslete!=null){
             getTranslete.cancel();
             loadingBar.setVisibility(View.INVISIBLE);
         }
-        //delayedHistorySaveTimer.cancel();
+        //очищается предыдущий результат и сохраняется в историю
         wordList.clearState();
         historySaver.pushLast();
     }
 
+    /**
+     * слово было подтверждено для перевода, т.е оно сохранится в историю
+     * т.е пользователь скрыл клавиатуру или нажал DONE
+     * @param done
+     */
     @Override
     public void onTextDone(OutputText done) {
-        StaticHelpers.LogThisFt(" Фокус на другом элементе ");
         historySaver.setIntentSaver(done.getValue(),currentLanguage);
     }
 
 
-
-
-
-
+    /**
+     * смена языка
+     * @param reset необходимо ли перевести слово, находящееся в поле ввода, с применением нового языка
+     */
     private void swapLanguages(boolean reset){
         currentLanguage.swapLanguages();
         languageWasChanged(reset);
@@ -272,9 +281,15 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+
+        //если есть несохраненное в истории слово, то сохраняем его
         historySaver.pushLast();
     }
 
+    /**
+     * обработка события для показа слова
+     * @param translateWord
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showWord(ShowWordEvent translateWord){
         CompositeTranslateModel translateModel = translateWord.getTranslateModel();
@@ -297,6 +312,10 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     }
 
+    /**
+     * обработка события для отмены избранного
+     * @param event
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void clearFavorite(FavoriteClearEvent event){
         wordList.clearFavoriteStatus();
@@ -332,7 +351,6 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode== Activity.RESULT_OK){
-            StaticHelpers.LogThis("CHANGED: " + data.getExtras());
 
             switch (requestCode) {
                 case INPUT_LANGUAGE_CHANGE_REQUEST_CODE:
@@ -373,7 +391,10 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         dialog.show(getActivity().getSupportFragmentManager());
     }
 
-
+    /**
+     * сохранение состояния фрагмента
+     * @param outState
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

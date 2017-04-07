@@ -6,7 +6,7 @@
     >
 
 
-    <ru.belokonalexander.yta.Views.WrapWidthTextView
+    <ru.belokonalexander.yta.Views.Helpers.WrapWidthTextView
         android:layout_centerInParent="true"
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
@@ -17,7 +17,7 @@
 
         >
 
-    </ru.belokonalexander.yta.Views.WrapWidthTextView>
+    </ru.belokonalexander.yta.Views.Helpers.WrapWidthTextView>
 
 
 </RelativeLayout>

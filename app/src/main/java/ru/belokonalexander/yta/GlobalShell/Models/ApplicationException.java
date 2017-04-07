@@ -14,9 +14,7 @@ import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.YtaApplication;
 
-/**
- * Created by Alexander on 05.04.2017.
- */
+
 
 /**
  * враппер для ошибок приложения

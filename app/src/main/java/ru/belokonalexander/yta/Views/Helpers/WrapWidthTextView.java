@@ -1,8 +1,5 @@
-package ru.belokonalexander.yta.Views;
+package ru.belokonalexander.yta.Views.Helpers;
 
-/**
- * Created by Alexander on 06.04.2017.
- */
 
 import android.content.Context;
 import android.text.Layout;

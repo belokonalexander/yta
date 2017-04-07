@@ -3,12 +3,12 @@ package ru.belokonalexander.yta.Events;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 
 /**
- * Created by Alexander on 27.03.2017.
+ * Событие - просмотреть слово
  */
 
 public class ShowWordEvent {
 
-    CompositeTranslateModel translateModel;
+    private CompositeTranslateModel translateModel;
 
     public ShowWordEvent(CompositeTranslateModel translateModel) {
 

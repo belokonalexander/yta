@@ -19,7 +19,7 @@ import ru.belokonalexander.yta.Views.WordList;
 import ru.belokonalexander.yta.YtaApplication;
 
 /**
- * Created by Alexander on 22.03.2017.
+ * стилизирует Lookup результат
  */
 
 public class LookupStyledField implements Serializable {

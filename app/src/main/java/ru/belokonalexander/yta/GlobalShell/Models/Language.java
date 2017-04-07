@@ -3,7 +3,7 @@ package ru.belokonalexander.yta.GlobalShell.Models;
 import java.io.Serializable;
 
 /**
- * Created by Alexander on 24.03.2017.
+ * Язык
  */
 
 public class Language implements Comparable<Language>, Serializable {

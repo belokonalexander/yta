@@ -1,10 +1,7 @@
-package ru.belokonalexander.yta.Views;
+package ru.belokonalexander.yta.Views.Helpers;
 
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
 
-/**
- * Created by Alexander on 23.03.2017.
- */
 
 public interface OnWordClickListener{
     void onWordClick(String word, TranslateLanguage language);

@@ -71,7 +71,7 @@
 
     </RelativeLayout>
 
-    <EditText
+    <ru.belokonalexander.yta.Views.CustomEditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottom_input_control_panel"

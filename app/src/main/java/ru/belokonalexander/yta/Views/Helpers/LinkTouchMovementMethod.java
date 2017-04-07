@@ -1,4 +1,4 @@
-package ru.belokonalexander.yta.Views;
+package ru.belokonalexander.yta.Views.Helpers;
 
 import android.text.Layout;
 import android.text.Selection;
@@ -8,8 +8,10 @@ import android.text.method.MovementMethod;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
+import ru.belokonalexander.yta.Views.TouchableSpan;
+
 /**
- * Created by Alexander on 06.04.2017.
+ * реализация LinkMovementMethod для Clickable span
  */
 
 public class LinkTouchMovementMethod extends LinkMovementMethod {
