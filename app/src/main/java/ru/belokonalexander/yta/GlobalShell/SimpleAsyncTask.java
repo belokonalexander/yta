@@ -13,8 +13,6 @@ public class SimpleAsyncTask<T> {
     private InBackground<T> inBackgroundTask;
     private PostExecute<T> postExecute;
 
-    boolean executed = false;
-
 
 
     private SimpleAsyncTask(InBackground<T> bt, PostExecute<T> pe) {
@@ -24,7 +22,7 @@ public class SimpleAsyncTask<T> {
         backgroundTaskWrapper = new AsyncTask<Void, Void, T>() {
             @Override
             protected T doInBackground(Void... params) {
-                executed = true;
+
 
                 if(inBackgroundTask!=null)
                     return inBackgroundTask.doInBackground();
@@ -42,7 +40,7 @@ public class SimpleAsyncTask<T> {
     }
 
     public boolean isExecuted() {
-        return executed;
+        return backgroundTaskWrapper.getStatus()!= AsyncTask.Status.PENDING;
     }
 
     public static<S> SimpleAsyncTask create(InBackground<S> inBackgroundTask, PostExecute<S> postExecute){

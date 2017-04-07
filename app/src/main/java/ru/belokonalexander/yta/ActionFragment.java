@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -20,24 +19,18 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 
 import ru.belokonalexander.yta.Events.FavoriteClearEvent;
 import ru.belokonalexander.yta.Events.ShowWordEvent;
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
-import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.ApiChainRequestWrapper;
+import ru.belokonalexander.yta.GlobalShell.HistorySaver;
 import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
 import ru.belokonalexander.yta.GlobalShell.Models.ApplicationException;
 import ru.belokonalexander.yta.GlobalShell.Models.Language;
@@ -51,7 +44,6 @@ import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 
-import ru.belokonalexander.yta.Views.ErrorResolver;
 import ru.belokonalexander.yta.Views.OutputText;
 import ru.belokonalexander.yta.Views.WordList;
 
@@ -86,7 +78,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     View swapTextView;
     SimpleRequestsManager requestsManager = new SimpleRequestsManager();
 
-    SimpleAsyncTask delayedHistorySave;
+    HistorySaver historySaver = new HistorySaver();
+
 
     public final String IS_WORD_LIST = "WordListData";
     public final String IS_LANGUAGE = "Language";
@@ -163,7 +156,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         SimpleAsyncTask.run(() -> CompositeTranslateModel.getBySource(outputText.getValue(),currentLanguage), result -> {
 
             if(result!=null) {
-                delayedSavingWord(result, outputText.getType());
+                historySaver.delayedSavingWord(result, outputText.getType());
                 fillWordList(result);
             }
             else {
@@ -195,7 +188,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
                 CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, null, null, false, true, lookupResult);
 
-                delayedSavingWord(model, text.getType());
+                historySaver.delayedSavingWord(model, text.getType());
                 fillWordList(model);
 
 
@@ -227,62 +220,28 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
 
 
-    /**
-     * сохранение слова в историю поиска
-     * задержка нужна для того, чтобы исключить сохранение части по ходу ввода пользователя
-     * Пример, когда пользователь вводит слово 'Привет':
-     * -> 'При' -> debounce-интервал прошел -> Выведен результат для 'при' -> ввод продолжается -> 'вет'
-     * без задержки в истории будет 2 слова: 'При' и 'Привет', с задержкой добавляется интервал, исключающий такое поведение
-     * @param compositeTranslateModel сохраняемое слово
-     */
-    private void delayedSavingWord(CompositeTranslateModel compositeTranslateModel, OutputText.Type type) {
-
-         delayedHistorySave = SimpleAsyncTask.create(new SimpleAsyncTask.InBackground<Void>() {
-             @Override
-             public Void doInBackground() {
-                 compositeTranslateModel.setHistory(true);
-                 compositeTranslateModel.save();
-                 StaticHelpers.LogThisFt("Реаьно сохраняю: " + compositeTranslateModel);
-                 EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
-                 return null;
-             }
-         });
-
-        if(type== OutputText.Type.AUTOLOAD){
-            saveHistoryWord();
-        }
-
-    }
 
 
     @Override
     public void onTextClear() {
         if(getTranslete!=null){
             getTranslete.cancel();
+            loadingBar.setVisibility(View.INVISIBLE);
         }
         //delayedHistorySaveTimer.cancel();
         wordList.clearState();
-        saveHistoryWord();
+        historySaver.pushLast();
     }
 
     @Override
-    public void onTextDone() {
+    public void onTextDone(OutputText done) {
         StaticHelpers.LogThisFt(" Фокус на другом элементе ");
-        saveHistoryWord();
+        historySaver.setIntentSaver(done.getValue(),currentLanguage);
     }
 
 
 
 
-    private boolean saveHistoryWord(){
-        if (delayedHistorySave!=null && !delayedHistorySave.isExecuted()) {
-            StaticHelpers.LogThisFt("СРХР В ИСТОРИЮ:");
-            delayedHistorySave.execute();
-            return true;
-        }
-
-        return false;
-    }
 
 
     private void swapLanguages(boolean reset){
@@ -303,7 +262,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        saveHistoryWord();
+        historySaver.pushLast();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -342,7 +301,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             currentLanguage = TranslateLanguage.cloneFabric(item.getLang());
             languageWasChanged(false);
         }
-        delayedSavingWord(item,outputText.getType());
+        historySaver.delayedSavingWord(item,outputText.getType());
         fillWordList(item);
     }
 

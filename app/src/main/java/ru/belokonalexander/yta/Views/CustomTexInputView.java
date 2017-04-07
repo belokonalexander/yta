@@ -178,7 +178,7 @@ public class CustomTexInputView extends RelativeLayout {
     public interface OnTextActionListener{
         void onTextAction(OutputText text);
         void onTextClear();
-        void onTextDone();
+        void onTextDone(OutputText text);
     }
 
     public void setOnTextListener(OnTextActionListener listener){
@@ -192,7 +192,7 @@ public class CustomTexInputView extends RelativeLayout {
         this.setPadding(pad,pad,pad,bot_pad);
         if(onTextActionListener!=null){
             StaticHelpers.LogThisFt(" ON TEXT DONE ");
-            onTextActionListener.onTextDone();
+            onTextActionListener.onTextDone(new OutputText(editText.getText().toString()));
         }
 
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
