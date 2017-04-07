@@ -35,6 +35,8 @@ public class ApiChainRequestWrapper implements IApiRequest {
     private DisposableObserver subscriber;
     private Observable taskExecutor;
 
+
+
     enum State {
         RUNNING, FINISHED, SLEEP;
     }

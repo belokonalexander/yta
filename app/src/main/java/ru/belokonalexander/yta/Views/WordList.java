@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,6 +59,9 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
     private OnWordClickListener onWordClick;
     ImageButton favorite;
     Toast toastNotification = Toast.makeText(getContext(), null, Toast.LENGTH_SHORT);
+
+
+    ApplicationException lastError;
 
     /**
      *
@@ -113,13 +117,17 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
     @Override
     public void displayError(ApplicationException error, ErrorResolver errorResolver) {
         clearView();
+        clearState();
+
+        lastError = error;
+
         LayoutInflater layoutInflater = (LayoutInflater ) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup errorLayout = (ViewGroup) layoutInflater.inflate(R.layout.layout_error, null);
 
         Button resolveButton = (Button) errorLayout.findViewById(R.id.resolve_button);
         TextView errorText = (TextView) errorLayout.findViewById(R.id.error_msg);
         errorText.setText(error.getDetailMessage());
-
+        ProgressBar loadingBar = (ProgressBar) errorLayout.findViewById(R.id.loading_bar);
 
         if(errorResolver!=null){
             resolveButton.setOnClickListener(v -> {
@@ -128,6 +136,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
                     errorResolver.resolve();
                     resolveButton.setEnabled(true);
                 }, Settings.CLICK_DELAY);
+                loadingBar.setVisibility(VISIBLE);
             });
         } else
             resolveButton.setVisibility(INVISIBLE);
@@ -292,6 +301,7 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
      */
     public void clearView() {
 
+        lastError = null;
         if(this.getChildCount()>0){
             this.removeAllViews();
         }
@@ -320,4 +330,9 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
     public CompositeTranslateModel getTranslate() {
         return translate;
     }
+
+    public ApplicationException getLastError(){
+        return lastError;
+    }
+
 }

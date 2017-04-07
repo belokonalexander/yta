@@ -44,6 +44,7 @@ import ru.belokonalexander.yta.GlobalShell.SimpleRequestsManager;
 import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.Views.CustomTexInputView;
 
+import ru.belokonalexander.yta.Views.ErrorResolver;
 import ru.belokonalexander.yta.Views.OutputText;
 import ru.belokonalexander.yta.Views.WordList;
 
@@ -105,10 +106,18 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             SimpleAsyncTask.run(() -> SharedAppPrefs.getInstance().getLanguage(), this::initViews);
         else {
             //восстановление состояния фрагмента
-            CompositeTranslateModel compositeTranslateModel = (CompositeTranslateModel) savedInstanceState.getSerializable(IS_WORD_LIST);
+
             TranslateLanguage language = (TranslateLanguage) savedInstanceState.getSerializable(IS_LANGUAGE);
             initViews(language);
-            fillWordList(compositeTranslateModel);
+
+            Object lastStateWordList = savedInstanceState.getSerializable(IS_WORD_LIST);
+            StaticHelpers.LogThisFt("ОБЪЕКТ:  " + lastStateWordList);
+
+                if(!(lastStateWordList instanceof ApplicationException)) {
+                    StaticHelpers.LogThisFt("ОБЪЕКТCompositeTranslateModel:  " + lastStateWordList);
+                    CompositeTranslateModel compositeTranslateModel = (CompositeTranslateModel) lastStateWordList;
+                    fillWordList(compositeTranslateModel);
+                }
         }
 
 
@@ -194,7 +203,13 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
             }  else {
                 //критическая ошибка при запросе
-                wordList.displayError((ApplicationException) result.get(0), () -> getTranslete.execute());
+                wordList.displayError((ApplicationException) result.get(0), new ErrorResolver() {
+                    @Override
+                    public void resolve() {
+                        historySaver.setIntentSaver(text.getValue(),currentLanguage);
+                        getTranslete.execute();
+                    }
+                });
                 loadingBar.setVisibility(View.INVISIBLE);
             }
         }, requests);
@@ -371,6 +386,9 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         CompositeTranslateModel result = wordList.getTranslate();
         if(result!=null)
             outState.putSerializable(IS_WORD_LIST, wordList.getTranslate());
+        else if(wordList.getLastError()!=null) {
+            outState.putSerializable(IS_WORD_LIST, wordList.getLastError());
+        }
 
         outState.putSerializable(IS_LANGUAGE,currentLanguage);
     }
