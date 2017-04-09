@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
+import com.jakewharton.rxbinding2.support.v7.widget.SearchViewQueryTextEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
+import io.reactivex.functions.Predicate;
 import ru.belokonalexander.yta.Database.SearchEntity;
 import ru.belokonalexander.yta.Database.SearchItem;
 import ru.belokonalexander.yta.GlobalShell.Settings;
@@ -262,8 +264,10 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
 
 
     public void clearTextWithoutUpdate(){
-        clearUpdateFlag= true;
-        queryArea.setText("");
+        if(queryArea.getText().length()>0) {
+            clearUpdateFlag = true;
+            queryArea.setText("");
+        }
     }
 
     /**
@@ -342,6 +346,8 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
                 .skip(1)
                 .filter(searchViewQueryTextEvent -> {
 
+                    StaticHelpers.LogThisHis("CLEAR FLAG: " + clearUpdateFlag);
+
                     if(clearUpdateFlag) {
                         clearUpdateFlag = false;
                         return false;
@@ -373,6 +379,7 @@ public class EntitySearchView extends android.support.v7.widget.SearchView {
     {
 
         RxSearchView.queryTextChangeEvents(this)
+
                 .skip(1)
                 .filter(searchViewQueryTextEvent -> {
                     if(clearUpdateFlag) {
