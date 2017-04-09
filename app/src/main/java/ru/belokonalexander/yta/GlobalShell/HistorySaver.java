@@ -46,16 +46,17 @@ public class HistorySaver {
      * @param input
      * @param lang
      */
-    public void setIntentSaver(String input, TranslateLanguage lang){
+    public boolean setIntentSaver(String input, TranslateLanguage lang){
         intentSaver = new IntentSaver(input,lang);
         if(lastResult!=null && compareIntent(lastResult)) {
-            saveHistoryWord(lastResult, OutputText.Type.AUTOLOAD);
+            return (saveHistoryWord(lastResult, OutputText.Type.AUTOLOAD));
         }
+        return false;
     }
 
 
 
-    public void delayedSavingWord(CompositeTranslateModel compositeTranslateModel, OutputText.Type type) {
+    public boolean delayedSavingWord(CompositeTranslateModel compositeTranslateModel, OutputText.Type type) {
 
         delayedHistorySaveTask = SimpleAsyncTask.create(new SimpleAsyncTask.InBackground<Void>() {
             @Override
@@ -72,7 +73,7 @@ public class HistorySaver {
         });
 
         //пробуем сохранить слово
-        saveHistoryWord(compositeTranslateModel, type);
+        return (saveHistoryWord(compositeTranslateModel, type));
 
 
     }
@@ -85,7 +86,7 @@ public class HistorySaver {
 
         if(type==OutputText.Type.AUTOLOAD || compareIntent(compositeTranslateModel)) {
 
-            pushLast();
+            return (pushLast());
 
         } else {
             //сохраняем последний результат, возможно мы подтвердим сохранение позже

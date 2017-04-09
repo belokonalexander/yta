@@ -107,7 +107,7 @@ public class CustomTexInputView extends RelativeLayout {
      */
     private void defineViews(){
 
-        editText = (CustomEditText) findViewById(R.id.input_text);
+        editText = (CustomEditText) findViewById(R.id.translate_search_input);
         clearButton = (ImageButton) findViewById(R.id.clear_button);
         editText.setOnFocusChangeListener((v, hasFocus) -> focusState = hasFocus ? goFocusState() : goNormalState());
 

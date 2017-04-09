@@ -20,7 +20,9 @@ public class TranslateLanguage implements  Serializable {
 
     }
 
-
+    public static TranslateLanguage getDummyInsstance(){
+        return new TranslateLanguage("ru","Русский","en", "Английский");
+    }
 
     public Language getFrom() {
         return from;

@@ -85,7 +85,7 @@
         android:paddingTop="2dp"
         android:paddingLeft="2dp"
         android:textColorHint="@color/normal_text_color_hint"
-        android:id="@+id/input_text"
+        android:id="@+id/translate_search_input"
         style="@style/CustomEditTextStyle"
         android:background="@android:color/transparent"
         android:scrollHorizontally="false"

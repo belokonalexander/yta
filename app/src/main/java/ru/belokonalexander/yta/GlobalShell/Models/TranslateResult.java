@@ -54,4 +54,25 @@ public class TranslateResult implements Serializable{
     public boolean isEmpty() {
         return !(text.size() > 0 && text.get(0).trim().length() > 0);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TranslateResult that = (TranslateResult) o;
+
+        if (!code.equals(that.code)) return false;
+        if (!lang.equals(that.lang)) return false;
+        return text.equals(that.text);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = code.hashCode();
+        result = 31 * result + lang.hashCode();
+        result = 31 * result + text.hashCode();
+        return result;
+    }
 }

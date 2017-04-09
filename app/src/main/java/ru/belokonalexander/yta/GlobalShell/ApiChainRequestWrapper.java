@@ -152,8 +152,8 @@ public class ApiChainRequestWrapper implements IApiRequest {
 
 
     /**
-     *  https://github.com/ReactiveX/RxJava/issues/4514 при завершении работы, observer должен в isDisposed()
-     *  возвращать true, однако такого не происходит, поэтому был введен флаг isFinished
+     *  при завершении работы, observer должен в isDisposed()
+     *  возвращать true, однако такого не происходит (см. тест ObserverTest), поэтому был введен флаг isFinished
 
      */
     @Override

@@ -191,6 +191,11 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
         }
     }
 
+    public static CompositeTranslateModel getDummyInstance(){
+        return new CompositeTranslateModel(null,"dummySource", TranslateLanguage.getDummyInsstance(), "dummyResult",null,null,false,false,null);
+
+    }
+
     public static class LookupResultConverter implements PropertyConverter<LookupResult, String> {
 
         @Override
@@ -408,6 +413,8 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     public void setTranslateResult(String translateResult) {
         this.translateResult = translateResult;
     }
+
+
 
     @Override
     public boolean equals(Object o) {
