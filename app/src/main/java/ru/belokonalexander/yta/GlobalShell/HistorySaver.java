@@ -3,6 +3,8 @@ package ru.belokonalexander.yta.GlobalShell;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Date;
+
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 import ru.belokonalexander.yta.Events.WordSavedInHistoryEvent;
 import ru.belokonalexander.yta.GlobalShell.Models.TranslateLanguage;
@@ -63,6 +65,7 @@ public class HistorySaver {
             public Void doInBackground() {
 
                 compositeTranslateModel.setHistory(true);
+                compositeTranslateModel.setSaveHistoryDate(new Date());
                 compositeTranslateModel.save();
                 EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
 

@@ -101,7 +101,7 @@ public class FragmentHistory extends Fragment{
             SearchInputData searchInputData = (SearchInputData) state;
 
             return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                    .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).limit(state.getPageSize()).offset(state.getOffset())
+                    .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).orderDesc(CompositeTranslateModelDao.Properties.SaveHistoryDate).limit(state.getPageSize()).offset(state.getOffset())
                     .list();
         }));
 
@@ -136,6 +136,7 @@ public class FragmentHistory extends Fragment{
 
                 for(CompositeTranslateModel item : YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll()){
                     item.setHistory(false);
+                    item.setSaveHistoryDate(null);
                     YtaApplication.getDaoSession().update(item);
                 }
 

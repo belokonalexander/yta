@@ -19,6 +19,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -198,7 +199,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     lookupResult = (LookupResult) result.get(1);
                 }
 
-                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), language, textResult, null, null, null, false, true, lookupResult);
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), language, textResult, null, null, null, null, false, true, lookupResult);
 
                 historySaver.delayedSavingWord(model, text.getType());
                 fillWordList(model);

@@ -71,6 +71,8 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     private Date saveFavoriteDate;
 
+    private Date saveHistoryDate;
+
     private Boolean favorite;   //сохранено в избранном
 
     private Boolean history;    //хранится в истории
@@ -87,9 +89,11 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     public CompositeTranslateModel() {
     }
 
+
+
     @Keep
-    public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult, @NotNull Date updateDate, @NotNull Date createDate,
-            Date saveFavoriteDate, Boolean favorite, Boolean history, LookupResult lookup) {
+    public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult, @NotNull Date updateDate, @NotNull Date createDate, Date saveFavoriteDate,
+            Date saveHistoryDate, Boolean favorite, Boolean history, LookupResult lookup) {
         this.Id = Id;
         this.source = source.trim();
         this.lang = lang;
@@ -100,6 +104,7 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
         this.lookup = lookup;
         this.createDate = createDate;
         this.saveFavoriteDate = saveFavoriteDate;
+        this.saveHistoryDate = saveHistoryDate;
     }
 
 
@@ -112,7 +117,7 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     public static CompositeTranslateModel copy(CompositeTranslateModel model){
         return new CompositeTranslateModel(null, model.getSource(), new TranslateLanguage(model.getLang().getLangFrom(),model.getLang().getLangFromDesc(),
-                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getCreateDate(), model.getSaveFavoriteDate(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
+                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getCreateDate(), model.getSaveFavoriteDate(), model.getSaveHistoryDate(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
                 model.getLookup()
                 );
     }
@@ -191,12 +196,12 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     }
 
     public static CompositeTranslateModel getDummyInstance(){
-        return new CompositeTranslateModel(null,"dummySource", TranslateLanguage.getDummyInsstance(), "dummyResult",null,null,null,false,false,null);
+        return new CompositeTranslateModel(null,"dummySource", TranslateLanguage.getDummyInsstance(), "dummyResult",null,null,null, null,false,false,null);
 
     }
 
     public static CompositeTranslateModel getDummyInstance(int ind){
-        return new CompositeTranslateModel(null,"dummySource:" + ind, TranslateLanguage.getDummyInsstance(), "dummyResult:"+ind,new Date(),new Date(), new Date(),true,true,null);
+        return new CompositeTranslateModel(null,"dummySource:" + ind, TranslateLanguage.getDummyInsstance(), "dummyResult:"+ind,new Date(),new Date(), new Date(), new Date(),true,true,null);
 
     }
 
@@ -493,6 +498,14 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     public void setSaveFavoriteDate(Date saveFavoriteDate) {
         this.saveFavoriteDate = saveFavoriteDate;
+    }
+
+    public Date getSaveHistoryDate() {
+        return this.saveHistoryDate;
+    }
+
+    public void setSaveHistoryDate(Date saveHistoryDate) {
+        this.saveHistoryDate = saveHistoryDate;
     }
 
 
