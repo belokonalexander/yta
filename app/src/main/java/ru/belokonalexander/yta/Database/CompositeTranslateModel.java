@@ -190,6 +190,11 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     }
 
+    public static CompositeTranslateModel getDummyInstance(int ind){
+        return new CompositeTranslateModel(null,"dummySource:" + ind, TranslateLanguage.getDummyInsstance(), "dummyResult:"+ind,new Date(),new Date(),true,true,null);
+
+    }
+
     public static class LookupResultConverter implements PropertyConverter<LookupResult, String> {
 
         @Override

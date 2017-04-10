@@ -210,8 +210,10 @@ public class WordList extends LinearLayout implements YandexLicenseLabelView, Er
     }
 
     public void clearFavoriteStatus(){
-        translate.setFavorite(false);
-        updateFavoriteButton();
+        if(translate!=null && translate.getFavorite()) {
+            translate.setFavorite(false);
+            updateFavoriteButton();
+        }
     }
 
     private void updateFavoriteButton(){

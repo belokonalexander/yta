@@ -115,6 +115,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         requestsManager.addRequest(getTranslete);
 
 
+
         return view;
     }
 
