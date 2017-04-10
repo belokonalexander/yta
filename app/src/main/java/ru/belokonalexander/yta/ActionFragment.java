@@ -28,6 +28,7 @@ import butterknife.ButterKnife;
 
 
 import io.reactivex.Observable;
+import ru.belokonalexander.yta.Database.CacheModel;
 import ru.belokonalexander.yta.Database.CompositeTranslateModel;
 
 import ru.belokonalexander.yta.Events.FavoriteClearEvent;
@@ -114,8 +115,6 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
         requestsManager.addRequest(getTranslete);
 
-
-
         return view;
     }
 
@@ -173,6 +172,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         });
 
 
+
     }
 
     /**
@@ -186,6 +186,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                 ServiceGenerator.getDictionaryApi().lookup(text.getValue(), currentLanguage.getLangFrom() + "-" + currentLanguage.getLangTo())};
 
         String hash = StaticHelpers.getParentHash(this.getClass());
+        TranslateLanguage language = TranslateLanguage.cloneFabric(currentLanguage);
 
         getTranslete = ApiChainRequestWrapper.getApartInstance(hash, result -> {
 
@@ -197,7 +198,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     lookupResult = (LookupResult) result.get(1);
                 }
 
-                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, null, null, null, false, true, lookupResult);
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), language, textResult, null, null, null, false, true, lookupResult);
 
                 historySaver.delayedSavingWord(model, text.getType());
                 fillWordList(model);
@@ -208,7 +209,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                 wordList.displayError((ApplicationException) result.get(0), new ErrorResolver() {
                     @Override
                     public void resolve() {
-                        historySaver.setIntentSaver(text.getValue(),currentLanguage);
+                        historySaver.setIntentSaver(text.getValue(),language);
                         getTranslete.execute();
                     }
                 });

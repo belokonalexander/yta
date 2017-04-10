@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import java.util.concurrent.TimeUnit;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import ru.belokonalexander.yta.GlobalShell.StaticHelpers;
 import ru.belokonalexander.yta.R;
 import ru.belokonalexander.yta.Views.Helpers.OutputText;
 
@@ -40,7 +41,8 @@ public class CustomTexInputView extends RelativeLayout {
     /**
      *  последнее значение, которое вводилось в текстовое поле
      */
-    private String lastResult = "";
+    private String lastResult = "";             //меняется только после успешного запроса
+    private String lastNotDebouncedResult = ""; //меняется всегда
     private OutputText.Type lastType = OutputText.Type.HANDWRITTEN;
     /**
      *  состояние текстового поля
@@ -78,8 +80,8 @@ public class CustomTexInputView extends RelativeLayout {
     /**
      * перезапуск последнего состояния
      */
-    public void reset(){
-        String asNewState = lastResult;
+    synchronized public void reset(){
+        String asNewState = lastNotDebouncedResult;
         lastResult="";
         setText(asNewState);
     }
@@ -125,6 +127,9 @@ public class CustomTexInputView extends RelativeLayout {
         RxTextView.textChanges(editText)
                 .skip(1)                    //пропускаю первый (инициализирующий) эммит
                 .filter(charSequence -> {
+
+                    lastNotDebouncedResult = charSequence.toString().trim();
+
                     if(charSequence.toString().trim().length()==0) {     //поле ввода пустое
                         //вызывается событие отчистки, если поле было до этого не пустым
                         if(!lastResult.equals("")) {
