@@ -101,8 +101,8 @@ public class FragmentFavorites extends Fragment {
 
         //Инициализация и определение поставщика данных для списка
         recyclerView.init(adapter, new SearchProvider<>(CompositeTranslateModel.class, state -> YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition(((SearchInputData)state).getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
-                .orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list()));
+                .queryBuilder().where(CompositeTranslateModelDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition(((SearchInputData)state).getSearchCondition())).orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).limit(state.getPageSize()).offset(state.getOffset())
+                .list()));
 
 
         //восстановление данных

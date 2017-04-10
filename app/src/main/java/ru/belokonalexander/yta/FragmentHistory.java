@@ -101,8 +101,8 @@ public class FragmentHistory extends Fragment{
             SearchInputData searchInputData = (SearchInputData) state;
 
             return YtaApplication.getDaoSession().getCompositeTranslateModelDao()
-                    .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).limit(state.getPageSize()).offset(state.getOffset())
-                    .orderDesc(CompositeTranslateModelDao.Properties.CreateDate).list();
+                    .queryBuilder().where(CompositeTranslateModelDao.Properties.History.eq(true), new WhereCondition.StringCondition(searchInputData.getSearchCondition())).orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).limit(state.getPageSize()).offset(state.getOffset())
+                    .list();
         }));
 
         if(savedInstanceState==null)

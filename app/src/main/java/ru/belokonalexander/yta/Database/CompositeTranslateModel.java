@@ -1,6 +1,5 @@
 package ru.belokonalexander.yta.Database;
 
-import android.os.AsyncTask;
 import android.text.SpannableString;
 
 import com.google.gson.Gson;
@@ -13,10 +12,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.async.AsyncOperationListener;
-import org.greenrobot.greendao.async.AsyncSession;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.io.Serializable;
@@ -26,8 +22,6 @@ import java.util.List;
 
 
 import ru.belokonalexander.yta.Events.WordFavoriteStatusChangedEvent;
-import ru.belokonalexander.yta.GlobalShell.Models.AllowedLanguages;
-import ru.belokonalexander.yta.GlobalShell.Models.Language;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Def;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.Ex;
 import ru.belokonalexander.yta.GlobalShell.Models.Lookup.LookupResult;
@@ -242,7 +236,7 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
             @Override
             public Object doInBackground() {
                 YtaApplication.getDaoSession().getCompositeTranslateModelDao().insertOrReplace(CompositeTranslateModel.this);
-                showDB();
+                showTable();
                 return null;
             }
         });
@@ -250,8 +244,8 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     }
 
 
-    public void showDB(){
-        List<CompositeTranslateModel> data = YtaApplication.getDaoSession().getCompositeTranslateModelDao().loadAll();
+    public void showTable(){
+        List<CompositeTranslateModel> data = YtaApplication.getDaoSession().getCompositeTranslateModelDao().queryBuilder().orderDesc(CompositeTranslateModelDao.Properties.UpdateDate).list();
         StaticHelpers.LogThisDB("----> elements - " + data.size());
         for(CompositeTranslateModel model : data){
             StaticHelpers.LogThisDB("\n-> " + model );
@@ -442,7 +436,10 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
                 ", source='" + source + '\'' +
                 ", lang=" + lang +
                 ", translateResult='" + translateResult + '\'' +
+                ", updateDate=" + updateDate +
+                ", createDate=" + createDate +
                 ", favorite=" + favorite +
+                ", history=" + history +
                 ", lookup=" + lookup +
                 '}';
     }
