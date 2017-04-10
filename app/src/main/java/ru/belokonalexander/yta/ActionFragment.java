@@ -197,7 +197,7 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
                     lookupResult = (LookupResult) result.get(1);
                 }
 
-                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, null, null, false, true, lookupResult);
+                CompositeTranslateModel model = new CompositeTranslateModel(null, text.getValue(), TranslateLanguage.cloneFabric(currentLanguage), textResult, null, null, null, false, true, lookupResult);
 
                 historySaver.delayedSavingWord(model, text.getType());
                 fillWordList(model);
@@ -256,7 +256,6 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
 
     /**
      * слово было подтверждено для перевода, т.е оно сохранится в историю
-     * т.е пользователь скрыл клавиатуру или нажал DONE
      * @param done
      */
     @Override
@@ -291,6 +290,8 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
         //если есть несохраненное в истории слово, то сохраняем его
         historySaver.pushLast();
     }
+
+
 
     /**
      * обработка события для показа слова

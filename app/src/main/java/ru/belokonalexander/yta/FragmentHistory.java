@@ -182,11 +182,13 @@ public class FragmentHistory extends Fragment{
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFavoriteStatus(WordFavoriteStatusChangedEvent event){
         CompositeTranslateModel translateModel = event.getTranslateModel();
-        int itemIndex = adapter.getData().indexOf(translateModel);
-        if(itemIndex<0){
-            recyclerView.addToTop(translateModel);
-        } else {
-            recyclerView.update(translateModel,itemIndex);
+        if(translateModel.getHistory()) {
+            int itemIndex = adapter.getData().indexOf(translateModel);
+            if (itemIndex < 0) {
+                recyclerView.addToTop(translateModel);
+            } else {
+                recyclerView.update(translateModel, itemIndex);
+            }
         }
     }
 

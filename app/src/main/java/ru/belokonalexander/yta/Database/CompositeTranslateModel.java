@@ -69,6 +69,8 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     @NotNull
     private Date createDate;
 
+    private Date saveFavoriteDate;
+
     private Boolean favorite;   //сохранено в избранном
 
     private Boolean history;    //хранится в истории
@@ -79,9 +81,15 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
 
 
+
+
+    @Generated(hash = 1728432106)
+    public CompositeTranslateModel() {
+    }
+
     @Keep
-    public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult,
-            Date createDate, Date updateDate, Boolean favorite, Boolean history, LookupResult lookup) {
+    public CompositeTranslateModel(Long Id, @NotNull String source, @NotNull TranslateLanguage lang, @NotNull String translateResult, @NotNull Date updateDate, @NotNull Date createDate,
+            Date saveFavoriteDate, Boolean favorite, Boolean history, LookupResult lookup) {
         this.Id = Id;
         this.source = source.trim();
         this.lang = lang;
@@ -91,10 +99,7 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
         this.history = history;
         this.lookup = lookup;
         this.createDate = createDate;
-    }
-
-    @Generated(hash = 1728432106)
-    public CompositeTranslateModel() {
+        this.saveFavoriteDate = saveFavoriteDate;
     }
 
 
@@ -107,7 +112,7 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     public static CompositeTranslateModel copy(CompositeTranslateModel model){
         return new CompositeTranslateModel(null, model.getSource(), new TranslateLanguage(model.getLang().getLangFrom(),model.getLang().getLangFromDesc(),
-                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getCreateDate(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
+                model.getLang().getLangTo(),model.getLang().getLangToDesc()), model.getTranslateResult(), model.getCreateDate(), model.getSaveFavoriteDate(), model.getUpdateDate(),model.getFavorite(), model.getHistory(),
                 model.getLookup()
                 );
     }
@@ -186,12 +191,12 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
     }
 
     public static CompositeTranslateModel getDummyInstance(){
-        return new CompositeTranslateModel(null,"dummySource", TranslateLanguage.getDummyInsstance(), "dummyResult",null,null,false,false,null);
+        return new CompositeTranslateModel(null,"dummySource", TranslateLanguage.getDummyInsstance(), "dummyResult",null,null,null,false,false,null);
 
     }
 
     public static CompositeTranslateModel getDummyInstance(int ind){
-        return new CompositeTranslateModel(null,"dummySource:" + ind, TranslateLanguage.getDummyInsstance(), "dummyResult:"+ind,new Date(),new Date(),true,true,null);
+        return new CompositeTranslateModel(null,"dummySource:" + ind, TranslateLanguage.getDummyInsstance(), "dummyResult:"+ind,new Date(),new Date(), new Date(),true,true,null);
 
     }
 
@@ -226,6 +231,7 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     public void saveAsFavorite() {
         favorite = true;
+        saveFavoriteDate = new Date();
         saveInDB();
         EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
     }
@@ -260,8 +266,16 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     public void removeFromFavorite() {
         favorite = false;
-        saveInDB();
+        saveFavoriteDate = null;
+        if(history) {
+            saveInDB();
+        } else
+            removeFromDB();
         EventBus.getDefault().post(new WordFavoriteStatusChangedEvent(this));
+    }
+
+    private void removeFromDB() {
+        YtaApplication.getDaoSession().getCompositeTranslateModelDao().delete(this);
     }
 
 
@@ -471,6 +485,14 @@ public class CompositeTranslateModel implements SearchEntity, Serializable{
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public Date getSaveFavoriteDate() {
+        return this.saveFavoriteDate;
+    }
+
+    public void setSaveFavoriteDate(Date saveFavoriteDate) {
+        this.saveFavoriteDate = saveFavoriteDate;
     }
 
 

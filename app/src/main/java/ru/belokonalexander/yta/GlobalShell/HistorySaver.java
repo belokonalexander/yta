@@ -61,6 +61,7 @@ public class HistorySaver {
         delayedHistorySaveTask = SimpleAsyncTask.create(new SimpleAsyncTask.InBackground<Void>() {
             @Override
             public Void doInBackground() {
+
                 compositeTranslateModel.setHistory(true);
                 compositeTranslateModel.save();
                 EventBus.getDefault().post(new WordSavedInHistoryEvent(compositeTranslateModel));
