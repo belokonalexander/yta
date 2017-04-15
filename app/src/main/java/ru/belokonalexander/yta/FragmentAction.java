@@ -63,7 +63,7 @@ import static ru.belokonalexander.yta.ChooseLanguageDialog.OUTPUT_LANGUAGE_CHANG
  * фрагмент, реализующий функционал перевода
  */
 
-public class ActionFragment extends Fragment implements CustomTexInputView.OnTextActionListener {
+public class FragmentAction extends Fragment implements CustomTexInputView.OnTextActionListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -107,10 +107,15 @@ public class ActionFragment extends Fragment implements CustomTexInputView.OnTex
             TranslateLanguage language = (TranslateLanguage) savedInstanceState.getSerializable(IS_LANGUAGE);
             initViews(language);
 
+
+
             Object lastStateWordList = savedInstanceState.getSerializable(IS_WORD_LIST);
                 if(!(lastStateWordList instanceof ApplicationException)) {
                     CompositeTranslateModel compositeTranslateModel = (CompositeTranslateModel) lastStateWordList;
                     fillWordList(compositeTranslateModel);
+                } else {
+                    //после ошибки ставим AUTOLOAD режим, для автоматического сохранения слова в историю при корректном ответе
+                    customTexInputView.setText(customTexInputView.getLastValue());
                 }
         }
 

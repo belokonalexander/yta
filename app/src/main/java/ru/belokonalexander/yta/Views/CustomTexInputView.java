@@ -159,6 +159,10 @@ public class CustomTexInputView extends RelativeLayout {
 
     }
 
+    public String getLastValue() {
+        return lastNotDebouncedResult;
+    }
+
 
     /**
      * интерфейс, описывающий процесс обработки запроса и очистки поля ввода

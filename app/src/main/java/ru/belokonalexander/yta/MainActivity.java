@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             mainViewPager.setAdapter(sectionsPagerAdapter);
             tabLayout.setupWithViewPager(mainViewPager);
             mainViewPager.setScrollDurationFactor(STANDARD_SCROLL_DURATION_FACTOR);
-            fragments = new Fragment[]{new ActionFragment(), new FragmentHistory(), new FragmentFavorites()};
+            fragments = new Fragment[]{new FragmentAction(), new FragmentHistory(), new FragmentFavorites()};
             mainViewPager.setOffscreenPageLimit(fragments.length);
             setTabItems();
 

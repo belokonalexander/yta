@@ -77,7 +77,7 @@ public class UITest {
     public void TextViewThrowsError() throws InterruptedException {
 
         WordList currentWordList = (WordList) mActivityRule.getActivity().findViewById(R.id.word_list);
-        ((ActionFragment)((MainActivity)mActivityRule.getActivity()).fragments[0]).currentLanguage.setTo(new Language("qwerty"));
+        ((FragmentAction)((MainActivity)mActivityRule.getActivity()).fragments[0]).currentLanguage.setTo(new Language("qwerty"));
         onView(withId(R.id.translate_search_input)).perform(click(),replaceText(typedString),pressBack());
         Thread.sleep(1000);
         assertTrue(currentWordList.getLastError()!=null);

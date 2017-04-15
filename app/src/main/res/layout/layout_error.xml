@@ -55,8 +55,9 @@
         android:textColor="@color/normal_text_color_accent"
         android:text="@string/repeat"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:theme="@style/MainButton"
         />
+
+
 
     <com.github.ybq.android.spinkit.SpinKitView
 
