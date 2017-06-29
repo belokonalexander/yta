@@ -26,7 +26,7 @@ import ru.belokonalexander.yta.Views.CustomViewPager;
  */
 public class MainActivity extends AppCompatActivity {
 
-    //для теста
+    //для теста 2
     final int STANDARD_SCROLL_DURATION_FACTOR = 2;
 
     @BindView(R.id.container)
